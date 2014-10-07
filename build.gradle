@@ -24,18 +24,23 @@ minecraft {
 }
 
 repositories {
-    maven { // WAILA
-        name "Mobius Repo"
-        url "http://mobiusstrip.eu/maven"
-    }
     maven { // ttCore
         name 'tterrag Repo'
         url "http://maven.tterrag.com/"
+    }
+	maven { // WAILA
+        name "Mobius Repo"
+        url "http://mobiusstrip.eu/maven"
+    }
+	maven { // CCC/NEI (for WAILA)
+        name 'CB Repo'
+        url "http://chickenbones.net/maven/"
     }
 }
 
 dependencies {
     compile "tterrag.core:ttCore:MC1.7.10-0.0.2-21"
+	compile "mcp.mobius.waila:Waila:1.5.3a_1.7.10"
     compile fileTree(dir: 'libs', include: '*.jar')
 }
 
