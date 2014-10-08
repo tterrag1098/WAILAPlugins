@@ -13,3 +13,12 @@ Miscellaneous WAILA plugins for various mods
   - Pressure percentages on gauges
   - Steam amounts in tanks
   - State of valve pipes
+  
+- Blood Magic (Ported from ImLookingAtBlood, by Pokefenn)
+  - Capacity, LP, and tier of altars
+  - Progress of the altar's current craft (broken until changes made in BM)
+  - Current recipe result of Chemistry set
+  - Progress of chemistry set (broken until changes made in BM)
+  - Owner of master ritual stone
+  - Current ritual of master ritual stone (broken until changes made in BM)
+  - Current block/item in teleposer

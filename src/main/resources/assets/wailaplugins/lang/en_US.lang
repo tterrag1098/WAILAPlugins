@@ -1,3 +1,15 @@
-hud.msg.pressure=Pressure
-hud.msg.open=Open
-hud.msg.closed=Closed
+# Flaxbeard's Steam Power #
+
+wp.hud.msg.pressure=Pressure
+wp.hud.msg.open=Open
+wp.hud.msg.closed=Closed
+
+
+# Blood Magic #
+
+wp.hud.msg.currentLP=Current LP: 
+wp.hud.msg.capacity=Capacity: 
+wp.hud.msg.tier=Tier: 
+wp.hud.msg.progress=Progress: 
+
+wp.hud.msg.owner=Owner: 
