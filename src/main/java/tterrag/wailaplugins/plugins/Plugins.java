@@ -45,7 +45,7 @@ public class Plugins
             {
                 boolean failed = false;
 
-                String modid = info.getSimpleName().replace("Plugin", "").toLowerCase();
+                String modid = info.getSimpleName().replace("Plugin", "");
                 if (Loader.isModLoaded(modid))
                 {
                     WailaPlugins.logger.info("Attempting to load plugin for " + modid + ".");
