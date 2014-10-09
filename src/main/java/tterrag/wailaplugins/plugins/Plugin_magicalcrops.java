@@ -14,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 import tterrag.core.client.util.RenderingUtils;
-import tterrag.wailaplugins.api.IPlugin;
 
 import com.mark719.magicalcrops.crops.BlockMagicalCrops;
 
@@ -22,7 +21,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class Pluginmagicalcrops implements IPlugin, IWailaBlockDecorator
+public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecorator
 {    
     public void load(IWailaRegistrar registrar)
     {
@@ -34,29 +33,10 @@ public class Pluginmagicalcrops implements IPlugin, IWailaBlockDecorator
     }
 
     @Override
-    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return null;
-    }
-
-    @Override
-    public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return currenttip;
-    }
-
-    @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    public void getBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor)
     {
         int meta = accessor.getMetadata();
         currenttip.add(StatCollector.translateToLocal("hud.msg.growth") + " : " + (meta < 7 ?  ((int) (((double) meta / 7) * 100)) + "%" : StatCollector.translateToLocal("hud.msg.mature")));
-        return currenttip;
-    }
-
-    @Override
-    public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return currenttip;
     }
 
     private static EntityItem item;

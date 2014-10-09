@@ -5,13 +5,11 @@ import static tterrag.wailaplugins.WailaPlugins.*;
 import java.util.List;
 import java.util.Map;
 
-import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import tterrag.wailaplugins.api.IPlugin;
 
 import com.sun.xml.internal.ws.util.StringUtils;
 
@@ -25,7 +23,7 @@ import flaxbeard.steamcraft.tile.TileEntitySteamGauge;
 import flaxbeard.steamcraft.tile.TileEntitySteamTank;
 import flaxbeard.steamcraft.tile.TileEntityValvePipe;
 
-public class PluginSteamcraft implements IPlugin
+public class Plugin_Steamcraft extends PluginBase
 {
     @Override
     public void load(IWailaRegistrar registrar)
@@ -37,20 +35,8 @@ public class PluginSteamcraft implements IPlugin
     }
 
     @Override
-    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return null;
-    }
-
-    @Override
-    public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return currenttip;
-    }
-
-    @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
+    public void getBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor)
+    {        
         Block block = accessor.getBlock();
         if (block instanceof BlockSteamcraftCrucible)
         {
@@ -76,12 +62,5 @@ public class PluginSteamcraft implements IPlugin
             TileEntitySteamTank te = (TileEntitySteamTank) accessor.getTileEntity();
             currenttip.add((te.getPressure() > 1 ? EnumChatFormatting.RED : "") + ((int) (te.getCapacity() * te.getPressure()) + " mB"));
         }
-        return currenttip;
-    }
-
-    @Override
-    public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return currenttip;
     }
 }

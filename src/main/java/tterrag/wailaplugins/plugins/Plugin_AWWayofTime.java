@@ -5,12 +5,10 @@ import static tterrag.wailaplugins.WailaPlugins.*;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import tterrag.wailaplugins.api.IPlugin;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import WayofTime.alchemicalWizardry.ModItems;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
@@ -26,13 +24,13 @@ import WayofTime.alchemicalWizardry.common.tileEntity.TEWritingTable;
 /**
  * @author Pokefenn (edits by tterrag)
  */
-public class PluginAWWayofTime implements IPlugin
+public class Plugin_AWWayofTime extends PluginBase
 {
     private Field liquidRequired;
     private Field chemistryProgress;
     private Field currentRitualString;
 
-    public PluginAWWayofTime()
+    public Plugin_AWWayofTime()
     {
         try
         {
@@ -60,19 +58,7 @@ public class PluginAWWayofTime implements IPlugin
     }
 
     @Override
-    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return null;
-    }
-
-    @Override
-    public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return currenttip;
-    }
-
-    @Override
-    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    public void getBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor)
     {
         boolean hasSeer = accessor.getPlayer().getHeldItem() != null && accessor.getPlayer().getHeldItem().getItem() == ModItems.itemSeerSigil;
         boolean hasSigil = hasSeer || !WPConfigHandler.doNeedDiviniation
@@ -161,13 +147,5 @@ public class PluginAWWayofTime implements IPlugin
                 currenttip.add(teleposer.getStackInSlot(0).getDisplayName());
             }
         }
-
-        return currenttip;
-    }
-
-    @Override
-    public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
-        return currenttip;
     }
 }

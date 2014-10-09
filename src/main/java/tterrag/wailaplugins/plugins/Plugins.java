@@ -3,6 +3,8 @@ package tterrag.wailaplugins.plugins;
 import java.io.IOException;
 import java.util.Set;
 
+import mcp.mobius.waila.api.impl.ConfigHandler;
+import mcp.mobius.waila.api.impl.ConfigModule;
 import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
@@ -11,6 +13,7 @@ import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ModContainer;
 
 public class Plugins
 {
@@ -38,6 +41,9 @@ public class Plugins
         }
 
         Set<ClassInfo> classes = classpath.getTopLevelClassesRecursive("tterrag.wailaplugins.plugins");
+        
+        ConfigHandler cfg = ConfigHandler.instance();
+        cfg.addModule(WailaPlugins.MODID, new ConfigModule(WailaPlugins.MODID));
 
         for (ClassInfo info : classes)
         {
@@ -45,7 +51,7 @@ public class Plugins
             {
                 boolean failed = false;
 
-                String modid = info.getSimpleName().replace("Plugin", "");
+                String modid = getModid(info);
                 if (Loader.isModLoaded(modid))
                 {
                     WailaPlugins.logger.info("Attempting to load plugin for " + modid + ".");
@@ -55,6 +61,7 @@ public class Plugins
                         try
                         {
                             IPlugin inst = (IPlugin) clazz.newInstance();
+                            cfg.addConfig(WailaPlugins.NAME, modid, getModContainerFromID(modid).getName());
                             inst.load(ModuleRegistrar.instance());
                         }
                         catch (IllegalAccessException e)
@@ -88,5 +95,32 @@ public class Plugins
                 }
             }
         }
+    }
+    
+    public static String getModid(Class<?> c)
+    {
+        return getModid(c.getSimpleName());
+    }
+    
+    public static String getModid(ClassInfo c)
+    {
+        return getModid(c.getSimpleName());
+    }
+    
+    private static String getModid(String className)
+    {
+        return className.replace("Plugin_", "");
+    }
+    
+    private ModContainer getModContainerFromID(String modid)
+    {
+        for (ModContainer c : Loader.instance().getModList())
+        {
+            if (c.getModId().equals(modid))
+            {
+                return c;
+            }
+        }
+        return null;
     }
 }
