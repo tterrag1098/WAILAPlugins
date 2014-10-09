@@ -22,3 +22,6 @@ Miscellaneous WAILA plugins for various mods
   - Owner of master ritual stone
   - Current ritual of master ritual stone (broken until changes made in BM)
   - Current block/item in teleposer
+
+- Pam's Harvestcraft
+  - Adds a growth percentage to tree fruits
