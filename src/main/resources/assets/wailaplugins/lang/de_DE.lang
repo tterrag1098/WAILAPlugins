@@ -1,0 +1,10 @@
+# Flaxbeard's Steam Power #
+wp.hud.msg.pressure=Druck
+wp.hud.msg.open=Offen
+wp.hud.msg.closed=Geschlossen
+# Blood Magic #
+wp.hud.msg.currentLP=Aktuelle LP:
+wp.hud.msg.capacity=Kapazität:
+wp.hud.msg.tier=Stufe:
+wp.hud.msg.progress=Fortschritt:
+wp.hud.msg.owner=Eigentümer: 
