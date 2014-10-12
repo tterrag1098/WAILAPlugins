@@ -1,0 +1,15 @@
+# Flaxbeard's Steam Power #
+
+wp.hud.msg.pressure=Давление
+wp.hud.msg.open=Открыта
+wp.hud.msg.closed=Закрыта
+
+
+# Blood Magic #
+
+wp.hud.msg.currentLP=Текущая LP: 
+wp.hud.msg.capacity=Ёмкость: 
+wp.hud.msg.tier=Уровень: 
+wp.hud.msg.progress=Прогресс: 
+
+wp.hud.msg.owner=Владелец: 
