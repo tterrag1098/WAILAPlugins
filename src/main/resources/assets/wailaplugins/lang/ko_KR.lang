@@ -1,0 +1,15 @@
+# Flaxbeard's Steam Power #
+
+wp.hud.msg.pressure=압력
+wp.hud.msg.open=오픈
+wp.hud.msg.closed=클로즈드
+
+
+# Blood Magic #
+
+wp.hud.msg.currentLP=현재 LP: 
+wp.hud.msg.capacity=저장량: 
+wp.hud.msg.tier=티어: 
+wp.hud.msg.progress=작업량: 
+
+wp.hud.msg.owner=주인: 
