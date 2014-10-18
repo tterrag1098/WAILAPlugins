@@ -11,7 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 
-import com.sun.xml.internal.ws.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import flaxbeard.steamcraft.api.CrucibleLiquid;
 import flaxbeard.steamcraft.block.BlockSteamGauge;
