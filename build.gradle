@@ -20,6 +20,7 @@ minecraft {
     runDir = 'run'
     
     replace "@VERSION@", project.version
+	replace "${toReplace}", "required-after:Forge@[required-after:ttCore@[${ttCore_version},);required-after:Waila;"
     replaceIn "WAILAPlugins.java"
 }
 
@@ -39,7 +40,7 @@ repositories {
 }
 
 dependencies {
-    compile "tterrag.core:ttCore:MC1.7.10-0.0.2-21"
+    compile "tterrag.core:ttCore:${ttCore_version}"
 	compile "mcp.mobius.waila:Waila:1.5.5_1.7.10"
     compile fileTree(dir: 'libs', include: '*.jar')
 }
