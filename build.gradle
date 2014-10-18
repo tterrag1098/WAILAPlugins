@@ -11,8 +11,8 @@ apply plugin: 'forge'
 apply plugin: 'maven-publish'
 
 
-group = 'tterrag.core'
-archivesBaseName = "ttCore"
+group = 'tterrag.wailaplugins'
+archivesBaseName = "WAILAPlugins"
 version = "MC${minecraft_version}-${mod_version}-${System.getenv().BUILD_NUMBER}"
 
 minecraft {
