@@ -1,4 +1,4 @@
-WAILAPlugins
+WAILAPlugins [![Build Status](http://ci.tterrag.com/job/WAILAPlugins/badge/icon)](http://ci.tterrag.com/job/WAILAPlugins/)
 ============
 
 Miscellaneous WAILA plugins for various mods
