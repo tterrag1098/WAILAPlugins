@@ -95,6 +95,6 @@ task downloadLibs(dependsOn: downloadZip, type: Copy) {
     into file('libs')
 }
 
-tasks.build.dependsOn sourceJar, deobfJar
+tasks.build.dependsOn downloadLibs, sourceJar, deobfJar
 tasks.eclipse.dependsOn downloadLibs
 tasks.idea.dependsOn downloadLibs
