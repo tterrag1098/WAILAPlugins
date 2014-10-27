@@ -47,7 +47,7 @@ public class Plugins
 
         for (ClassInfo info : classes)
         {
-            if (!info.getName().equals(this.getClass().getName()))
+            if (!info.getName().equals(this.getClass().getName()) && !info.getName().equals(PluginBase.class.getName()))
             {
                 boolean failed = false;
 

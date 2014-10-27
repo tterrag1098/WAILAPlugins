@@ -25,3 +25,10 @@ Miscellaneous WAILA plugins for various mods
 
 - Pam's Harvestcraft
   - Adds a growth percentage to tree fruits
+  
+- Forestry
+  - Sapling genomes
+  - Pollinated leaves info
+  - Current bees inside apiaries (and genome info)
+  - Progress % of current breed
+  

@@ -13,3 +13,19 @@ wp.hud.msg.tier=Tier:
 wp.hud.msg.progress=Progress: 
 
 wp.hud.msg.owner=Owner: 
+
+
+# Forestry #
+
+wp.hud.msg.notAnalyzed=Not Analyzed
+wp.hud.msg.notOwner=Not Owned by You
+wp.hud.msg.pollen=Pollen Name: %s
+wp.hud.msg.pollinated=Pollinated With: %s
+
+wp.hud.msg.mainbee=Current %s: %s
+wp.hud.msg.secondarybee=Breeding %s: %s
+wp.hud.msg.breedProgress=Breed Progress: %s
+
+wp.hud.msg.queen=Queen
+wp.hud.msg.princess=Princess
+wp.hud.msg.drone=Drone
