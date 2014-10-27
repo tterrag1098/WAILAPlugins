@@ -97,3 +97,4 @@ task downloadLibs(dependsOn: downloadZip, type: Copy) {
 
 tasks.build.dependsOn sourceJar, deobfJar
 tasks.eclipse.dependsOn downloadLibs
+tasks.idea.dependsOn downloadLibs

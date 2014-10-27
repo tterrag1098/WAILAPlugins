@@ -32,3 +32,8 @@ Miscellaneous WAILA plugins for various mods
   - Current bees inside apiaries (and genome info)
   - Progress % of current breed
   
+###Contributing
+
+Simply clone this project and run the usual gradle tasks, and all depended on mods will be automatically downloaded and added to your classpath. Easy!
+
+If you are wanting to add a new plugin, add the mod yourself manually.
