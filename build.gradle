@@ -4,7 +4,10 @@ buildscript {
         maven { url = "http://files.minecraftforge.net/maven" }
         maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
-    dependencies { classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT' }
+    dependencies { 
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT' 
+        classpath 'de.undercouch:gradle-download-task:1.0'
+    }
 }
 
 apply plugin: 'forge'
@@ -79,4 +82,18 @@ task deobfJar(type: Jar) {
     classifier = 'deobf'
 }
 
+import de.undercouch.gradle.tasks.download.Download
+
+task downloadZip(type: Download) {
+    src 'http://assets.tterrag.com/WAILAPlugins/libs.zip'
+    dest new File(buildDir, '1.0.zip')
+    onlyIfNewer true
+}
+
+task downloadLibs(dependsOn: downloadZip, type: Copy) {
+    from zipTree(downloadZip.dest)
+    into file('libs')
+}
+
 tasks.build.dependsOn sourceJar, deobfJar
+tasks.eclipse.dependsOn downloadLibs
