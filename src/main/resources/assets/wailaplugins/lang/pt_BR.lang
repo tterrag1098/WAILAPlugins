@@ -1,0 +1,23 @@
+# Flaxbeard's Steam Power #
+wp.hud.msg.pressure=Pressão
+wp.hud.msg.open=Aberto
+wp.hud.msg.closed=Fechado
+
+# Blood Magic #
+wp.hud.msg.currentLP=´LP´ atual:
+wp.hud.msg.capacity=Capacidade:
+wp.hud.msg.tier=Camada:
+wp.hud.msg.progress=Progresso:
+wp.hud.msg.owner=Dono:
+
+# Forestry #
+wp.hud.msg.notAnalyzed=Não Analizado
+wp.hud.msg.notOwner=O dono não é você
+wp.hud.msg.pollen=Nome do pólem: %s
+wp.hud.msg.pollinated=Polinizado com: %s
+wp.hud.msg.mainbee=Atual %s: %s
+wp.hud.msg.secondarybee=Criação %s: %s
+wp.hud.msg.breedProgress=Progresso da criação: %s
+wp.hud.msg.queen=Rainha
+wp.hud.msg.princess=Operária
+wp.hud.msg.drone=Zangão
