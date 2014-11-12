@@ -1,7 +1,6 @@
 package tterrag.wailaplugins.plugins;
 
 import static forestry.apiculture.gadgets.TileBeehouse.*;
-import static tterrag.wailaplugins.WailaPlugins.*;
 
 import java.lang.reflect.Field;
 import java.text.NumberFormat;

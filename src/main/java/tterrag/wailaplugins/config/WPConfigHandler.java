@@ -1,23 +1,41 @@
 package tterrag.wailaplugins.config;
 
-import java.io.File;
+import tterrag.core.common.config.AbstractConfigHandler;
+import tterrag.wailaplugins.WailaPlugins;
 
-import net.minecraftforge.common.config.Configuration;
-
-public class WPConfigHandler
+public class WPConfigHandler extends AbstractConfigHandler
 {
-    public static boolean doNeedDiviniation = true;
+    public static final WPConfigHandler INSTANCE = new WPConfigHandler();
 
+    private WPConfigHandler()
+    {
+        super(WailaPlugins.MODID);
+    }
+    
     public static final String SECTION_BM = "blood_magic";
 
-    public static void init(File file)
+    // config keys
+    
+    // blood magic
+    public static boolean doNeedDiviniation = true;
+
+    @Override
+    protected void init()
     {
-        Configuration config = new Configuration(file);
+        addSection(SECTION_BM, SECTION_BM);
+    }
 
-        config.load();
-        doNeedDiviniation = config.get(SECTION_BM, "needDivinationSigil", doNeedDiviniation, "Does the player need the divination sigil in hand to see info").getBoolean();
+    @Override
+    protected void reloadNonIngameConfigs()
+    {
+        // none
+    }
 
-        config.save();
+    @Override
+    protected void reloadIngameConfigs()
+    {
+        activateSection(SECTION_BM);
+        doNeedDiviniation = getValue("needDivinationSigil", "Does the player need the divination sigil in hand to see info", doNeedDiviniation);
     }
 
 }

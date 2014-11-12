@@ -13,7 +13,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES)
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, guiFactory = "tterrag.wailaplugins.config.WPConfigFactory")
 public class WailaPlugins implements IModTT
 {
     public static final String MODID   = "wailaplugins";
@@ -28,7 +28,7 @@ public class WailaPlugins implements IModTT
     @EventHandler
     public static void preInit(FMLPreInitializationEvent event)
     {
-        WPConfigHandler.init(event.getSuggestedConfigurationFile());
+        WPConfigHandler.INSTANCE.initialize(event.getSuggestedConfigurationFile());
         
         Plugins.instance().preInit();
     }

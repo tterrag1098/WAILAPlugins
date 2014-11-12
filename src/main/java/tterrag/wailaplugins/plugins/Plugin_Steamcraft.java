@@ -1,7 +1,5 @@
 package tterrag.wailaplugins.plugins;
 
-import static tterrag.wailaplugins.WailaPlugins.*;
-
 import java.util.List;
 import java.util.Map;
 

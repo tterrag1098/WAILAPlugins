@@ -1,21 +1,18 @@
 package tterrag.wailaplugins.plugins;
 
-import static tterrag.wailaplugins.WailaPlugins.*;
-
-import java.lang.reflect.Field;
 import java.util.List;
+
+import com.google.common.base.Strings;
 
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fluids.FluidStack;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import WayofTime.alchemicalWizardry.ModItems;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
-import WayofTime.alchemicalWizardry.common.block.BlockAltar;
-import WayofTime.alchemicalWizardry.common.block.BlockMasterStone;
-import WayofTime.alchemicalWizardry.common.block.BlockTeleposer;
-import WayofTime.alchemicalWizardry.common.block.BlockWritingTable;
 import WayofTime.alchemicalWizardry.common.tileEntity.TEAltar;
 import WayofTime.alchemicalWizardry.common.tileEntity.TEMasterStone;
 import WayofTime.alchemicalWizardry.common.tileEntity.TETeleposer;
@@ -26,35 +23,17 @@ import WayofTime.alchemicalWizardry.common.tileEntity.TEWritingTable;
  */
 public class Plugin_AWWayofTime extends PluginBase
 {
-    private Field liquidRequired;
-    private Field chemistryProgress;
-    private Field currentRitualString;
-
-    public Plugin_AWWayofTime()
-    {
-        try
-        {
-            liquidRequired = TEAltar.class.getDeclaredField("liquidRequired");
-            liquidRequired.setAccessible(true);
-
-            chemistryProgress = TEWritingTable.class.getDeclaredField("progress");
-            chemistryProgress.setAccessible(true);
-
-            currentRitualString = TEMasterStone.class.getDeclaredField("currentRitualString");
-            currentRitualString.setAccessible(true);
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void load(IWailaRegistrar registrar)
     {
-        registrar.registerBodyProvider(this, BlockAltar.class);
-        registrar.registerBodyProvider(this, BlockWritingTable.class);
-        registrar.registerBodyProvider(this, BlockMasterStone.class);
-        registrar.registerBodyProvider(this, BlockTeleposer.class);
+        registrar.registerBodyProvider(this, TEAltar.class);
+        registrar.registerBodyProvider(this, TEWritingTable.class);
+        registrar.registerBodyProvider(this, TEMasterStone.class);
+        registrar.registerBodyProvider(this, TETeleposer.class);
+
+        registrar.registerSyncedNBTKey("*", TEAltar.class);
+        registrar.registerSyncedNBTKey("*", TEWritingTable.class);
+        registrar.registerSyncedNBTKey("*", TEMasterStone.class);
+        registrar.registerSyncedNBTKey("*", TETeleposer.class);
     }
 
     @Override
@@ -65,47 +44,34 @@ public class Plugin_AWWayofTime extends PluginBase
                 || (accessor.getPlayer().getHeldItem() != null && accessor.getPlayer().getHeldItem().getItem() == ModItems.divinationSigil);
 
         TileEntity te = accessor.getTileEntity();
+        NBTTagCompound tag = accessor.getNBTData();
+
         if (te instanceof TEAltar)
         {
             TEAltar altar = (TEAltar) te;
+            te.readFromNBT(tag);
+            
             if (hasSigil)
             {
-                currenttip.add(lang.localize("currentLP") + altar.getFluidAmount());
-                currenttip.add(lang.localize("capacity") + altar.getCapacity());
-                currenttip.add(lang.localize("tier") + altar.getTier());
+                FluidStack fluid = FluidStack.loadFluidStackFromNBT(tag);
+                currenttip.add(lang.localize("currentLP") + (fluid == null ? "0" : fluid.amount));
+                currenttip.add(lang.localize("capacity") + tag.getInteger("capacity"));
+                currenttip.add(lang.localize("tier") + tag.getInteger("upgradeLevel"));
 
-                if (liquidRequired != null && hasSeer && altar.getStackInSlot(0) != null)
+                if (altar.getStackInSlot(0) != null)
                 {
-                    try
-                    {
-                        int cur = altar.getProgress();
-                        int max = liquidRequired.getInt(altar) * altar.getStackInSlot(0).stackSize;
-                        currenttip.add(lang.localize("progress") + ((int)(((double)cur / (double)max) * 100)) + "%");
-                    }
-                    catch (IllegalAccessException e)
-                    {
-                        e.printStackTrace();
-                        liquidRequired = null;
-                    }
+                    int cur = tag.getInteger("progress");
+                    int max = tag.getInteger("liquidRequired") * altar.getStackInSlot(0).stackSize;
+                    currenttip.add(lang.localize("progress") + ((int) (((double) cur / (double) max) * 100)) + "%");
                 }
             }
         }
         else if (te instanceof TEWritingTable)
         {
             TEWritingTable chemistrySet = (TEWritingTable) te;
+            te.readFromNBT(tag);
 
-            if (chemistryProgress != null)
-            {
-                try
-                {
-                    currenttip.add(lang.localize("progress") + chemistryProgress.getInt(chemistrySet) + "%");
-                }
-                catch (IllegalAccessException e)
-                {
-                    e.printStackTrace();
-                    chemistryProgress = null;
-                }
-            }
+            currenttip.add(lang.localize("progress") + tag.getInteger("progress") + "%");
 
             if (chemistrySet.getResultingItemStack() != null)
             {
@@ -114,33 +80,22 @@ public class Plugin_AWWayofTime extends PluginBase
         }
         else if (te instanceof TEMasterStone)
         {
-            TEMasterStone ritualStone = (TEMasterStone) te;
-
-            if (!ritualStone.getOwner().equals(""))
+            String owner = tag.getString("owner");
+            if (!Strings.isNullOrEmpty(owner))
             {
-                currenttip.add(lang.localize("owner") + ritualStone.getOwner());
+                currenttip.add(lang.localize("owner") + tag.getString("owner"));
             }
 
-            if (currentRitualString != null)
+            String ritualName = tag.getString("currentRitualString");
+            if (!Strings.isNullOrEmpty(ritualName))
             {
-                try
-                {
-                    String ritualName = (String) currentRitualString.get(ritualStone);
-                    if (!ritualName.equals(""))
-                    {
-                        currenttip.add(Rituals.getNameOfRitual((ritualName)));
-                    }
-                }
-                catch (IllegalAccessException e)
-                {
-                    e.printStackTrace();
-                    currentRitualString = null;
-                }
+                currenttip.add(Rituals.getNameOfRitual((ritualName)));
             }
         }
         else if (te instanceof TETeleposer)
         {
             TETeleposer teleposer = (TETeleposer) te;
+            te.readFromNBT(tag);
 
             if (teleposer.getStackInSlot(0) != null)
             {

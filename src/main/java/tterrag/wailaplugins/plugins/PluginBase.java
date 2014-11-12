@@ -6,10 +6,14 @@ import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.impl.ConfigHandler;
 import net.minecraft.item.ItemStack;
+import tterrag.core.common.Lang;
+import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
 
 public abstract class PluginBase implements IPlugin
 {
+    public static final Lang lang = WailaPlugins.lang;
+    
     @Override
     public final ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
