@@ -51,4 +51,4 @@ wp.config.Forestry.sapling=显示树苗信息
 
 # Magical Crops #
 
-wp.config.magicalcrops.showHover=显示生长进度
+wp.config.magicalcrops.showHover=显示产物图标
