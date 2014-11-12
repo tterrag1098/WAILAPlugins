@@ -16,11 +16,11 @@ Miscellaneous WAILA plugins for various mods. Requires [ttCore](http://ci.tterra
   
 - Blood Magic (Ported from ImLookingAtBlood, by Pokefenn)
   - Capacity, LP, and tier of altars
-  - Progress of the altar's current craft (broken until changes made in BM)
+  - Progress of the altar's current craft
   - Current recipe result of Chemistry set
-  - Progress of chemistry set (broken until changes made in BM)
+  - Progress of chemistry set
   - Owner of master ritual stone
-  - Current ritual of master ritual stone (broken until changes made in BM)
+  - Current ritual of master ritual stone
   - Current block/item in teleposer
 
 - Pam's Harvestcraft
