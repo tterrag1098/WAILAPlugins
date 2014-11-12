@@ -1,23 +1,40 @@
-# Flaxbeard's Steam Power #
-wp.hud.msg.pressure=Pressão
-wp.hud.msg.open=Aberto
-wp.hud.msg.closed=Fechado
-
 # Blood Magic #
 wp.hud.msg.currentLP=´LP´ atual:
 wp.hud.msg.capacity=Capacidade:
 wp.hud.msg.tier=Camada:
 wp.hud.msg.progress=Progresso:
 wp.hud.msg.owner=Dono:
+wp.config.AWWayofTime.altar=Mostrar Altar
+wp.config.AWWayofTime.chemistrySet=Mostrar Conjunto de Química
+wp.config.AWWayofTime.masterStone=Mostrar ´Master Stone´
+wp.config.AWWayofTime.teleposer=Mostrar ´Teleposer´
+
+# Flaxbeard's Steam Power #
+wp.hud.msg.pressure=Pressão
+wp.hud.msg.open=Aberto
+wp.hud.msg.closed=Fechado
+wp.config.Steamcraft.crucible=Mostrar Cadinho
+wp.config.Steamcraft.gauge=Mostrar Medidor de Vapor
+wp.config.Steamcraft.tank=Mostrar Tanque
+wp.config.Steamcraft.valve=Mostrar Válvula
 
 # Forestry #
 wp.hud.msg.notAnalyzed=Não Analizado
-wp.hud.msg.notOwner=O dono não é você
-wp.hud.msg.pollen=Nome do pólem: %s
-wp.hud.msg.pollinated=Polinizado com: %s
+wp.hud.msg.notOwner=O Dono Não é Você
+wp.hud.msg.pollen=Nome do Pólem: %s
+wp.hud.msg.pollinated=Polinizado Com: %s
 wp.hud.msg.mainbee=Atual %s: %s
 wp.hud.msg.secondarybee=Criação %s: %s
-wp.hud.msg.breedProgress=Progresso da criação: %s
+wp.hud.msg.breedProgress=Progresso da Criação: %s
 wp.hud.msg.queen=Rainha
 wp.hud.msg.princess=Operária
 wp.hud.msg.drone=Zangão
+wp.hud.msg.engineHeat=Calor: %s
+wp.config.Forestry.apiary=Mostrar Apiário
+wp.config.Forestry.heat=Mostrar Motor Térmico
+wp.config.Forestry.leaves=Mostrar Folhas
+wp.config.Forestry.power=Mostrar Energia
+wp.config.Forestry.sapling=Mostrar Muda de Árvore
+
+# Magical Crops #
+wp.config.magicalcrops.showHover=Mostrar Item Pairando
