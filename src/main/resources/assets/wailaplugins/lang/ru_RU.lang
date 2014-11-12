@@ -1,10 +1,3 @@
-# Flaxbeard's Steam Power #
-
-wp.hud.msg.pressure=Давление
-wp.hud.msg.open=Открыта
-wp.hud.msg.closed=Закрыта
-
-
 # Blood Magic #
 
 wp.hud.msg.currentLP=Текущая LP: 
@@ -13,3 +6,49 @@ wp.hud.msg.tier=Уровень:
 wp.hud.msg.progress=Прогресс: 
 
 wp.hud.msg.owner=Владелец: 
+
+wp.config.AWWayofTime.altar=Показывать алтарь
+wp.config.AWWayofTime.chemistrySet=Показывать химическую установку
+wp.config.AWWayofTime.masterStone=Показывать камень мастера
+wp.config.AWWayofTime.teleposer=Показывать телепозер
+
+
+# Flaxbeard's Steam Power #
+
+wp.hud.msg.pressure=Давление
+wp.hud.msg.open=Открыта
+wp.hud.msg.closed=Закрыта
+
+wp.config.Steamcraft.crucible=Показывать тигель
+wp.config.Steamcraft.gauge=Показывать датчик
+wp.config.Steamcraft.tank=Показывать резервуар
+wp.config.Steamcraft.valve=Показывать клапан
+
+
+# Forestry #
+
+wp.hud.msg.notAnalyzed=Не проанализировано
+wp.hud.msg.notOwner=Вы не владелец
+wp.hud.msg.pollen=Название пыльцы: %s
+wp.hud.msg.pollinated=Опылено: %s
+
+wp.hud.msg.mainbee=Current %s: %s
+wp.hud.msg.secondarybee=Скрещивание %s: %s
+wp.hud.msg.breedProgress=Прогресс скрещивания: %s
+
+wp.hud.msg.queen=Королева
+wp.hud.msg.princess=Принцесса
+wp.hud.msg.drone=Трутень
+
+wp.hud.msg.engineHeat=Нагрев: %s
+
+wp.config.Forestry.apiary=Показывать пасеку
+wp.config.Forestry.heat=Показывать нагрев двигателя
+wp.config.Forestry.leaves=Показывать листву
+wp.config.Forestry.power=Показывать энергию
+wp.config.Forestry.sapling=Показывать саженец
+
+
+# Magical Crops #
+
+wp.config.magicalcrops.showHover=Показывать парящий предмет
