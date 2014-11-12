@@ -30,10 +30,12 @@ Miscellaneous WAILA plugins for various mods. Requires [ttCore](http://ci.tterra
   - Sapling genomes
   - Pollinated leaves info
   - Current bees inside apiaries (and genome info)
-  - Progress % of current breed
+  - Progress percentage of current breed
+  - RF leve of machines and engines
+  - Heat percentage of engines
   
 ###Contributing
 
 Simply clone this project and run the usual gradle tasks, and all depended on mods will be automatically downloaded and added to your classpath. Easy!
 
-If you are wanting to add a new plugin, add the mod yourself manually.
+If you are wanting to add a new plugin, add the mod yourself manually, and once you have finished I will update the server's libs.
