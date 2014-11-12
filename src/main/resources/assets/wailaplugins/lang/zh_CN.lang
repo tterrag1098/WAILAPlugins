@@ -1,0 +1,54 @@
+# Blood Magic #
+
+wp.hud.msg.currentLP=LP: 
+wp.hud.msg.capacity=祭坛容量: 
+wp.hud.msg.tier=祭坛层数: 
+wp.hud.msg.progress=转换进度: 
+
+wp.hud.msg.owner=主人: 
+
+wp.config.AWWayofTime.altar=显示祭坛信息
+wp.config.AWWayofTime.chemistrySet=显示炼金术台信息
+wp.config.AWWayofTime.masterStone=显示仪式信息
+wp.config.AWWayofTime.teleposer=显示传送器信息
+
+
+# Flaxbeard's Steam Power #
+
+wp.hud.msg.pressure=压力
+wp.hud.msg.open=阀门打开
+wp.hud.msg.closed=阀门关闭
+
+wp.config.Steamcraft.crucible=显示坩埚信息
+wp.config.Steamcraft.gauge=显示蒸汽压力计信息
+wp.config.Steamcraft.tank=显示汽罐信息
+wp.config.Steamcraft.valve=显示阀门信息
+
+
+# Forestry #
+
+wp.hud.msg.notAnalyzed=无分析对象
+wp.hud.msg.notOwner=你不是该机器的主人
+wp.hud.msg.pollen=花粉: %s
+wp.hud.msg.pollinated=授粉对象: %s
+
+wp.hud.msg.mainbee=蜂后 %s: %s
+wp.hud.msg.secondarybee=雄蜂 %s: %s
+wp.hud.msg.breedProgress=饲养进度: %s
+
+wp.hud.msg.queen=蜂后
+wp.hud.msg.princess=公主蜂
+wp.hud.msg.drone=雄蜂
+
+wp.hud.msg.engineHeat=温度: %s
+
+wp.config.Forestry.apiary=显示蜂箱信息
+wp.config.Forestry.heat=显示引擎温度
+wp.config.Forestry.leaves=显示树叶信息
+wp.config.Forestry.power=显示能量
+wp.config.Forestry.sapling=显示树苗信息
+
+
+# Magical Crops #
+
+wp.config.magicalcrops.showHover=显示产物图标
