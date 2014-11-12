@@ -24,7 +24,7 @@ minecraft {
     
     replace "@VERSION@", project.version
 	replace "${toReplace}", "required-after:Forge@[required-after:ttCore@[${ttCore_version},);required-after:Waila;"
-    replaceIn "WAILAPlugins.java"
+    replaceIn "WailaPlugins.java"
 }
 
 repositories {
