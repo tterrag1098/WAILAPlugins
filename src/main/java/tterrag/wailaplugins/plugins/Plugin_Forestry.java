@@ -14,10 +14,13 @@ import mcp.mobius.waila.api.SpecialChars;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import cofh.api.energy.EnergyStorage;
+import cofh.api.energy.IEnergyHandler;
 import forestry.api.apiculture.EnumBeeChromosome;
 import forestry.api.apiculture.IBeekeepingLogic;
 import forestry.api.arboriculture.EnumTreeChromosome;
@@ -30,6 +33,8 @@ import forestry.arboriculture.gadgets.TileLeaves;
 import forestry.arboriculture.gadgets.TileSapling;
 import forestry.arboriculture.gadgets.TileTreeContainer;
 import forestry.core.config.ForestryItem;
+import forestry.core.gadgets.Engine;
+import forestry.core.gadgets.TilePowered;
 import forestry.core.proxy.Proxies;
 import forestry.core.utils.InventoryAdapter;
 import forestry.core.utils.StringUtil;
@@ -38,6 +43,7 @@ import forestry.plugins.PluginApiculture;
 public class Plugin_Forestry extends PluginBase
 {
     private static Field _throttle;
+    private static Field _maxHeat;
     private static NumberFormat pctFmt = NumberFormat.getPercentInstance();
 
     @SneakyThrows
@@ -45,17 +51,27 @@ public class Plugin_Forestry extends PluginBase
     {
         _throttle = BeekeepingLogic.class.getDeclaredField("throttle");
         _throttle.setAccessible(true);
+        
+        _maxHeat = Engine.class.getDeclaredField("maxHeat");
+        _maxHeat.setAccessible(true);
+        
         pctFmt.setMinimumFractionDigits(2);
     }
 
     @Override
     public void load(IWailaRegistrar registrar)
     {
-        registrar.registerBodyProvider(this, TileSapling.class);
-        registrar.registerBodyProvider(this, TileLeaves.class);
-
-        registrar.registerBodyProvider(this, TileApiary.class);
-        registrar.registerSyncedNBTKey("*", TileApiary.class);
+        super.load(registrar);
+        
+        registerBody(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, TileApiary.class);
+        
+        syncNBT(TilePowered.class, Engine.class, TileApiary.class);
+        
+        addConfig("power");//, "Show Power");
+        addConfig("heat");//, "Show Engine Heat");
+        addConfig("sapling");// "Show Sapling");
+        addConfig("leaves");//, "Show Leaves");
+        addConfig("apiary");//, "Show Apiary");
     }
 
     @Override
@@ -68,13 +84,28 @@ public class Plugin_Forestry extends PluginBase
         World world = accessor.getWorld();
         EntityPlayer player = accessor.getPlayer();
         MovingObjectPosition pos = accessor.getPosition();
+        NBTTagCompound tag = accessor.getNBTData();
         int x = pos.blockX, y = pos.blockY, z = pos.blockZ;
 
-        if (tile instanceof TileSapling)
+        if ((tile instanceof TilePowered || tile instanceof Engine) && getConfig("power"))
+        {
+            EnergyStorage storage = new EnergyStorage(Integer.MAX_VALUE).readFromNBT(tag.getCompoundTag("EnergyManager").getCompoundTag("EnergyStorage"));
+            currenttip.add(storage.getEnergyStored() + " / " + ((IEnergyHandler)tile).getMaxEnergyStored(accessor.getSide()) + " RF");
+            
+            if (tile instanceof Engine && getConfig("heat"))
+            {
+                double heat = tag.getInteger("EngineHeat");
+                double maxHeat = _maxHeat.getInt(tile);
+                currenttip.add(String.format(lang.localize("engineHeat"), pctFmt.format(heat / maxHeat)));
+            }
+        }
+        
+        if (tile instanceof TileSapling && getConfig("sapling"))
         {
             addGenomeTooltip((TileSapling) tile, player, currenttip);
         }
-        else if (tile instanceof TileLeaves)
+        
+        if (tile instanceof TileLeaves && getConfig("leaves"))
         {
             TileLeaves leaf = (TileLeaves) tile;
             if (leaf.isPollinated())
@@ -82,11 +113,13 @@ public class Plugin_Forestry extends PluginBase
                 currenttip.add(String.format(lang.localize("pollinated"), leaf.getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES.ordinal()).getName()));
             }
         }
-        else if (tile instanceof TileApiary)
+        
+        if (tile instanceof TileApiary && getConfig("apiary"))
         {
             TileApiary apiary = (TileApiary) tile;
+            tile.readFromNBT(tag);
             InventoryAdapter inv = new InventoryAdapter(12, "Items");
-            inv.readFromNBT(accessor.getNBTData());
+            inv.readFromNBT(tag);
 
             ItemStack queenstack = inv.getStackInSlot(SLOT_QUEEN);
             ItemStack dronestack = inv.getStackInSlot(SLOT_DRONE);
@@ -130,7 +163,7 @@ public class Plugin_Forestry extends PluginBase
             if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queenstack.getItem()))
             {
                 IBeekeepingLogic logic = new BeekeepingLogic(apiary);
-                logic.readFromNBT(accessor.getNBTData());
+                logic.readFromNBT(tag);
                 float throttle = _throttle.getInt(logic);
                 float maxAge = queen.getMaxHealth();
                 float age = Math.abs(queen.getHealth() - maxAge);                    // inverts the progress

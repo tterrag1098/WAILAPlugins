@@ -30,7 +30,7 @@ public class WailaPlugins implements IModTT
     {
         WPConfigHandler.INSTANCE.initialize(event.getSuggestedConfigurationFile());
         
-        Plugins.instance().preInit();
+        Plugins.INSTANCE.preInit();
     }
     
     @Override

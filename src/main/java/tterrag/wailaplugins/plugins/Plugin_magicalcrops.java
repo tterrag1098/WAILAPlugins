@@ -17,19 +17,20 @@ import tterrag.core.client.util.RenderingUtils;
 
 import com.mark719.magicalcrops.crops.BlockMagicalCrops;
 
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecorator
-{    
+{
     public void load(IWailaRegistrar registrar)
     {
-        if (Loader.isModLoaded("magicalcrops"))
-        {
-            registrar.registerBodyProvider(this, BlockMagicalCrops.class);
-            registrar.registerDecorator(this, BlockMagicalCrops.class);
-        }
+        super.load(registrar);
+        
+        registerBody(BlockMagicalCrops.class);
+        
+        registrar.registerDecorator(this, BlockMagicalCrops.class);
+        
+        addConfig("showHover");//, "Show Hovering Item");
     }
 
     @Override
@@ -44,6 +45,11 @@ public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecora
     @SideOnly(Side.CLIENT)
     public void decorateBlock(ItemStack itemStack, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
+        if (!getConfig("showHover") || !enabled())
+        {
+            return;
+        }
+        
         ItemStack stack = new ItemStack(accessor.getBlock().getItemDropped(7, accessor.getWorld().rand, 0), 1, accessor.getBlock().damageDropped(7));
         Vec3 pos = accessor.getRenderingPosition();
         if (item == null)

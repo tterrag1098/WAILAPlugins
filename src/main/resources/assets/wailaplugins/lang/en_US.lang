@@ -1,10 +1,3 @@
-# Flaxbeard's Steam Power #
-
-wp.hud.msg.pressure=Pressure
-wp.hud.msg.open=Open
-wp.hud.msg.closed=Closed
-
-
 # Blood Magic #
 
 wp.hud.msg.currentLP=Current LP: 
@@ -13,6 +6,23 @@ wp.hud.msg.tier=Tier:
 wp.hud.msg.progress=Progress: 
 
 wp.hud.msg.owner=Owner: 
+
+wp.config.AWWayofTime.altar=Show Altar
+wp.config.AWWayofTime.chemistrySet=Show Chemistry Set
+wp.config.AWWayofTime.masterStone=Show Master Stone
+wp.config.AWWayofTime.teleposer=Show Teleposer
+
+
+# Flaxbeard's Steam Power #
+
+wp.hud.msg.pressure=Pressure
+wp.hud.msg.open=Open
+wp.hud.msg.closed=Closed
+
+wp.config.Steamcraft.crucible=Show Crucible
+wp.config.Steamcraft.gauge=Show Gauge
+wp.config.Steamcraft.tank=Show Tank
+wp.config.Steamcraft.valve=Show Valve
 
 
 # Forestry #
@@ -29,3 +39,16 @@ wp.hud.msg.breedProgress=Breed Progress: %s
 wp.hud.msg.queen=Queen
 wp.hud.msg.princess=Princess
 wp.hud.msg.drone=Drone
+
+wp.hud.msg.engineHeat=Heat: %s
+
+wp.config.Forestry.apiary=Show Apiary
+wp.config.Forestry.heat=Show Engine Heat
+wp.config.Forestry.leaves=Show Leaves
+wp.config.Forestry.power=Show Power
+wp.config.Forestry.sapling=Show Sapling
+
+
+# Magical Crops #
+
+wp.config.magicalcrops.showHover=Show Hovering Item

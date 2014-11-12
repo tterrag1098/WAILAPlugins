@@ -4,7 +4,6 @@ import java.util.List;
 
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
-import mcp.mobius.waila.api.impl.ConfigHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 
@@ -15,8 +14,9 @@ public class Plugin_harvestcraft extends PluginBase
     @Override
     public void load(IWailaRegistrar registrar)
     {
-        registrar.registerBodyProvider(this, BlockPamFruit.class);
-        ConfigHandler.instance().addConfig("general", "showcrop", "Show Fruits");
+        super.load(registrar);
+        
+        registerBody(BlockPamFruit.class);
     }
 
     @Override

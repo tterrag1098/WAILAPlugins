@@ -17,15 +17,10 @@ import cpw.mods.fml.common.ModContainer;
 
 public class Plugins
 {
-    private static Plugins instance = new Plugins();
+    public static final Plugins INSTANCE = new Plugins();
 
     private Plugins()
     {}
-
-    public static Plugins instance()
-    {
-        return instance;
-    }
 
     public void preInit()
     {
@@ -107,12 +102,22 @@ public class Plugins
         return getModid(c.getSimpleName());
     }
     
+    public static String getModName(Class<?> c)
+    {
+        return getModContainerFromID(getModid(c)).getName();
+    }
+    
+    public static String getModName(ClassInfo c)
+    {
+        return getModContainerFromID(getModid(c)).getName();
+    }
+    
     private static String getModid(String className)
     {
         return className.replace("Plugin_", "");
     }
     
-    private ModContainer getModContainerFromID(String modid)
+    private static ModContainer getModContainerFromID(String modid)
     {
         for (ModContainer c : Loader.instance().getModList())
         {

@@ -26,10 +26,14 @@ public class Plugin_Steamcraft extends PluginBase
     @Override
     public void load(IWailaRegistrar registrar)
     {
-        registrar.registerBodyProvider(this, BlockSteamcraftCrucible.class);
-        registrar.registerBodyProvider(this, BlockSteamGauge.class);
-        registrar.registerBodyProvider(this, BlockValvePipe.class);
-        registrar.registerBodyProvider(this, BlockSteamTank.class);
+        super.load(registrar);
+        
+        registerBody(BlockSteamcraftCrucible.class, BlockSteamGauge.class, BlockValvePipe.class, BlockSteamTank.class);
+        
+        addConfig("crucible");
+        addConfig("gauge");
+        addConfig("valve");
+        addConfig("tank");
     }
 
     @Override
