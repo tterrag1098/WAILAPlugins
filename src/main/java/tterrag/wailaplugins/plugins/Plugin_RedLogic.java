@@ -42,7 +42,7 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
             
             // bundled gates
             {2,13,1,0} /* Latch */, {2,13,1,0} /* Relay */, {2,1,3,1} /* MOX  */, {2,1,1,1} /* AND */,
-            {2,1,1,1}  /* OR    */, {2,2,1,2}  /* NOT   */, {2,1,1,1} /* XOR  */, {1,12,2,12} /* And   */,
+            {2,1,1,1}  /* OR    */, {2,2,1,2}  /* NOT   */, {2,1,1,1} /* XOR  */
     };      
         
     // this is now defined as a compressed 3D array. The first byte is the subID, and each sub-group of numbers is for that state of the cell + 1 (0 is the default defined in the above array)
@@ -277,8 +277,7 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
     }
 
     // repeater delays
-    private static final int[] DELAYS = { 1, 2, 4, 8, 16, 32, 64, 128 // in redstone ticks
-    };
+    private static final int[] DELAYS = { 1, 2, 4, 8, 16, 32, 64, 128 }; // in redstone ticks
 
     private static final NumberFormat secFmt = NumberFormat.getNumberInstance();
     static
