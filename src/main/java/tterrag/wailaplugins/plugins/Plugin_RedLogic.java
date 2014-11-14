@@ -42,7 +42,8 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
             
             // bundled gates
             {2,13,1,0} /* Latch */, {2,13,1,0} /* Relay */, {2,1,3,1} /* MOX  */, {2,1,1,1} /* AND */,
-            {2,1,1,1}  /* OR    */, {2,2,1,2}  /* NOT   */, {2,1,1,1} /* XOR  */
+            {2,1,1,1}  /* OR    */, {2,2,1,2}  /* NOT   */, {2,1,1,1} /* XOR  */, {0,0,0,0} /* it skips a number here... */,
+            {2,14,1,14}/* Comparator */
     };      
         
     // this is now defined as a compressed 3D array. The first byte is the subID, and each sub-group of numbers is for that state of the cell + 1 (0 is the default defined in the above array)
@@ -57,11 +58,12 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
             {24, 2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* AND */
             {25, 2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* OR  */
             {26, 2,2,1,0,  0,2,1,2,  0,2,1,0,  2,0,1,2,  2,0,1,0,  0,0,1,2,  0,0,1,0}, /* NOT */
-            {27, 2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}  /* OR  */
+            {27, 2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* OR  */
+            {29, 2,15,1,15} /* Comparator */
     };
     // @formatter:on
 
-    String[] IONAMES = { "", "IN", "OUT", "SWAP", "IN_A", "IN_B", "LOCK", "IO", "POS", "NEG", "BUS", "A", "B", "UNLOCK" };
+    String[] IONAMES = { "", "IN", "OUT", "SWAP", "IN_A", "IN_B", "LOCK", "IO", "POS", "NEG", "BUS", "A", "B", "UNLOCK", "COMPARE", "SUBTRACT" };
 
     @Override
     public void load(IWailaRegistrar registrar)
@@ -73,11 +75,17 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
         registerBody(GateTile.class, WireTile.class);
 
         syncNBT(GateTile.class, WireTile.class);
+        
+        addConfig("overlay");
+        addConfig("data");
+        addConfig("strength");
     }
 
     @Override
     public void decorateBlock(ItemStack itemStack, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
+        if (!getConfig("overlay")) return;
+        
         NBTTagCompound tag = accessor.getNBTData();
 
         ForgeDirection vOrient = ForgeDirection.getOrientation(tag.getInteger("side"));
@@ -291,7 +299,7 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
         NBTTagCompound tag = accessor.getNBTData();
         TileEntity tile = accessor.getTileEntity();
 
-        if (tile instanceof GateTile)
+        if (tile instanceof GateTile && getConfig("data"))
         {
             EnumGates type = EnumGates.VALUES[tag.getInteger("type")];
             GateLogic logic = type.createLogic();
@@ -303,7 +311,7 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
 
             if (logic instanceof Flippable)
             {
-                currenttip.add(String.format(lang.localize("flipped"), flipped ? lang.localize("yes") : lang.localize("no")));
+                currenttip.add(String.format(lang.localize("flipped"), lang.localize(flipped ? "yes" : "no")));
             }
 
             if (logic instanceof TimedGateLogic)
@@ -333,13 +341,13 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
                 currenttip.add(String.format(lang.localize("decrAmnt"), counter.decr));
                 break;
             case Comparator:
-                currenttip.add(String.format(lang.localize("mode"), wailaLang.localize(state == 1 ? "substractor" : "comparator")));
+                currenttip.add(String.format(lang.localize("mode"), lang.localize(state == 1 ? "subtract" : "comparat")));
             default:
                 break;
             }
         }
         
-        if (tile instanceof WireTile)
+        if (tile instanceof WireTile && getConfig("strength"))
         {
             EnumWireType type = EnumWireType.VALUES[tag.getByte("type")];
             

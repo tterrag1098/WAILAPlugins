@@ -62,6 +62,10 @@ wp.config.magicalcrops.showHover=Show Hovering Item
 
 ## RedLogic ##
 
+wp.config.RedLogic.overlay=Show Gate Overlay
+wp.config.RedLogic.data=Show Gate Data
+wp.config.RedLogic.strength=Show Wire Strength
+
 # Flippable
 wp.hud.msg.flipped=Flipped: %s
 
@@ -82,6 +86,8 @@ wp.hud.msg.decrAmnt=Decrement: %d
 
 # Comparator
 wp.hud.msg.mode=Mode: %s
+wp.hud.msg.subtract=Subtract
+wp.hud.msg.compare=Compare
 
 # Red Alloy Wire
 wp.hud.msg.strength=Strength: %s
