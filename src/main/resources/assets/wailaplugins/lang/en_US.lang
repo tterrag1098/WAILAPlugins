@@ -1,4 +1,10 @@
-# Blood Magic #
+## General Stuff ##
+
+wp.hud.msg.yes=Yes
+wp.hud.msg.no=No
+
+
+## Blood Magic ##
 
 wp.hud.msg.currentLP=Current LP: 
 wp.hud.msg.capacity=Capacity: 
@@ -13,7 +19,7 @@ wp.config.AWWayofTime.masterStone=Show Master Stone
 wp.config.AWWayofTime.teleposer=Show Teleposer
 
 
-# Flaxbeard's Steam Power #
+## Flaxbeard's Steam Power ##
 
 wp.hud.msg.pressure=Pressure
 wp.hud.msg.open=Open
@@ -25,7 +31,7 @@ wp.config.Steamcraft.tank=Show Tank
 wp.config.Steamcraft.valve=Show Valve
 
 
-# Forestry #
+## Forestry ##
 
 wp.hud.msg.notAnalyzed=Not Analyzed
 wp.hud.msg.notOwner=Not Owned by You
@@ -49,6 +55,33 @@ wp.config.Forestry.power=Show Power
 wp.config.Forestry.sapling=Show Sapling
 
 
-# Magical Crops #
+## Magical Crops ##
 
 wp.config.magicalcrops.showHover=Show Hovering Item
+
+
+## RedLogic ##
+
+# Flippable
+wp.hud.msg.flipped=Flipped: %s
+
+# Repeater
+wp.hud.msg.delay=Delay: %d
+
+# TimedGateLogic
+wp.hud.msg.interval=Interval: %s
+
+# Timer
+wp.hud.msg.currentTime=Time: %s
+
+# Counter
+wp.hud.msg.count=Count: %d
+wp.hud.msg.countMax=Max Count: %d
+wp.hud.msg.incrAmnt=Increment: %d
+wp.hud.msg.decrAmnt=Decrement: %d
+
+# Comparator
+wp.hud.msg.mode=Mode: %s
+
+# Red Alloy Wire
+wp.hud.msg.strength=Strength: %s

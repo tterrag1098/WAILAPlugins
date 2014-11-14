@@ -14,6 +14,7 @@ import tterrag.wailaplugins.api.IPlugin;
 public abstract class PluginBase implements IPlugin
 {
     protected static final Lang lang = WailaPlugins.lang;
+    protected static final Lang wailaLang = new Lang("hud.msg");
     private static final Lang configLang = new Lang("wp");
     
     private IWailaRegistrar reg;

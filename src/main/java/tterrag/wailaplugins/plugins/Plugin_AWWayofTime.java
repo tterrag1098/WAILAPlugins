@@ -34,10 +34,10 @@ public class Plugin_AWWayofTime extends PluginBase
 
         syncNBT(TEAltar.class, TEWritingTable.class, TEMasterStone.class, TETeleposer.class);
         
-        addConfig("altar");//, "Show Altar");
-        addConfig("chemistrySet");//, "Show Chemistry Set");
-        addConfig("masterStone");//, "Show Master Stone");
-        addConfig("teleposer");//, "Show Teleposer");
+        addConfig("altar");
+        addConfig("chemistrySet");
+        addConfig("masterStone");
+        addConfig("teleposer");
     }
 
     @Override
@@ -52,8 +52,8 @@ public class Plugin_AWWayofTime extends PluginBase
             hasSeer = hasSigil = true;
             break;
         case 1:
-            hasSeer = searchInventory(ModItems.itemSeerSigil, accessor.getPlayer());
-            hasSigil = hasSeer || searchInventory(ModItems.divinationSigil, accessor.getPlayer());
+            hasSeer = searchInventory(ModItems.itemSeerSigil, accessor.getPlayer()) != null;
+            hasSigil = hasSeer || searchInventory(ModItems.divinationSigil, accessor.getPlayer()) != null;
             break;
         case 2:
             hasSeer = accessor.getPlayer().getHeldItem() != null && accessor.getPlayer().getHeldItem().getItem() == ModItems.itemSeerSigil;
@@ -128,15 +128,15 @@ public class Plugin_AWWayofTime extends PluginBase
         }
     }
 
-    private boolean searchInventory(Item item, EntityPlayer player)
+    private ItemStack searchInventory(Item item, EntityPlayer player)
     {
         for (ItemStack stack : player.inventory.mainInventory)
         {
             if (stack != null && stack.getItem() == item)
             {
-                return true;
+                return stack.copy();
             }
         }
-        return false;
+        return null;
     }
 }

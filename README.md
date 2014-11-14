@@ -34,6 +34,11 @@ Miscellaneous WAILA plugins for various mods. Requires [ttCore](http://ci.tterra
   - RF leve of machines and engines
   - Heat percentage of engines
   
+- RedLogic
+  - Ported overlay rendering from the Project:Red plugin in WAILA
+  - Info for certain gates such as Timer, Repeater, etc.
+  - Strength of red alloy wires
+  
 ###Contributing
 
 Simply clone this project and run the usual gradle tasks, and all depended on mods will be automatically downloaded and added to your classpath. Easy!

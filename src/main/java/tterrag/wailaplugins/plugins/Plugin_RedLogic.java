@@ -1,7 +1,9 @@
 package tterrag.wailaplugins.plugins;
 
 import static net.minecraftforge.common.util.ForgeDirection.*;
-import java.util.Arrays;
+
+import java.text.NumberFormat;
+import java.util.List;
 
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -10,34 +12,56 @@ import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.gui.helpers.UIHelper;
 import mods.immibis.redlogic.gates.EnumGates;
 import mods.immibis.redlogic.gates.GateBlock;
+import mods.immibis.redlogic.gates.GateLogic;
+import mods.immibis.redlogic.gates.GateLogic.Flippable;
 import mods.immibis.redlogic.gates.GateTile;
+import mods.immibis.redlogic.gates.TimedGateLogic;
+import mods.immibis.redlogic.gates.types.GateCounter;
+import mods.immibis.redlogic.gates.types.GateTimer;
+import mods.immibis.redlogic.wires.EnumWireType;
+import mods.immibis.redlogic.wires.RedAlloyTile;
+import mods.immibis.redlogic.wires.WireTile;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
+/**
+ * @author ProfMobius, ported and adapted to RedLogic by tterrag
+ */
 public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
-{   
+{
     // @formatter:off
     byte[][] IOARRAY = {
-        {2,1,1,1} /* AND   */, {1,2,1,1} /* OR    */, {2,2,2,1} /* NOT   */, {1,2,1,2} /* Latch */,
-        {1,2,1,2} /* T-FF  */, {1,2,1,1} /* NOR   */, {1,2,1,1} /* NAND  */, {1,2,1,0} /* XOR   */,
-        {1,2,1,0} /* XNOR  */, {2,2,2,1} /* Buff  */, {1,2,1,1} /* MOX   */, {0,2,0,1} /* Repeat*/,
-        {2,2,2,6} /* Timer */, {2,9,2,8} /* Count */, {2,2,2,2} /* Sequen*/, {0,2,0,1} /* Pulse */,
-        {2,2,2,1} /* Rand  */, {1,2,2,6} /* State */, {1,2,1,6} /* Sync  */, {2,2,4,5} /*D-Latch*/,
-        {2,2,4,5} /* D-FF  */, 
-        
-        // bundled gates
-        {0,2,12,1} /* Latch */, {10,1,10,1} /* Bus */, {11,12,11,12} /* Null  */,
-        {11,12,11,12} /* Inver */, {11,12,11,12} /* Buff  */, {1,9,2,8} /* Cmp    */, {1,12,2,12} /* And   */,
+            {2,1,1,1} /* AND   */, {2,1,1,1} /* OR    */, {2,2,1,2} /* NOT   */, {2,1,2,1} /* Latch */,
+            {2,1,2,1} /* T-FF  */, {2,1,1,1} /* NOR   */, {2,1,1,1} /* NAND  */, {2,1,0,1} /* XOR   */,
+            {2,1,0,1} /* XNOR  */, {2,2,1,2} /* Buff  */, {2,1,1,1} /* MOX   */, {2,0,1,0} /* Repeat*/,
+            {2,2,6,2} /* Timer */, {9,2,8,2} /* Count */, {2,2,2,2} /* Sequen*/, {2,0,1,0} /* Pulse */,
+            {2,2,1,2} /* Rand  */, {2,2,6,1} /* State */, {2,1,6,1} /* Sync  */, {2,4,5,2} /*D-Latch*/,
+            {2,4,5,2} /* D-FF  */, 
+            
+            // bundled gates
+            {2,13,1,0} /* Latch */, {2,13,1,0} /* Relay */, {2,1,3,1} /* MOX  */, {2,1,1,1} /* AND */,
+            {2,1,1,1}  /* OR    */, {2,2,1,2}  /* NOT   */, {2,1,1,1} /* XOR  */, {1,12,2,12} /* And   */,
     };      
-    
-    // this is now defined as a compressed 3D array. Each sub-group of numbers is for that state of the cell + 1 (0 is the default defined in the above array)
+        
+    // this is now defined as a compressed 3D array. The first byte is the subID, and each sub-group of numbers is for that state of the cell + 1 (0 is the default defined in the above array)
     byte[][] IOARRAYALTER = {
-            {0,2,1,1,  1,2,1,0,  0,2,1,0,  1,2,0,1,  0,2,0,1,  1,2,0,0,  0,2,0,0} /* And */
-    };     
-    
-    static String[] IONAMES={ "", "IN", "OUT", "SWAP", "IN_A", "IN_B", "LOCK", "IO", "POS", "NEG", "BUS", "A", "B", "UNLOCK"};
+            {0,  2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* AND */
+            {1,  2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* OR  */
+            {2,  2,2,1,0,  0,2,1,2,  0,2,1,0,  2,0,1,2,  2,0,1,0,  0,0,1,2,  0,0,1,0}, /* NOT */
+            {5,  2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* NOR */
+            {6,  2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* NAND */
+            
+            // bundled gates
+            {24, 2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* AND */
+            {25, 2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}, /* OR  */
+            {26, 2,2,1,0,  0,2,1,2,  0,2,1,0,  2,0,1,2,  2,0,1,0,  0,0,1,2,  0,0,1,0}, /* NOT */
+            {27, 2,1,1,0,  2,1,0,1,  2,1,0,0,  2,0,1,1,  2,0,1,0,  2,0,0,1,  2,0,0,0}  /* OR  */
+    };
     // @formatter:on
+
+    String[] IONAMES = { "", "IN", "OUT", "SWAP", "IN_A", "IN_B", "LOCK", "IO", "POS", "NEG", "BUS", "A", "B", "UNLOCK" };
 
     @Override
     public void load(IWailaRegistrar registrar)
@@ -45,10 +69,10 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
         super.load(registrar);
 
         registrar.registerDecorator(this, GateBlock.class);
-        
-        registerBody(GateTile.class);
-        
-        syncNBT(GateTile.class);
+
+        registerBody(GateTile.class, WireTile.class);
+
+        syncNBT(GateTile.class, WireTile.class);
     }
 
     @Override
@@ -57,45 +81,53 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
         NBTTagCompound tag = accessor.getNBTData();
 
         ForgeDirection vOrient = ForgeDirection.getOrientation(tag.getInteger("side"));
-        int f = tag.getInteger("front");
-        
-        // this block doesn't work
-        {
-            if (vOrient == UP || vOrient == DOWN) f -=2;
-            if (vOrient == NORTH || vOrient == SOUTH) f = f < 2 ? f : f - 2;
-            
-            if      (f == 0) f = 2;
-            else if (f == 1) f--;
-            else if (f == 2) f++;
-            else             f = 3;
-        }
+        int front = tag.getInteger("front");
 
-        ForgeDirection front = ForgeDirection.getOrientation(f);
+        // @formatter:off
+        // let's fix up the orientations
+        {
+            // offset everything to 0-3
+            if (vOrient == UP || vOrient == DOWN) front -=2;
+            if (vOrient == NORTH || vOrient == SOUTH) front = front < 2 ? front : front - 2;
+            if (vOrient == EAST || vOrient == WEST) front = (front + 2) % 4;
+            
+            // make them rotate in the ForgeDirection order instead of circularly
+            if      (front == 0) front = 2;
+            else if (front == 1) front = 0;
+            else if (front == 2) front = 1;
+            else if (front == 3) front = 3;
+            
+            if (vOrient == WEST || vOrient == NORTH || vOrient == UP) front = front == 3 ? 1 : front == 1 ? 3 : front; // 3 and 1 must be swapped on these directions
+        }
+        // @formatter:on
 
         EnumGates type = EnumGates.VALUES[tag.getInteger("type")];
-        int subID = type.ordinal();
-        int state = tag.getShort("gateSettings");
+        int subID = type.ordinal(); // equivalent to stack damage of gate
+        int state = tag.getShort("gateSettings"); // the "sub-state" of the gate
         boolean flipped = tag.getBoolean("flipped");
 
-        int hOrient = front.ordinal();
-
-        if (hOrient == -1)
-            hOrient = 3;
+        int hOrient = front;
 
         String[] IOStr = new String[4];
 
         int alterID = -1;
+
+        // don't bother checking alterations if state is default
         if (state != 0)
         {
-            if (subID == 0) alterID = 0; // AND
-//            if (subID == 21) alterID = 0; // state cell
-            
-            if (alterID != -1)
+            for (int i = 0; i < IOARRAYALTER.length; i++)
             {
-                for (int i = 0; i < 4; i++)
-                    IOStr[i] = IONAMES[IOARRAYALTER[alterID][i + (state - 1) * 4]];  
+                // if the first index of the alter array matches our subID, we use the alterations
+                if (IOARRAYALTER[i][0] == subID)
+                {
+                    alterID = IOARRAYALTER[i][0];
+                    for (int j = 0; j < 4; j++)
+                        IOStr[j] = IONAMES[IOARRAYALTER[i][1 + j + (state - 1) * 4]];
+                }
             }
         }
+
+        // don't overwrite the alterations if we found one
         if (alterID == -1)
         {
             for (int i = 0; i < 4; i++)
@@ -104,21 +136,25 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
 
         String[] IOStrRot = new String[4];
 
+        // rotate the strings around for the orientation
         for (int i = 0; i < 4; i++)
         {
             int j = i + hOrient;
             j %= 4;
             IOStrRot[j] = IOStr[i];
         }
-        
+
+        // flip the string array
         if (flipped)
         {
-            String temp = IOStrRot[1];
-            IOStrRot[1] = IOStrRot[3];
-            IOStrRot[3] = temp;
+            // we must flip the sides perpendicular to the front
+            int idx = front % 2 == 0 ? 1 : 0;
+            String temp = IOStrRot[idx];
+            IOStrRot[idx] = IOStrRot[idx + 2];
+            IOStrRot[idx + 2] = temp;
         }
 
-        System.out.println(tag.getInteger("front") + "  " + vOrient.toString() + "  " + Arrays.toString(IOStrRot));
+        // below code taken straight from WAILA with <3
         switch (vOrient)
         {
         case DOWN:
@@ -237,6 +273,86 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
         default:
             break;
 
+        }
+    }
+
+    // repeater delays
+    private static final int[] DELAYS = { 1, 2, 4, 8, 16, 32, 64, 128 // in redstone ticks
+    };
+
+    private static final NumberFormat secFmt = NumberFormat.getNumberInstance();
+    static
+    {
+        secFmt.setMinimumFractionDigits(2);
+    }
+
+    @Override
+    protected void getBody(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor)
+    {
+        NBTTagCompound tag = accessor.getNBTData();
+        TileEntity tile = accessor.getTileEntity();
+
+        if (tile instanceof GateTile)
+        {
+            EnumGates type = EnumGates.VALUES[tag.getInteger("type")];
+            GateLogic logic = type.createLogic();
+            int state = tag.getShort("gateSettings"); // the "sub-state" of the gate
+            boolean flipped = tag.getBoolean("flipped");
+
+            logic.configure(state);
+            logic.read(tag.getCompoundTag("logic"));
+
+            if (logic instanceof Flippable)
+            {
+                currenttip.add(String.format(lang.localize("flipped"), flipped ? lang.localize("yes") : lang.localize("no")));
+            }
+
+            if (logic instanceof TimedGateLogic)
+            {
+                double interval = ((TimedGateLogic) logic).getInterval();
+                double seconds = interval / 20d;
+                currenttip.add(String.format(lang.localize("interval"), secFmt.format(seconds) + "s"));
+            }
+
+            switch (type)
+            {
+            case Repeater:
+                currenttip.add(String.format(lang.localize("delay"), DELAYS[state]));
+                break;
+            case Timer:
+                double time = ((GateTimer.Logic) logic).ticksLeft;
+                double interval = ((GateTimer.Logic) logic).intervalTicks;
+                time = (interval - time) / 20d;
+                currenttip.add(String.format(lang.localize("currentTime"), secFmt.format(time)));
+                break;
+            case Counter:
+                GateCounter.Logic counter = (GateCounter.Logic) logic;
+                currenttip.add(""); // blank line after flipped
+                currenttip.add(String.format(lang.localize("count"), counter.value));
+                currenttip.add(String.format(lang.localize("countMax"), counter.max));
+                currenttip.add(String.format(lang.localize("incrAmnt"), counter.incr));
+                currenttip.add(String.format(lang.localize("decrAmnt"), counter.decr));
+                break;
+            case Comparator:
+                currenttip.add(String.format(lang.localize("mode"), wailaLang.localize(state == 1 ? "substractor" : "comparator")));
+            default:
+                break;
+            }
+        }
+        
+        if (tile instanceof WireTile)
+        {
+            EnumWireType type = EnumWireType.VALUES[tag.getByte("type")];
+            
+            switch(type)
+            {
+            case RED_ALLOY:
+                int str = ((RedAlloyTile)tile).getRedstoneSignalStrength();
+                currenttip.add(String.format(lang.localize("strength"), Integer.toString(str)));
+                break;
+            default:
+                break;
+            }
         }
     }
 }
