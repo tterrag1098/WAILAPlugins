@@ -30,7 +30,7 @@ public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecora
         
         registrar.registerDecorator(this, BlockMagicalCrops.class);
         
-        addConfig("showHover");//, "Show Hovering Item");
+        addConfig("showHover");
     }
 
     @Override

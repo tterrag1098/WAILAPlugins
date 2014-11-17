@@ -67,11 +67,11 @@ public class Plugin_Forestry extends PluginBase
         
         syncNBT(TilePowered.class, Engine.class, TileApiary.class);
         
-        addConfig("power");//, "Show Power");
-        addConfig("heat");//, "Show Engine Heat");
-        addConfig("sapling");// "Show Sapling");
-        addConfig("leaves");//, "Show Leaves");
-        addConfig("apiary");//, "Show Apiary");
+        addConfig("power");
+        addConfig("heat");
+        addConfig("sapling");
+        addConfig("leaves");
+        addConfig("apiary");
     }
 
     @Override
