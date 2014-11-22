@@ -49,12 +49,20 @@ public class Plugin_Forestry extends PluginBase
     @SneakyThrows
     public Plugin_Forestry()
     {
-        _throttle = BeekeepingLogic.class.getDeclaredField("throttle");
-        _throttle.setAccessible(true);
+        try
+        {
+            _throttle = BeekeepingLogic.class.getDeclaredField("throttle");
+        }
+        catch (NoSuchFieldException e)
+        {
+            _throttle = BeekeepingLogic.class.getDeclaredField("queenWorkCycleThrottle"); // forestry update                                                                         // update
+        }
         
+        _throttle.setAccessible(true);
+
         _maxHeat = Engine.class.getDeclaredField("maxHeat");
         _maxHeat.setAccessible(true);
-        
+
         pctFmt.setMinimumFractionDigits(2);
     }
 
