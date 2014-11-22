@@ -125,7 +125,6 @@ public class Plugin_Forestry extends PluginBase
         if (tile instanceof TileApiary && getConfig("apiary"))
         {
             TileApiary apiary = (TileApiary) tile;
-            tile.readFromNBT(tag);
             InventoryAdapter inv = new InventoryAdapter(12, "Items");
             inv.readFromNBT(tag);
 
