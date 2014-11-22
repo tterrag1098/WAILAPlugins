@@ -55,7 +55,7 @@ public class Plugin_Forestry extends PluginBase
         }
         catch (NoSuchFieldException e)
         {
-            _throttle = BeekeepingLogic.class.getDeclaredField("queenWorkCycleThrottle"); // forestry update                                                                         // update
+            _throttle = BeekeepingLogic.class.getDeclaredField("queenWorkCycleThrottle"); // forestry update
         }
         
         _throttle.setAccessible(true);
