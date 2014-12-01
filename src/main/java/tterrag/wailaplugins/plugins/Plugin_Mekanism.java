@@ -1,19 +1,17 @@
 package tterrag.wailaplugins.plugins;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mekanism.api.gas.GasStack;
-import mekanism.api.gas.GasTank;
-import mekanism.api.gas.IGasHandler;
 import mekanism.common.IFactory.RecipeType;
 import mekanism.common.Tier.EnergyCubeTier;
 import mekanism.common.block.BlockMachine.MachineType;
 import mekanism.common.tile.TileEntityElectricBlock;
 import mekanism.common.tile.TileEntityEnergyCube;
 import mekanism.common.tile.TileEntityFactory;
+import mekanism.common.tile.TileEntityGasTank;
 import mekanism.common.tile.TileEntityPortableTank;
 import mekanism.common.tile.TileEntitySalinationController;
 import mekanism.common.util.MekanismUtils;
@@ -30,7 +28,7 @@ public class Plugin_Mekanism extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(TileEntitySalinationController.class, TileEntityPortableTank.class, IGasHandler.class, TileEntityElectricBlock.class);
+        registerBody(TileEntitySalinationController.class, TileEntityPortableTank.class, TileEntityGasTank.class, TileEntityElectricBlock.class);
 
         syncNBT(TileEntityElectricBlock.class);
 
@@ -58,50 +56,18 @@ public class Plugin_Mekanism extends PluginBase
             addFluidTooltip(currenttip, fluid);
         }
 
-        if (tile instanceof IGasHandler)
+        if (tile instanceof TileEntityGasTank)
         {
-            // unholy mess because IGasHandler lacks getters -.-
-            Field tankF = null;
-            try
-            {
-                tankF = tile.getClass().getDeclaredField("gasTank");
-            }
-            catch (NoSuchFieldException e)
-            {
-                try
-                {
-                    tankF = tile.getClass().getDeclaredField("inputTank");
-                }
-                catch (NoSuchFieldException e1)
-                {
-                    // nothing we can do :(
-                }
-            }
-            if (tankF != null)
-            {
-                try
-                {
-                    tankF.setAccessible(true);
-                    GasTank tank = (GasTank) tankF.get(tile);
-                    GasStack gas = tank == null ? null : tank.getGas();
-                    if (gas != null)
-                    {
-                        currenttip.add(EnumChatFormatting.GOLD.toString() + gas.amount + " " + gas.getGas().getLocalizedName());
-                    }
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
+            GasStack gas = ((TileEntityGasTank) tile).gasTank.getGas();
+            currenttip.add(EnumChatFormatting.GOLD.toString() + gas.amount + " " + gas.getGas().getLocalizedName());
         }
-
+        
         if (tile instanceof TileEntityFactory)
         {
             RecipeType type = RecipeType.values()[tag.getInteger("recipeType")];
             currenttip.add(EnumChatFormatting.AQUA + type.getName());
         }
-
+        
         if (tile instanceof TileEntityElectricBlock)
         {
             double power = tag.getDouble("electricityStored");
