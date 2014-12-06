@@ -8,7 +8,7 @@
   "url": "http://ci.tterrag.com",
   "updateUrl": "http://ci.tterrag.com/job/WAILAPlugins/",
   "authors": ["tterrag"],
-  "credits": "Pokefenn - for writing 'I'm Looking At Blood' which was ported to this mod.\nAll the mod authors who made these wonderful mods I support.",
+  "credits": "Pokefenn - for writing 'I'm Looking At Blood' which was ported to this mod, and all the mod authors who made these wonderful mods I support.",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

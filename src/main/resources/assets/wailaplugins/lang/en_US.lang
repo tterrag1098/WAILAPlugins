@@ -3,6 +3,10 @@
 wp.hud.msg.yes=Yes
 wp.hud.msg.no=No
 
+wailaplugins.config.title=WAILAPlugins Configuration
+wailaplugins.config.section.blood_magic=Blood Magic Settings
+wailaplugins.config.section.plugins=Global Plugin Settings
+
 
 ## Blood Magic ##
 

@@ -8,6 +8,7 @@ import mcp.mobius.waila.api.impl.ConfigModule;
 import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
+import tterrag.wailaplugins.config.WPConfigHandler;
 
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
@@ -47,7 +48,7 @@ public class Plugins
                 boolean failed = false;
 
                 String modid = getModid(info);
-                if (Loader.isModLoaded(modid))
+                if (WPConfigHandler.INSTANCE.isPluginEnabled(modid) && Loader.isModLoaded(modid))
                 {
                     WailaPlugins.logger.info("Attempting to load plugin for " + modid + ".");
                     Class<?> clazz = info.load();
