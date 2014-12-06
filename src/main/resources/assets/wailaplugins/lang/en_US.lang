@@ -73,6 +73,25 @@ wp.config.Mekanism.factoryType=Show Factory Type
 wp.config.Mekanism.energy=Show Energy
 
 
+## Railcraft ##
+
+wp.hud.msg.formed=Formed: %s
+
+wp.hud.msg.generating=Generating: %d RF/t
+wp.hud.msg.engineTemp=Temperature: %d / %d °C
+
+wp.hud.msg.charge=Charge: %s
+wp.hud.msg.needMeter=Hold Charge Meter
+
+wp.config.Railcraft.charge=Show Charge
+wp.config.Railcraft.energy=Show RF Energy
+wp.config.Railcraft.engines=Show Engine Info
+wp.config.Railcraft.heat=Show Heat Info
+wp.config.Railcraft.locomotives=Show Locomotives Info
+wp.config.Railcraft.multiblocks=Show Multiblock Formation
+wp.config.Railcraft.tanks=Show Machine Fluid Info
+
+
 ## RedLogic ##
 
 wp.config.RedLogic.overlay=Show Gate Overlay

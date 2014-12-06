@@ -4,6 +4,7 @@ import java.util.List;
 
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaEntityProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.api.impl.ConfigHandler;
 import net.minecraft.item.ItemStack;
@@ -54,6 +55,14 @@ public abstract class PluginBase implements IPlugin
         for(Class<?> clazz : classes)
         {
             reg.registerStackProvider(this, clazz);
+        }
+    }
+    
+    protected void registerEntityBody(IWailaEntityProvider inst, Class<?>... classes)
+    {
+        for (Class<?> clazz : classes)
+        {
+            reg.registerBodyProvider(inst, clazz);
         }
     }
     

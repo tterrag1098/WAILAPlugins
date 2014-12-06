@@ -40,6 +40,14 @@ Miscellaneous WAILA plugins for various mods. Requires [ttCore](http://ci.tterra
   
 - Pam's Harvestcraft
   - Adds a growth percentage to tree fruits
+  
+- Railcraft
+  - Fluid inside machines
+  - Locomotive information (steam, heat, charge)
+  - Heat information on coal burning machines
+  - Whether a multiblock is formed or not
+  - Amount of charge in blocks
+  - Engine production rate
     
 - RedLogic
   - Ported overlay rendering from the Project:Red plugin in WAILA
