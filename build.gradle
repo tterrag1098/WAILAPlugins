@@ -12,6 +12,7 @@ buildscript {
 
 apply plugin: 'forge'
 apply plugin: 'maven-publish'
+apply plugin: 'curseforge'
 
 
 group = 'tterrag.wailaplugins'
@@ -100,3 +101,16 @@ tasks.build.dependsOn sourceJar, deobfJar
 tasks.sourceMainJava.dependsOn downloadLibs
 tasks.eclipse.dependsOn downloadLibs
 tasks.idea.dependsOn downloadLibs
+
+curse {
+    dependsOn 'reobf'
+    
+    onlyIf {
+        return project.hasProperty('curseforge_key') && System.getenv("CURSE") != null && System.getenv("CURSE").equalsIgnoreCase("true")
+    }
+
+    if (project.hasProperty('curseforge_key')) apiKey = project.curseforge_key
+    projectId = project.curse_projectId
+    changelog = project.changelog
+    releaseType = 'beta'
+}
