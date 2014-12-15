@@ -162,6 +162,9 @@ public abstract class PluginBase implements IPlugin
         if (enabled())
         {
             getNBTData(te, tag, world, new BlockCoord(x, y, z));
+            tag.setInteger("x", x);
+            tag.setInteger("y", y);
+            tag.setInteger("z", z);
         }
         return tag;
     }

@@ -11,10 +11,9 @@ import mcp.mobius.waila.api.IWailaRegistrar;
 import mods.railcraft.api.electricity.IElectricGrid;
 import mods.railcraft.common.blocks.machine.TileMachineBase;
 import mods.railcraft.common.blocks.machine.TileMultiBlock;
+import mods.railcraft.common.blocks.machine.alpha.TileCokeOven;
 import mods.railcraft.common.blocks.machine.beta.TileBoiler;
 import mods.railcraft.common.blocks.machine.beta.TileBoilerFirebox;
-import mods.railcraft.common.blocks.machine.beta.TileBoilerFireboxLiquid;
-import mods.railcraft.common.blocks.machine.beta.TileBoilerTank;
 import mods.railcraft.common.blocks.machine.beta.TileEngine;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteam;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteamHobby;
@@ -56,7 +55,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         
         syncNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, EntityLocomotive.class);
         
-        registerNBT(TileBoilerFirebox.class, TileBoilerTank.class);
+        registerNBT(TileMultiBlock.class);
         
         addConfig("multiblocks");
         addConfig("heat");
@@ -86,7 +85,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
             addHeatTooltip(currenttip, tag);
         }
         
-        if (tile instanceof IEnergyHandler && getConfig("energy") && tag.hasKey("Energy") && !(tile instanceof TileMultiBlock /* :( */))
+        if (tile instanceof IEnergyHandler && getConfig("energy") && tag.hasKey("Energy"))
         {
             int energy = tag.getInteger("Energy");
             currenttip.add(energy + " / " + ((IEnergyHandler) tile).getMaxEnergyStored(ForgeDirection.UP) + " RF");
@@ -103,78 +102,57 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         
         if (getConfig("tanks"))
         {
-            if (tile instanceof TileEngineSteamHobby)
+            int end = currenttip.size();
+            TankManager dummy = null;
+            Fluids[] fluids = null;
+
+            if (tile instanceof TileCokeOven)
             {
-                currenttip.add("");
-
-                TankManager manager = new TankManager(
-                        new FilteredTank(((TileEngineSteam) tile).getTankManager().get(0).getCapacity(), Fluids.STEAM.get(), tile),
-                        new FilteredTank(((TileEngineSteamHobby) tile).getTankManager().get(1).getCapacity(), Fluids.WATER.get(), tile)
-                );
-
-                manager.readTanksFromNBT(tag);
-                if (!addTankTooltip(currenttip, manager))
-                {
-                    currenttip.remove("");
-                }
+                dummy = ((TileCokeOven) tile).getTankManager();
+                fluids = new Fluids[] {Fluids.CREOSOTE};
+            }
+            else if (tile instanceof TileEngineSteamHobby)
+            {                
+                dummy = ((TileEngineSteamHobby) tile).getTankManager();
+                fluids = new Fluids[] {Fluids.STEAM, Fluids.WATER};
             }
             else if (tile instanceof TileEngineSteam)
             {
-                currenttip.add("");
-
-                TankManager manager = new TankManager(
-                        new FilteredTank(((TileEngineSteam) tile).getTankManager().get(0).getCapacity(), Fluids.STEAM.get(), tile)
-                );
-
-                manager.readTanksFromNBT(tag);
-                if (!addTankTooltip(currenttip, manager))
-                {
-                    currenttip.remove("");
-                }
+                dummy = ((TileEngineSteam) tile).getTankManager();
+                fluids = new Fluids[] {Fluids.STEAM};
             }
-
-            if (tile instanceof TileBoilerFireboxLiquid)
+            // we do ID checks for multiblocks that are passing in the data of the master block
+            else if ("RCBoilerFireboxLiquidTile".equals(tag.getString("id")))
             {
-                StandardTank tank1 = ((TileBoiler) tile).getTankManager().get(0);
-                StandardTank tank2 = ((TileBoiler) tile).getTankManager().get(1);
-                StandardTank tank3 = ((TileBoiler) tile).getTankManager().get(2);
+                // this needs to be custom for the non-filtered tank
+                dummy = ((TileBoiler)tile).getTankManager();
                 
-                if (tank1 != null && tank2 != null && tank3 != null)
+                if (dummy != null)
                 {
-                    currenttip.add("");
-
                     TankManager manager = new TankManager(
-                            new FilteredTank(tank1.getCapacity(), Fluids.WATER.get(), tile), 
-                            new FilteredTank(tank2.getCapacity(), Fluids.STEAM.get(), tile), 
-                            new BoilerFuelTank(tank3.getCapacity(), tile)
+                            new FilteredTank(dummy.get(0).getCapacity(), Fluids.WATER.get(), tile), 
+                            new FilteredTank(dummy.get(1).getCapacity(), Fluids.STEAM.get(), tile), 
+                            new BoilerFuelTank(dummy.get(2).getCapacity(), tile)
                     );
 
                     manager.readTanksFromNBT(tag);
-                    if (!addTankTooltip(currenttip, manager))
+                    if (addTankTooltip(currenttip, manager))
                     {
-                        currenttip.remove("");
+                        currenttip.add(end, "");
                     }
                 }
             }
-            else if (tile instanceof TileBoilerFirebox)
+            else if ("RCBoilerFireboxSoildTile".equals(tag.getString("id"))) // TYPOS D:<
             {
-                StandardTank tank1 = ((TileBoiler) tile).getTankManager().get(0);
-                StandardTank tank2 = ((TileBoiler) tile).getTankManager().get(1);
-
-                if (tank1 != null && tank2 != null)
+                dummy = ((TileBoiler)tile).getTankManager();
+                fluids = new Fluids[] {Fluids.WATER, Fluids.STEAM};
+            }
+            
+            if (fluids != null)
+            {
+                if (addTankTooltip(currenttip, getTankManager(tile, tag, dummy, fluids)))
                 {
-                    currenttip.add("");
-
-                    TankManager manager = new TankManager(
-                            new FilteredTank(tank1.getCapacity(), Fluids.WATER.get(), tile),
-                            new FilteredTank(tank2.getCapacity(), Fluids.STEAM.get(), tile)
-                    );
-
-                    manager.readTanksFromNBT(tag);
-                    if (!addTankTooltip(currenttip, manager))
-                    {
-                        currenttip.remove("");
-                    }
+                    currenttip.add(end, "");
                 }
             }
         }
@@ -199,6 +177,18 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         int max  = Math.round(tag.getFloat("maxHeat"));
                 
         currenttip.add(String.format(lang.localize("engineTemp"), heat, max));
+    }
+    
+    private static TankManager getTankManager(TileEntity tile, NBTTagCompound tag, TankManager dummy, Fluids... fluids)
+    {
+        FilteredTank[] tanks = new FilteredTank[fluids.length];
+        for (int i = 0; i < tanks.length; i++)
+        {
+            tanks[i] = new FilteredTank(dummy.get(i).getCapacity(), fluids[i].get(), tile);
+        }
+        TankManager manager = new TankManager(tanks);
+        manager.readTanksFromNBT(tag);
+        return manager;
     }
     
     private static boolean addTankTooltip(List<String> currenttip, TankManager manager)
@@ -226,9 +216,9 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
     @Override
     protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
     {
-        if (te instanceof TileBoiler)
+        if (((TileMultiBlock) te).getMasterBlock() != null)
         {
-            ((TileBoiler) te).getMasterBlock().writeToNBT(tag);
+            ((TileMultiBlock) te).getMasterBlock().writeToNBT(tag);
         }
     }
 
