@@ -8,12 +8,30 @@ import mcp.mobius.waila.api.IWailaEntityProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.api.impl.ConfigHandler;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import tterrag.core.common.Lang;
+import tterrag.core.common.util.BlockCoord;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
 
 public abstract class PluginBase implements IPlugin
 {
+    private enum RegType
+    {
+        // @formatter:off
+        HEAD        { void register(PluginBase inst, Class<?> c) { inst.reg.registerHeadProvider(inst, c); }}, 
+        BODY        { void register(PluginBase inst, Class<?> c) { inst.reg.registerBodyProvider(inst, c); }}, 
+        TAIL        { void register(PluginBase inst, Class<?> c) { inst.reg.registerTailProvider(inst, c); }}, 
+        NBT         { void register(PluginBase inst, Class<?> c) { inst.reg.registerNBTProvider(inst, c);  }}, 
+        STACK       { void register(PluginBase inst, Class<?> c) { inst.reg.registerStackProvider(inst, c);}}, 
+        ENTITY_BODY { void register(PluginBase inst, Class<?> c) { inst.reg.registerBodyProvider((IWailaEntityProvider) inst, c); }};
+        // @formatter:on
+        
+        abstract void register(PluginBase inst, Class<?> c);
+    }
+    
     protected static final Lang lang = WailaPlugins.lang;
     protected static final Lang wailaLang = new Lang("hud.msg");
     private static final Lang configLang = new Lang("wp");
@@ -28,44 +46,43 @@ public abstract class PluginBase implements IPlugin
     
     protected void registerHead(Class<?>... classes)
     {
-        for(Class<?> clazz : classes)
-        {
-            reg.registerHeadProvider(this, clazz);
-        }
+        registerAll(RegType.HEAD, classes);
     }
     
     protected void registerBody(Class<?>... classes)
     {
-        for(Class<?> clazz : classes)
-        {
-            reg.registerBodyProvider(this, clazz);
-        }
+        registerAll(RegType.BODY, classes);
     }
     
     protected void registerTail(Class<?>... classes)
     {
-        for(Class<?> clazz : classes)
-        {
-            reg.registerTailProvider(this, clazz);
-        }
+        registerAll(RegType.TAIL, classes);
     }
-    
+
     protected void registerStack(Class<?>... classes)
     {
-        for(Class<?> clazz : classes)
-        {
-            reg.registerStackProvider(this, clazz);
-        }
+        registerAll(RegType.STACK, classes);
+    }
+    
+    protected void registerNBT(Class<?>... classes)
+    {
+        registerAll(RegType.NBT, classes);
     }
     
     protected void registerEntityBody(IWailaEntityProvider inst, Class<?>... classes)
     {
+        registerAll(RegType.ENTITY_BODY, classes);
+    }
+    
+    protected void registerAll(RegType type, Class<?>... classes)
+    {
         for (Class<?> clazz : classes)
         {
-            reg.registerBodyProvider(inst, clazz);
+            type.register(this, clazz);
         }
     }
     
+    @SuppressWarnings("deprecation")
     protected void syncNBT(Class<?>... classes)
     {
         for (Class<?> clazz : classes)
@@ -138,6 +155,17 @@ public abstract class PluginBase implements IPlugin
         return currenttip;
     }
     protected void getTail(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor) {}
+    
+    @Override
+    public final NBTTagCompound getNBTData(TileEntity te, NBTTagCompound tag, World world, int x, int y, int z)
+    {
+        if (enabled())
+        {
+            getNBTData(te, tag, world, new BlockCoord(x, y, z));
+        }
+        return tag;
+    }
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos) {}
 
     protected boolean enabled()
     {

@@ -45,7 +45,7 @@ repositories {
 
 dependencies {
     compile "tterrag.core:ttCore:${ttCore_version}"
-	compile "mcp.mobius.waila:Waila:1.5.5_1.7.10"
+	compile "mcp.mobius.waila:Waila:${WAILA_version}"
     compile fileTree(dir: 'libs', include: '*.jar')
 }
 
@@ -111,6 +111,6 @@ curse {
 
     if (project.hasProperty('curseforge_key')) apiKey = project.curseforge_key
     projectId = project.curse_projectId
-    changelog = project.changelog
+    changelog = project.hasProperty('changelog') ? project.changelog : ''
     releaseType = 'beta'
 }

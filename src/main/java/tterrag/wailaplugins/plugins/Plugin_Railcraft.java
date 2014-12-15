@@ -3,7 +3,6 @@ package tterrag.wailaplugins.plugins;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import cofh.api.energy.IEnergyHandler;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaEntityAccessor;
@@ -15,6 +14,7 @@ import mods.railcraft.common.blocks.machine.TileMultiBlock;
 import mods.railcraft.common.blocks.machine.beta.TileBoiler;
 import mods.railcraft.common.blocks.machine.beta.TileBoilerFirebox;
 import mods.railcraft.common.blocks.machine.beta.TileBoilerFireboxLiquid;
+import mods.railcraft.common.blocks.machine.beta.TileBoilerTank;
 import mods.railcraft.common.blocks.machine.beta.TileEngine;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteam;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteamHobby;
@@ -34,10 +34,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+import tterrag.core.common.util.BlockCoord;
 import tterrag.core.common.util.TTItemUtils;
 import tterrag.wailaplugins.config.WPConfigHandler;
+import cofh.api.energy.IEnergyHandler;
 
 public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
 {
@@ -51,7 +54,9 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         
         registerEntityBody(this, EntityLocomotive.class);
         
-        syncNBT(TileEngineSteam.class, TileBoilerFirebox.class, IElectricGrid.class, TileTrack.class, EntityLocomotive.class);
+        syncNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, EntityLocomotive.class);
+        
+        registerNBT(TileBoilerFirebox.class, TileBoilerTank.class);
         
         addConfig("multiblocks");
         addConfig("heat");
@@ -130,33 +135,46 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
 
             if (tile instanceof TileBoilerFireboxLiquid)
             {
-                currenttip.add("");
-
-                TankManager manager = new TankManager(
-                        new FilteredTank(((TileBoiler) tile).getTankManager().get(0).getCapacity(), Fluids.WATER.get(), tile), 
-                        new FilteredTank(((TileBoiler) tile).getTankManager().get(1).getCapacity(), Fluids.STEAM.get(), tile), 
-                        new BoilerFuelTank(((TileBoiler) tile).getTankManager().get(2).getCapacity(), tile)
-                );
-
-                manager.readTanksFromNBT(tag);
-                if (!addTankTooltip(currenttip, manager))
+                StandardTank tank1 = ((TileBoiler) tile).getTankManager().get(0);
+                StandardTank tank2 = ((TileBoiler) tile).getTankManager().get(1);
+                StandardTank tank3 = ((TileBoiler) tile).getTankManager().get(2);
+                
+                if (tank1 != null && tank2 != null && tank3 != null)
                 {
-                    currenttip.remove("");
+                    currenttip.add("");
+
+                    TankManager manager = new TankManager(
+                            new FilteredTank(tank1.getCapacity(), Fluids.WATER.get(), tile), 
+                            new FilteredTank(tank2.getCapacity(), Fluids.STEAM.get(), tile), 
+                            new BoilerFuelTank(tank3.getCapacity(), tile)
+                    );
+
+                    manager.readTanksFromNBT(tag);
+                    if (!addTankTooltip(currenttip, manager))
+                    {
+                        currenttip.remove("");
+                    }
                 }
             }
             else if (tile instanceof TileBoilerFirebox)
             {
-                currenttip.add("");
+                StandardTank tank1 = ((TileBoiler) tile).getTankManager().get(0);
+                StandardTank tank2 = ((TileBoiler) tile).getTankManager().get(1);
 
-                TankManager manager = new TankManager(
-                        new FilteredTank(((TileBoiler) tile).getTankManager().get(0).getCapacity(), Fluids.WATER.get(), tile),
-                        new FilteredTank(((TileBoiler) tile).getTankManager().get(1).getCapacity(), Fluids.STEAM.get(), tile)
-                );
-
-                manager.readTanksFromNBT(tag);
-                if (!addTankTooltip(currenttip, manager))
+                if (tank1 != null && tank2 != null)
                 {
-                    currenttip.remove("");
+                    currenttip.add("");
+
+                    TankManager manager = new TankManager(
+                            new FilteredTank(tank1.getCapacity(), Fluids.WATER.get(), tile),
+                            new FilteredTank(tank2.getCapacity(), Fluids.STEAM.get(), tile)
+                    );
+
+                    manager.readTanksFromNBT(tag);
+                    if (!addTankTooltip(currenttip, manager))
+                    {
+                        currenttip.remove("");
+                    }
                 }
             }
         }
@@ -185,23 +203,33 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
     
     private static boolean addTankTooltip(List<String> currenttip, TankManager manager)
     {
-        int idx = 0;
         StandardTank tank = null;
         boolean ret = false;
-        while ((tank = manager.get(idx)) != null)
+        for (int i = 0; i < manager.getTankInfo().length; i++)
         {
-            FluidStack stored = tank.getFluid();
+            tank = manager.get(i);
 
-            if (stored != null)
+            if (tank != null)
             {
-                ret = true;
-                currenttip.add(stored.amount + " / " + tank.getCapacity() + " mB " + stored.getLocalizedName());
-            }
+                FluidStack stored = tank.getFluid();
 
-            idx++;
+                if (stored != null)
+                {
+                    ret = true;
+                    currenttip.add(stored.amount + " / " + tank.getCapacity() + " mB " + stored.getLocalizedName());
+                }
+            }
         }
-        
         return ret;
+    }
+    
+    @Override
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    {
+        if (te instanceof TileBoiler)
+        {
+            ((TileBoiler) te).getMasterBlock().writeToNBT(tag);
+        }
     }
 
     @Override
@@ -243,5 +271,11 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
     public List<String> getWailaTail(Entity entity, List<String> currenttip, IWailaEntityAccessor accessor, IWailaConfigHandler config)
     {
         return null;
+    }
+
+    @Override
+    public NBTTagCompound getNBTData(Entity ent, NBTTagCompound tag)
+    {
+        return tag;
     }
 }
