@@ -3,6 +3,9 @@
 wp.hud.msg.yes=Sim
 wp.hud.msg.no=Não
 
+wailaplugins.config.title=Configuração do WAILAPlugins
+wailaplugins.config.section.blood_magic=Definições do Blood Magic
+wailaplugins.config.section.plugins=Definições Globais do Plugin
 
 ## Blood Magic ##
 
@@ -40,14 +43,13 @@ wp.hud.msg.pollinated=Polinizado com: %s
 
 wp.hud.msg.mainbee=Atual %s: %s
 wp.hud.msg.secondarybee=Criação %s: %s
-wp.hud.msg.breedProgress=Progresso da criação: %s
+wp.hud.msg.breedProgress=Progresso da Criação: %s
 
 wp.hud.msg.queen=Rainha
-wp.hud.msg.princess=Operária
+wp.hud.msg.princess=Princesa
 wp.hud.msg.drone=Zangão
 
 wp.hud.msg.engineHeat=Calor: %s
-
 wp.config.Forestry.apiary=Mostrar Apiário
 wp.config.Forestry.heat=Mostrar Motor Térmico
 wp.config.Forestry.leaves=Mostrar Folhas
@@ -60,10 +62,38 @@ wp.config.Forestry.sapling=Mostrar Muda de Árvore
 wp.config.magicalcrops.showHover=Mostrar Item Pairando
 
 
+## Mekanism ##
+
+wp.config.Mekanism.salination=Mostrar Mult Salinização
+wp.config.Mekanism.portableTank=Mostrar Fluido do Tanque Portátil
+wp.config.Mekanism.gas=Mostrar Gás
+wp.config.Mekanism.factoryType=Mostrar o Tipo de Fábrica
+wp.config.Mekanism.energy=Mostrar Energia
+
+
+## Railcraft ##
+
+wp.hud.msg.formed=Formado: %s
+
+wp.hud.msg.generating=Gerando: %d RF/t
+wp.hud.msg.engineTemp=Temperatura: %d / %d °C
+
+wp.hud.msg.charge=Carga: %s
+wp.hud.msg.needMeter=Manter Medidor de Carga
+
+wp.config.Railcraft.charge=Mostrar Carga
+wp.config.Railcraft.energy=Mostrar Energia RF
+wp.config.Railcraft.engines=Mostrar Informações do Motor
+wp.config.Railcraft.heat=Mostrar Informações do Calor
+wp.config.Railcraft.locomotives=Mostrar Informação das Locomotivas
+wp.config.Railcraft.multiblocks=Mostrar Formação Multiblocos
+wp.config.Railcraft.tanks=Mostrar Informações da Máquina de Fluidos
+
+
 ## RedLogic ##
 
-wp.config.RedLogic.overlay=Mostrar Sobreposiçao do ´Gate´
-wp.config.RedLogic.data=Mostrar Dados do ´Gate´
+wp.config.RedLogic.overlay=Mostrar Sobreposiçao da Porta Lógica
+wp.config.RedLogic.data=Mostrar Dados da Porta Lógica
 wp.config.RedLogic.strength=Mostrar a Força do Fio
 
 # 'Invertível'
