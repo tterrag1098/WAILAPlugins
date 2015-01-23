@@ -1,4 +1,14 @@
-# Blood Magic #
+## General Stuff ##
+
+wp.hud.msg.yes=Да
+wp.hud.msg.no=Нет
+
+wailaplugins.config.title=Конфигурация WAILAPlugins
+wailaplugins.config.section.blood_magic=Настройки Blood Magic
+wailaplugins.config.section.plugins=Глобальные настройки плагинов
+
+
+## Blood Magic ##
 
 wp.hud.msg.currentLP=Текущая LP: 
 wp.hud.msg.capacity=Ёмкость: 
@@ -13,7 +23,7 @@ wp.config.AWWayofTime.masterStone=Показывать камень мастер
 wp.config.AWWayofTime.teleposer=Показывать телепозер
 
 
-# Flaxbeard's Steam Power #
+## Flaxbeard's Steam Power ##
 
 wp.hud.msg.pressure=Давление
 wp.hud.msg.open=Открыта
@@ -25,7 +35,7 @@ wp.config.Steamcraft.tank=Показывать резервуар
 wp.config.Steamcraft.valve=Показывать клапан
 
 
-# Forestry #
+## Forestry ##
 
 wp.hud.msg.notAnalyzed=Не проанализировано
 wp.hud.msg.notOwner=Вы не владелец
@@ -49,6 +59,67 @@ wp.config.Forestry.power=Показывать энергию
 wp.config.Forestry.sapling=Показывать саженец
 
 
-# Magical Crops #
+## Magical Crops ##
 
 wp.config.magicalcrops.showHover=Показывать парящий предмет
+
+
+## Mekanism ##
+
+wp.config.Mekanism.salination=Показывать множитель опреснения
+wp.config.Mekanism.portableTank=Показывать жидкость резервуара
+wp.config.Mekanism.gas=Показывать газ
+wp.config.Mekanism.factoryType=Показывать тип фабрики
+wp.config.Mekanism.energy=Показывать энергию
+
+
+## Railcraft ##
+
+wp.hud.msg.formed=Сформировано: %s
+
+wp.hud.msg.generating=Генерируется: %d RF/t
+wp.hud.msg.engineTemp=Температура: %d / %d °C
+
+wp.hud.msg.charge=Заряд: %s
+wp.hud.msg.needMeter=Удерживайте измеритель заряда
+
+wp.config.Railcraft.charge=Показывать заряд
+wp.config.Railcraft.energy=Показывать RF-энергию
+wp.config.Railcraft.engines=Показывать информацию двигателя
+wp.config.Railcraft.heat=Показывать нагрев
+wp.config.Railcraft.locomotives=Показывать информацию локомотивов
+wp.config.Railcraft.multiblocks=Показывать сформированность
+wp.config.Railcraft.tanks=Показывать жидкость механизма
+
+
+## RedLogic ##
+
+wp.config.RedLogic.overlay=Показывать оверлей гейта
+wp.config.RedLogic.data=Показывать данные гейта
+wp.config.RedLogic.strength=Показывать силу провода
+
+# Flippable
+wp.hud.msg.flipped=Перевёрнуто: %s
+
+# Repeater
+wp.hud.msg.delay=Задержка: %d
+
+# TimedGateLogic
+wp.hud.msg.interval=Интервал: %s
+
+# Timer
+wp.hud.msg.currentTime=Время: %s
+
+# Counter
+wp.hud.msg.count=Count: %d
+wp.hud.msg.countMax=Max Count: %d
+wp.hud.msg.incrAmnt=Increment: %d
+wp.hud.msg.decrAmnt=Decrement: %d
+
+# Comparator
+wp.hud.msg.mode=Режим: %s
+wp.hud.msg.subtract=Вычитание
+wp.hud.msg.compare=Сравнение
+
+# Red Alloy Wire
+wp.hud.msg.strength=Сила: %s
