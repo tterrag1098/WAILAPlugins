@@ -7,7 +7,10 @@ import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fluids.FluidTank;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidTankInfo;
+import tterrag.core.common.util.BlockCoord;
 
 import com.rwtema.extrautils.tileentity.TileEntityDrum;
 
@@ -21,23 +24,30 @@ public class Plugin_ExtraUtilities extends PluginBase
         registerBody(TileEntityDrum.class);
         syncNBT(TileEntityDrum.class);
     }
-    
+
     @Override
     protected void getBody(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor)
     {
         TileEntity tile = accessor.getTileEntity();
         NBTTagCompound tag = accessor.getNBTData();
-        
+
         if (tile instanceof TileEntityDrum)
         {
-            FluidTank tank = new FluidTank(Integer.MAX_VALUE);
-            tank.readFromNBT(tag.getCompoundTag("tank"));
-            int max = TileEntityDrum.getCapacityFromMetadata(accessor.getMetadata());
-            
-            if (tank.getFluid() != null)
+            if (tag.hasKey("amnt"))
             {
-                currenttip.add(tank.getFluidAmount() + " / " + max + " mB");
+                currenttip.add(tag.getInteger("amnt") + " / " + tag.getInteger("max") + " mB");
             }
+        }
+    }
+
+    @Override
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    {
+        FluidTankInfo info = ((TileEntityDrum) te).getTankInfo(ForgeDirection.UNKNOWN)[0];
+        if (info.fluid != null)
+        {
+            tag.setInteger("amnt", info.fluid.amount);
+            tag.setInteger("max", info.capacity);
         }
     }
 }

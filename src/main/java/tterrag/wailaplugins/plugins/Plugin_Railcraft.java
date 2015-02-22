@@ -14,6 +14,7 @@ import mods.railcraft.common.blocks.machine.TileMultiBlock;
 import mods.railcraft.common.blocks.machine.alpha.TileCokeOven;
 import mods.railcraft.common.blocks.machine.beta.TileBoiler;
 import mods.railcraft.common.blocks.machine.beta.TileBoilerFirebox;
+import mods.railcraft.common.blocks.machine.beta.TileBoilerTank;
 import mods.railcraft.common.blocks.machine.beta.TileEngine;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteam;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteamHobby;
@@ -80,7 +81,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
             currenttip.add(String.format(lang.localize("formed"), lang.localize(((TileMultiBlock)tile).isStructureValid() ? "yes" : "no")));
         }
 
-        if ((tile instanceof TileEngineSteamHobby || tile instanceof TileBoilerFirebox) && getConfig("heat"))
+        if ((tile instanceof TileEngineSteamHobby || tile instanceof TileBoilerFirebox || tile instanceof TileBoilerTank) && getConfig("heat"))
         {
             addHeatTooltip(currenttip, tag);
         }
@@ -148,7 +149,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
                 fluids = new Fluids[] {Fluids.WATER, Fluids.STEAM};
             }
             
-            if (fluids != null)
+            if (fluids != null && dummy != null)
             {
                 if (addTankTooltip(currenttip, getTankManager(tile, tag, dummy, fluids)))
                 {

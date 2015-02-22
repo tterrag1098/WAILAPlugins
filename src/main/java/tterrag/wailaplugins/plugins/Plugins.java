@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Set;
 
 import mcp.mobius.waila.api.impl.ConfigHandler;
-import mcp.mobius.waila.api.impl.ConfigModule;
 import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
@@ -39,7 +38,6 @@ public class Plugins
         Set<ClassInfo> classes = classpath.getTopLevelClassesRecursive("tterrag.wailaplugins.plugins");
         
         ConfigHandler cfg = ConfigHandler.instance();
-        cfg.addModule(WailaPlugins.MODID, new ConfigModule(WailaPlugins.MODID));
 
         for (ClassInfo info : classes)
         {
