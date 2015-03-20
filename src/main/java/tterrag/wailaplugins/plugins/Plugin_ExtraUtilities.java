@@ -22,7 +22,7 @@ public class Plugin_ExtraUtilities extends PluginBase
         super.load(registrar);
         
         registerBody(TileEntityDrum.class);
-        syncNBT(TileEntityDrum.class);
+        registerNBT(TileEntityDrum.class);
     }
 
     @Override

@@ -53,10 +53,8 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         registerBody(TileMachineBase.class, TileTrack.class);
         
         registerEntityBody(this, EntityLocomotive.class);
-        
-        syncNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, EntityLocomotive.class);
-        
-        registerNBT(TileMultiBlock.class);
+                
+        registerNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, EntityLocomotive.class, TileMultiBlock.class);
         
         addConfig("multiblocks");
         addConfig("heat");
@@ -213,13 +211,17 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         }
         return ret;
     }
-    
+
     @Override
     protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
     {
-        if (((TileMultiBlock) te).getMasterBlock() != null)
+        if (te instanceof TileMultiBlock && ((TileMultiBlock) te).getMasterBlock() != null)
         {
             ((TileMultiBlock) te).getMasterBlock().writeToNBT(tag);
+        }
+        else
+        {
+            te.writeToNBT(tag);
         }
     }
 

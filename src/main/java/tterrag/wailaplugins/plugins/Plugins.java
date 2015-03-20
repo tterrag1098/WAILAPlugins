@@ -49,29 +49,39 @@ public class Plugins
                 if (WPConfigHandler.INSTANCE.isPluginEnabled(modid) && Loader.isModLoaded(modid))
                 {
                     WailaPlugins.logger.info("Attempting to load plugin for " + modid + ".");
-                    Class<?> clazz = info.load();
-                    if (IPlugin.class.isAssignableFrom(clazz))
+                    try
                     {
-                        try
+                        Class<?> clazz = info.load();
+                        if (IPlugin.class.isAssignableFrom(clazz))
                         {
-                            IPlugin inst = (IPlugin) clazz.newInstance();
-                            cfg.addConfig(WailaPlugins.NAME, modid, getModContainerFromID(modid).getName());
-                            inst.load(ModuleRegistrar.instance());
+                            try
+                            {
+                                IPlugin inst = (IPlugin) clazz.newInstance();
+                                cfg.addConfig(WailaPlugins.NAME, modid, getModContainerFromID(modid).getName());
+                                inst.load(ModuleRegistrar.instance());
+                            }
+                            catch (IllegalAccessException e)
+                            {
+                                WailaPlugins.logger.error("Construtor for class " + info.getName() + " could not be accessed.");
+                                failed = true;
+                            }
+                            catch (InstantiationException e)
+                            {
+                                WailaPlugins.logger.error("Class " + info.getName() + " does not have a default constructor");
+                                failed = true;
+                            }
                         }
-                        catch (IllegalAccessException e)
+                        else
                         {
-                            WailaPlugins.logger.error("Construtor for class " + info.getName() + " could not be accessed.");
-                            failed = true;
-                        }
-                        catch (InstantiationException e)
-                        {
-                            WailaPlugins.logger.error("Class " + info.getName() + " does not have a default constructor");
-                            failed = true;
+                            WailaPlugins.logger.error("Class " + info.getName() + " does not implement IPlugin and could not be loaded.");
                         }
                     }
-                    else
+                    catch (Throwable e) // Yes throwable is ugly but Exception won't catch NoClassDefFoundError
                     {
-                        WailaPlugins.logger.error("Class " + info.getName() + " does not implement IPlugin and could not be loaded.");
+                        WailaPlugins.logger.fatal("Plugin {} threw an error on load. Disabling...", modid);
+                        e.printStackTrace();
+                        WPConfigHandler.INSTANCE.disablePlugin(modid);
+                        failed = true;
                     }
 
                     if (failed)
@@ -85,7 +95,11 @@ public class Plugins
                 }
                 else
                 {
-                    WailaPlugins.logger.info("Skipping over plugin " + info.getName() + " as its dependency was not found.");
+                    String err = !Loader.isModLoaded(modid)
+                            ? "Skipping over plugin {} as its dependency was not found."
+                            : "Skipping over plugin {} as it was disabled.";
+                    
+                    WailaPlugins.logger.info(err, modid);
                 }
             }
         }

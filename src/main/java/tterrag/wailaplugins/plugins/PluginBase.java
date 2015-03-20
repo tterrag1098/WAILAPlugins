@@ -82,15 +82,6 @@ public abstract class PluginBase implements IPlugin
         }
     }
     
-    @SuppressWarnings("deprecation")
-    protected void syncNBT(Class<?>... classes)
-    {
-        for (Class<?> clazz : classes)
-        {
-            reg.registerSyncedNBTKey("*", clazz);
-        }
-    }
-    
     protected void addConfig(String key)
     {
         addConfig(key, true);

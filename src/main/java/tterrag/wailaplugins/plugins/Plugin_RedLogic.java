@@ -5,6 +5,7 @@ import static net.minecraftforge.common.util.ForgeDirection.*;
 import java.text.NumberFormat;
 import java.util.List;
 
+import tterrag.core.common.util.BlockCoord;
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -24,6 +25,7 @@ import mods.immibis.redlogic.wires.WireTile;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 /**
@@ -74,8 +76,8 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
 
         registerBody(GateTile.class, WireTile.class);
 
-        syncNBT(GateTile.class, WireTile.class);
-        
+        registerNBT(GateTile.class, WireTile.class);
+
         addConfig("overlay");
         addConfig("data");
         addConfig("strength");
@@ -361,5 +363,11 @@ public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
                 break;
             }
         }
+    }
+    
+    @Override
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    {
+        te.writeToNBT(tag);
     }
 }

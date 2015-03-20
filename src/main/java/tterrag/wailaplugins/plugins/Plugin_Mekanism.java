@@ -5,21 +5,23 @@ import java.util.List;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mekanism.api.gas.GasStack;
-import mekanism.common.IFactory.RecipeType;
 import mekanism.common.Tier.EnergyCubeTier;
+import mekanism.common.base.IFactory.RecipeType;
 import mekanism.common.block.BlockMachine.MachineType;
 import mekanism.common.tile.TileEntityElectricBlock;
 import mekanism.common.tile.TileEntityEnergyCube;
 import mekanism.common.tile.TileEntityFactory;
 import mekanism.common.tile.TileEntityGasTank;
 import mekanism.common.tile.TileEntityPortableTank;
-import mekanism.common.tile.TileEntitySalinationController;
+import mekanism.common.tile.TileEntitySolarEvaporationController;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import tterrag.core.common.util.BlockCoord;
 
 public class Plugin_Mekanism extends PluginBase
 {
@@ -28,9 +30,9 @@ public class Plugin_Mekanism extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(TileEntitySalinationController.class, TileEntityPortableTank.class, TileEntityGasTank.class, TileEntityElectricBlock.class);
+        registerBody(TileEntitySolarEvaporationController.class, TileEntityPortableTank.class, TileEntityGasTank.class, TileEntityElectricBlock.class);
 
-        syncNBT(TileEntityElectricBlock.class);
+        registerNBT(TileEntityElectricBlock.class);
 
         addConfig("salination");
         addConfig("portableTank");
@@ -45,9 +47,9 @@ public class Plugin_Mekanism extends PluginBase
         TileEntity tile = accessor.getTileEntity();
         NBTTagCompound tag = accessor.getNBTData();
 
-        if (tile instanceof TileEntitySalinationController)
+        if (tile instanceof TileEntitySolarEvaporationController)
         {
-            currenttip.add(EnumChatFormatting.GREEN.toString() + ((float) Math.round(((TileEntitySalinationController) tile).getTempMultiplier() * 10)) / 10f + "x");
+            currenttip.add(EnumChatFormatting.GREEN.toString() + ((float) Math.round(((TileEntitySolarEvaporationController) tile).getTempMultiplier() * 10)) / 10f + "x");
         }
 
         if (tile instanceof TileEntityPortableTank)
@@ -86,5 +88,11 @@ public class Plugin_Mekanism extends PluginBase
         {
             tt.add(EnumChatFormatting.AQUA.toString() + fluid.amount + " " + fluid.getLocalizedName());
         }
+    }
+    
+    @Override
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    {
+        te.writeToNBT(tag);
     }
 }

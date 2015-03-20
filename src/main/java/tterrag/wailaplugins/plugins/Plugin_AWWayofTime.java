@@ -9,7 +9,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
+import tterrag.core.common.util.BlockCoord;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import WayofTime.alchemicalWizardry.ModItems;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
@@ -32,7 +34,7 @@ public class Plugin_AWWayofTime extends PluginBase
         
         registerBody(TEAltar.class, TEWritingTable.class, TEMasterStone.class, TETeleposer.class);
 
-        syncNBT(TEAltar.class, TEWritingTable.class, TEMasterStone.class, TETeleposer.class);
+        registerNBT(TEAltar.class, TEWritingTable.class, TEMasterStone.class, TETeleposer.class);
         
         addConfig("altar");
         addConfig("chemistrySet");
@@ -138,5 +140,11 @@ public class Plugin_AWWayofTime extends PluginBase
             }
         }
         return null;
+    }
+    
+    @Override
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    {
+        te.writeToNBT(tag);
     }
 }

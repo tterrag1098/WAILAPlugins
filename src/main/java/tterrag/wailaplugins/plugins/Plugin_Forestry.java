@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import tterrag.core.common.util.BlockCoord;
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
@@ -55,9 +56,10 @@ public class Plugin_Forestry extends PluginBase
         }
         catch (NoSuchFieldException e)
         {
-            _throttle = BeekeepingLogic.class.getDeclaredField("queenWorkCycleThrottle"); // forestry update
+            _throttle = BeekeepingLogic.class.getDeclaredField("queenWorkCycleThrottle"); // forestry
+                                                                                          // update
         }
-        
+
         _throttle.setAccessible(true);
 
         _maxHeat = Engine.class.getDeclaredField("maxHeat");
@@ -70,11 +72,11 @@ public class Plugin_Forestry extends PluginBase
     public void load(IWailaRegistrar registrar)
     {
         super.load(registrar);
-        
+
         registerBody(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, TileApiary.class);
-        
-        syncNBT(TilePowered.class, Engine.class, TileApiary.class);
-        
+
+        registerNBT(TilePowered.class, Engine.class, TileApiary.class);
+
         addConfig("power");
         addConfig("heat");
         addConfig("sapling");
@@ -97,9 +99,10 @@ public class Plugin_Forestry extends PluginBase
 
         if ((tile instanceof TilePowered || tile instanceof Engine) && getConfig("power"))
         {
-            EnergyStorage storage = new EnergyStorage(Integer.MAX_VALUE).readFromNBT(tag.getCompoundTag("EnergyManager").getCompoundTag("EnergyStorage"));
-            currenttip.add(storage.getEnergyStored() + " / " + ((IEnergyHandler)tile).getMaxEnergyStored(accessor.getSide()) + " RF");
-            
+            EnergyStorage storage = new EnergyStorage(Integer.MAX_VALUE).readFromNBT(tag.getCompoundTag("EnergyManager").getCompoundTag(
+                    "EnergyStorage"));
+            currenttip.add(storage.getEnergyStored() + " / " + ((IEnergyHandler) tile).getMaxEnergyStored(accessor.getSide()) + " RF");
+
             if (tile instanceof Engine && getConfig("heat"))
             {
                 double heat = tag.getInteger("EngineHeat");
@@ -107,21 +110,22 @@ public class Plugin_Forestry extends PluginBase
                 currenttip.add(String.format(lang.localize("engineHeat"), pctFmt.format(heat / maxHeat)));
             }
         }
-        
+
         if (tile instanceof TileSapling && getConfig("sapling"))
         {
             addGenomeTooltip((TileSapling) tile, player, currenttip);
         }
-        
+
         if (tile instanceof TileLeaves && getConfig("leaves"))
         {
             TileLeaves leaf = (TileLeaves) tile;
             if (leaf.isPollinated())
             {
-                currenttip.add(String.format(lang.localize("pollinated"), leaf.getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES.ordinal()).getName()));
+                currenttip.add(String.format(lang.localize("pollinated"),
+                        leaf.getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES.ordinal()).getName()));
             }
         }
-        
+
         if (tile instanceof TileApiary && getConfig("apiary"))
         {
             TileApiary apiary = (TileApiary) tile;
@@ -138,7 +142,8 @@ public class Plugin_Forestry extends PluginBase
                 queen = new Bee(queenstack.getTagCompound());
                 String queenSpecies = getSpeciesName(queen.getGenome(), true);
 
-                currenttip.add(EnumChatFormatting.WHITE + String.format(lang.localize("mainbee"), getNameForBeeType(queenstack), EnumChatFormatting.GREEN + queenSpecies));
+                currenttip.add(EnumChatFormatting.WHITE
+                        + String.format(lang.localize("mainbee"), getNameForBeeType(queenstack), EnumChatFormatting.GREEN + queenSpecies));
                 if (queen.isAnalyzed())
                 {
                     addIndentedBeeInfo(queen, currenttip);
@@ -160,7 +165,7 @@ public class Plugin_Forestry extends PluginBase
             {
                 currenttip.add(String.format(EnumChatFormatting.WHITE + lang.localize("secondarybee"), lang.localize("drone"),
                         EnumChatFormatting.GREEN + getSpeciesName(drone.getGenome(), true)));
-                
+
                 if (drone.isAnalyzed())
                 {
                     addIndentedBeeInfo(drone, currenttip);
@@ -173,12 +178,20 @@ public class Plugin_Forestry extends PluginBase
                 logic.readFromNBT(tag);
                 float throttle = _throttle.getInt(logic);
                 float maxAge = queen.getMaxHealth();
-                float age = Math.abs(queen.getHealth() - maxAge);                    // inverts the progress
+                float age = Math.abs(queen.getHealth() - maxAge); // inverts the
+                                                                  // progress
 
-                float step = (1 / maxAge);                                           // determines the amount of percentage points between each breed tick
-                float progress = step * (throttle / PluginApiculture.beeCycleTicks); // interpolates between 0 and step
+                float step = (1 / maxAge); // determines the amount of
+                                           // percentage points between each
+                                           // breed tick
+                float progress = step * (throttle / PluginApiculture.beeCycleTicks); // interpolates
+                                                                                     // between
+                                                                                     // 0
+                                                                                     // and
+                                                                                     // step
 
-                currenttip.add(String.format(EnumChatFormatting.WHITE + lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format((age / maxAge) + progress)));
+                currenttip.add(String.format(EnumChatFormatting.WHITE + lang.localize("breedProgress"),
+                        EnumChatFormatting.AQUA + pctFmt.format((age / maxAge) + progress)));
             }
         }
     }
@@ -211,13 +224,14 @@ public class Plugin_Forestry extends PluginBase
 
     private String getSpeciesName(IGenome genome, boolean active)
     {
-        return active ? genome.getActiveAllele(EnumBeeChromosome.SPECIES.ordinal()).getName() : genome.getInactiveAllele(EnumBeeChromosome.SPECIES.ordinal()).getName();
+        return active ? genome.getActiveAllele(EnumBeeChromosome.SPECIES.ordinal()).getName() : genome.getInactiveAllele(
+                EnumBeeChromosome.SPECIES.ordinal()).getName();
     }
 
     private String getNameForBeeType(ItemStack bee)
     {
-        return ForestryItem.beeDroneGE.isItemEqual(bee.getItem())       ? lang.localize("drone")    :  
-               ForestryItem.beePrincessGE.isItemEqual(bee.getItem())    ? lang.localize("princess") : lang.localize("queen");
+        return ForestryItem.beeDroneGE.isItemEqual(bee.getItem()) ? lang.localize("drone")
+                : ForestryItem.beePrincessGE.isItemEqual(bee.getItem()) ? lang.localize("princess") : lang.localize("queen");
     }
 
     private void addIndentedBeeInfo(Bee bee, List<String> currenttip)
@@ -236,5 +250,11 @@ public class Plugin_Forestry extends PluginBase
         {
             currenttip.add(getTMI());
         }
+    }
+
+    @Override
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    {
+        te.writeToNBT(tag);
     }
 }

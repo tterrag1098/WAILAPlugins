@@ -1,5 +1,6 @@
 package tterrag.wailaplugins.config;
 
+import net.minecraftforge.common.config.Property;
 import tterrag.core.common.config.AbstractConfigHandler;
 import tterrag.wailaplugins.WailaPlugins;
 
@@ -55,8 +56,22 @@ public class WPConfigHandler extends AbstractConfigHandler
     public boolean isPluginEnabled(String modid)
     {
         activateSection(SECTION_PLUGINS);
-        boolean ret = getValue(modid, "Should the plugin for the mod with modid '" + modid + "' be loaded", true);
+        boolean ret = getPropFor(modid).getBoolean();
         saveConfigFile();
         return ret;
+    }
+
+    public void disablePlugin(String modid)
+    {
+        getProperty(modid, false).set(false);
+        saveConfigFile();
+    }
+
+    private Property getPropFor(String modid)
+    {
+        activateSection(SECTION_PLUGINS);
+        Property prop = getProperty(modid, true);
+        prop.comment = "Should the plugin for the mod with modid '" + modid + "' be loaded";
+        return prop;
     }
 }
