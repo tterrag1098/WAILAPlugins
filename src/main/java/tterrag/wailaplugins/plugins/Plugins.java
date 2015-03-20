@@ -78,9 +78,8 @@ public class Plugins
                     }
                     catch (Throwable e) // Yes throwable is ugly but Exception won't catch NoClassDefFoundError
                     {
-                        WailaPlugins.logger.fatal("Plugin {} threw an error on load. Disabling...", modid);
+                        WailaPlugins.logger.fatal("Plugin {} threw an error on load. Skipping...", modid);
                         e.printStackTrace();
-                        WPConfigHandler.INSTANCE.disablePlugin(modid);
                         failed = true;
                     }
 
