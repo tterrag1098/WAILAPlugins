@@ -1,13 +1,10 @@
 package tterrag.wailaplugins.plugins;
 
-import static forestry.apiculture.gadgets.TileBeehouse.*;
-
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import tterrag.core.common.util.BlockCoord;
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
@@ -20,32 +17,38 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import tterrag.core.common.Lang;
+import tterrag.core.common.util.BlockCoord;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
 import forestry.api.apiculture.EnumBeeChromosome;
 import forestry.api.apiculture.IBeekeepingLogic;
 import forestry.api.arboriculture.EnumTreeChromosome;
 import forestry.api.arboriculture.ITree;
+import forestry.api.core.IErrorState;
 import forestry.api.genetics.IGenome;
 import forestry.apiculture.BeekeepingLogic;
-import forestry.apiculture.gadgets.TileApiary;
+import forestry.apiculture.gadgets.TileBeehouse;
 import forestry.apiculture.genetics.Bee;
 import forestry.arboriculture.gadgets.TileLeaves;
 import forestry.arboriculture.gadgets.TileSapling;
 import forestry.arboriculture.gadgets.TileTreeContainer;
+import forestry.core.EnumErrorCode;
 import forestry.core.config.ForestryItem;
 import forestry.core.gadgets.Engine;
 import forestry.core.gadgets.TilePowered;
+import forestry.core.inventory.InventoryAdapter;
 import forestry.core.proxy.Proxies;
-import forestry.core.utils.InventoryAdapter;
 import forestry.core.utils.StringUtil;
 import forestry.plugins.PluginApiculture;
+import static forestry.apiculture.gadgets.TileBeehouse.*;
 
 public class Plugin_Forestry extends PluginBase
 {
     private static Field _throttle;
     private static Field _maxHeat;
     private static NumberFormat pctFmt = NumberFormat.getPercentInstance();
+    private static Lang forLang = new Lang("for");
 
     @SneakyThrows
     public Plugin_Forestry()
@@ -56,8 +59,8 @@ public class Plugin_Forestry extends PluginBase
         }
         catch (NoSuchFieldException e)
         {
-            _throttle = BeekeepingLogic.class.getDeclaredField("queenWorkCycleThrottle"); // forestry
-                                                                                          // update
+            // forestry update
+            _throttle = BeekeepingLogic.class.getDeclaredField("queenWorkCycleThrottle");
         }
 
         _throttle.setAccessible(true);
@@ -73,9 +76,9 @@ public class Plugin_Forestry extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, TileApiary.class);
+        registerBody(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, TileBeehouse.class);
 
-        registerNBT(TilePowered.class, Engine.class, TileApiary.class);
+        registerNBT(TilePowered.class, Engine.class, TileBeehouse.class);
 
         addConfig("power");
         addConfig("heat");
@@ -121,14 +124,14 @@ public class Plugin_Forestry extends PluginBase
             TileLeaves leaf = (TileLeaves) tile;
             if (leaf.isPollinated())
             {
-                currenttip.add(String.format(lang.localize("pollinated"),
-                        leaf.getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES.ordinal()).getName()));
+                currenttip.add(String.format(lang.localize("pollinated"), leaf.getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES)
+                        .getName()));
             }
         }
 
-        if (tile instanceof TileApiary && getConfig("apiary"))
+        if (tile instanceof TileBeehouse && getConfig("apiary"))
         {
-            TileApiary apiary = (TileApiary) tile;
+            TileBeehouse apiary = (TileBeehouse) tile;
             InventoryAdapter inv = new InventoryAdapter(12, "Items");
             inv.readFromNBT(tag);
 
@@ -172,26 +175,32 @@ public class Plugin_Forestry extends PluginBase
                 }
             }
 
-            if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queenstack.getItem()))
+            IBeekeepingLogic logic = new BeekeepingLogic(apiary);
+            logic.readFromNBT(tag);
+            IErrorState err = logic.getHousing().getErrorState();
+            
+            if (err != EnumErrorCode.OK)
             {
-                IBeekeepingLogic logic = new BeekeepingLogic(apiary);
-                logic.readFromNBT(tag);
-                float throttle = _throttle.getInt(logic);
-                float maxAge = queen.getMaxHealth();
-                float age = Math.abs(queen.getHealth() - maxAge); // inverts the
-                                                                  // progress
+                currenttip.add(EnumChatFormatting.WHITE
+                        + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
+            }
+            else
+            {
+                if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queenstack.getItem()))
+                {
+                    float throttle = _throttle.getInt(logic);
+                    float maxAge = queen.getMaxHealth();
+                    float age = Math.abs(queen.getHealth() - maxAge); // inverts the progress
 
-                float step = (1 / maxAge); // determines the amount of
-                                           // percentage points between each
-                                           // breed tick
-                float progress = step * (throttle / PluginApiculture.beeCycleTicks); // interpolates
-                                                                                     // between
-                                                                                     // 0
-                                                                                     // and
-                                                                                     // step
+                    // determines the amount of percentage points between each breed tick
+                    float step = (1 / maxAge);
 
-                currenttip.add(String.format(EnumChatFormatting.WHITE + lang.localize("breedProgress"),
-                        EnumChatFormatting.AQUA + pctFmt.format((age / maxAge) + progress)));
+                    // interpolates between 0 and step
+                    float progress = step * (throttle / PluginApiculture.ticksPerBeeWorkCycle);
+
+                    currenttip.add(EnumChatFormatting.WHITE
+                            + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format((age / maxAge) + progress)));
+                }
             }
         }
     }
@@ -224,8 +233,7 @@ public class Plugin_Forestry extends PluginBase
 
     private String getSpeciesName(IGenome genome, boolean active)
     {
-        return active ? genome.getActiveAllele(EnumBeeChromosome.SPECIES.ordinal()).getName() : genome.getInactiveAllele(
-                EnumBeeChromosome.SPECIES.ordinal()).getName();
+        return active ? genome.getActiveAllele(EnumBeeChromosome.SPECIES).getName() : genome.getInactiveAllele(EnumBeeChromosome.SPECIES).getName();
     }
 
     private String getNameForBeeType(ItemStack bee)
