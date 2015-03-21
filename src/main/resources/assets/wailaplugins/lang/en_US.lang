@@ -124,3 +124,9 @@ wp.hud.msg.compare=Compare
 
 # Red Alloy Wire
 wp.hud.msg.strength=Strength: %s
+
+
+## Thermal Expansion ##
+
+wp.hud.msg.augments.hidden=Shift for augment info
+wp.hud.msg.augments.shown=Augment info:

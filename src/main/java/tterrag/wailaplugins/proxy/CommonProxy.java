@@ -8,4 +8,9 @@ public class CommonProxy
     {
         return null;
     }
+    
+    public boolean isShiftKeyDown()
+    {
+        return false;
+    }
 }

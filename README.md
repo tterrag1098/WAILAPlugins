@@ -24,6 +24,7 @@ Miscellaneous WAILA plugins for various mods. Requires [ttCore](http://ci.tterra
   - Sapling genomes
   - Pollinated leaves info
   - Current bees inside apiaries (and genome info)
+  - Apiary errors (No flowers, no drone, etc.)
   - Progress percentage of current breed
   - RF leve of machines and engines
   - Heat percentage of engines
@@ -53,6 +54,9 @@ Miscellaneous WAILA plugins for various mods. Requires [ttCore](http://ci.tterra
   - Ported overlay rendering from the Project:Red plugin in WAILA
   - Info for certain gates such as Timer, Repeater, etc.
   - Strength of red alloy wires
+  
+- Thermal Expansion
+  - Augment info
   
 ###Contributing
 
