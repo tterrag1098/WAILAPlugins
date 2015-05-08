@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 import powercrystals.minefactoryreloaded.tile.base.TileEntityFactoryPowered;
 import tterrag.core.common.util.BlockCoord;
 
@@ -21,8 +20,8 @@ public class Plugin_MineFactoryReloaded extends PluginBase
     public void load(IWailaRegistrar registrar)
     {
         super.load(registrar);
-        registerBody(TileEntityFactoryPowered.class, IDeepStorageUnit.class);
-        registerNBT(TileEntityFactoryPowered.class, IDeepStorageUnit.class);
+        registerBody(TileEntityFactoryPowered.class);
+        registerNBT(TileEntityFactoryPowered.class);
     }
 
     @Override
@@ -36,7 +35,6 @@ public class Plugin_MineFactoryReloaded extends PluginBase
             currenttip.add(currenttip.size(), tag.getInteger(WORK_DONE) + " / " + ((TileEntityFactoryPowered) te).getWorkMax() + " Wk");
             currenttip.add(currenttip.size(), tag.getInteger(IDLE_TIME) + " / " + ((TileEntityFactoryPowered) te).getIdleTicksMax() + " Idle");
         }
-
     }
 
     @Override
