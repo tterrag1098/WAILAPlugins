@@ -113,4 +113,6 @@ curse {
     projectId = project.curse_projectId
     changelog = project.hasProperty('changelog') ? project.changelog : ''
     releaseType = project.curse_type
+    additionalArtifact deobfJar
+    relatedProject 'endercore'
 }
