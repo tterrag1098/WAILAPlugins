@@ -24,7 +24,7 @@ minecraft {
     runDir = 'run'
     
     replace "@VERSION@", project.version
-	replace "${toReplace}", "required-after:Forge@[${forge_version},);required-after:ttCore@[${ttCore_version},);required-after:Waila;"
+	replace "${toReplace}", "required-after:Forge@[${forge_version},);required-after:endercore@[${endercore_version},);required-after:Waila;"
     replaceIn "WailaPlugins.java"
 }
 
