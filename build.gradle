@@ -112,5 +112,5 @@ curse {
     if (project.hasProperty('curseforge_key')) apiKey = project.curseforge_key
     projectId = project.curse_projectId
     changelog = project.hasProperty('changelog') ? project.changelog : ''
-    releaseType = 'beta'
+    releaseType = project.curse_type
 }
