@@ -37,10 +37,11 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
-import tterrag.core.common.util.BlockCoord;
-import tterrag.core.common.util.TTItemUtils;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import cofh.api.energy.IEnergyHandler;
+
+import com.enderio.core.common.util.BlockCoord;
+import com.enderio.core.common.util.ItemUtil;
 
 public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
 {
@@ -72,7 +73,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         NBTTagCompound tag = accessor.getNBTData();
         ItemStack current = accessor.getPlayer().getCurrentEquippedItem();
         
-        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && TTItemUtils.stacksEqual(current, ItemElectricMeter.getItem()));
+        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && ItemUtil.stacksEqual(current, ItemElectricMeter.getItem()));
         
         if (tile instanceof TileMultiBlock && getConfig("multiblocks"))
         {

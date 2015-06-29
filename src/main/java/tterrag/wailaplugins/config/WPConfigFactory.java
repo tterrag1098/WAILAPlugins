@@ -1,7 +1,8 @@
 package tterrag.wailaplugins.config;
 
 import net.minecraft.client.gui.GuiScreen;
-import tterrag.core.common.config.BaseConfigFactory;
+
+import com.enderio.core.common.config.BaseConfigFactory;
 
 public class WPConfigFactory extends BaseConfigFactory
 {

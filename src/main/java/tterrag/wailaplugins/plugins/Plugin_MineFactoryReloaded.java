@@ -9,7 +9,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import powercrystals.minefactoryreloaded.tile.base.TileEntityFactoryPowered;
-import tterrag.core.common.util.BlockCoord;
+
+import com.enderio.core.common.util.BlockCoord;
 
 public class Plugin_MineFactoryReloaded extends PluginBase
 {

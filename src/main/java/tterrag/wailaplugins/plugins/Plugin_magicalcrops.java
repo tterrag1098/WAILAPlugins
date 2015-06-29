@@ -1,7 +1,5 @@
 package tterrag.wailaplugins.plugins;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.util.List;
 
 import mcp.mobius.waila.api.IWailaBlockDecorator;
@@ -13,12 +11,13 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
-import tterrag.core.client.util.RenderingUtils;
 
+import com.enderio.core.client.render.RenderUtil;
 import com.mark719.magicalcrops.crops.BlockMagicalCrops;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import static org.lwjgl.opengl.GL11.*;
 
 public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecorator
 {
@@ -68,7 +67,7 @@ public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecora
         glTranslated(pos.xCoord + 0.5, pos.yCoord + 0.9, pos.zCoord + 0.5);
         glPushMatrix();
         glScalef(0.75f, 0.75f, 0.75f);
-        RenderingUtils.render3DItem(item, true);
+        RenderUtil.render3DItem(item, true);
         glPopMatrix();
         glPopAttrib();
         glPopMatrix();

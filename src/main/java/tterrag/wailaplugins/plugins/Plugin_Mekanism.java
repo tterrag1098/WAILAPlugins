@@ -21,7 +21,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
-import tterrag.core.common.util.BlockCoord;
+
+import com.enderio.core.common.util.BlockCoord;
 
 public class Plugin_Mekanism extends PluginBase
 {

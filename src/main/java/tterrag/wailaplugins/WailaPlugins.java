@@ -1,22 +1,24 @@
 package tterrag.wailaplugins;
 
-import static tterrag.wailaplugins.WailaPlugins.*;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import tterrag.core.IModTT;
-import tterrag.core.common.Lang;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import tterrag.wailaplugins.plugins.Plugins;
 import tterrag.wailaplugins.proxy.CommonProxy;
+
+import com.enderio.core.IEnderMod;
+import com.enderio.core.common.Lang;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
+import static tterrag.wailaplugins.WailaPlugins.*;
+
 @Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, guiFactory = "tterrag.wailaplugins.config.WPConfigFactory")
-public class WailaPlugins implements IModTT
+public class WailaPlugins implements IEnderMod
 {
     public static final String MODID   = "wailaplugins";
     public static final String NAME    = "WAILA Plugins";

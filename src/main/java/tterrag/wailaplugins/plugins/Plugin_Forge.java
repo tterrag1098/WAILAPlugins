@@ -2,14 +2,15 @@ package tterrag.wailaplugins.plugins;
 
 import java.util.List;
 
-import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
-import tterrag.core.common.util.BlockCoord;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
+import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
+
+import com.enderio.core.common.util.BlockCoord;
 
 // Plugin for those which should be enabled 100% of the time
 public class Plugin_Forge extends PluginBase

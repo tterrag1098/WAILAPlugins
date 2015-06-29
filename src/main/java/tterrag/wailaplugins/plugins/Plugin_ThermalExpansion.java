@@ -14,12 +14,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import tterrag.core.common.Lang;
-import tterrag.core.common.util.BlockCoord;
 import tterrag.wailaplugins.WailaPlugins;
 import cofh.api.item.IAugmentItem;
 import cofh.thermalexpansion.block.TileAugmentable;
 import cofh.thermalexpansion.block.machine.TileMachineBase;
+
+import com.enderio.core.common.Lang;
+import com.enderio.core.common.util.BlockCoord;
 
 public class Plugin_ThermalExpansion extends PluginBase
 {

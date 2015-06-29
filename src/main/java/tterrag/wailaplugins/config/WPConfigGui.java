@@ -1,9 +1,10 @@
 package tterrag.wailaplugins.config;
 
 import net.minecraft.client.gui.GuiScreen;
-import tterrag.core.api.common.config.IConfigHandler;
-import tterrag.core.client.config.BaseConfigGui;
 import tterrag.wailaplugins.WailaPlugins;
+
+import com.enderio.core.api.common.config.IConfigHandler;
+import com.enderio.core.client.config.BaseConfigGui;
 
 public class WPConfigGui extends BaseConfigGui
 {

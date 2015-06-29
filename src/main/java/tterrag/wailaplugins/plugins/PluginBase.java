@@ -11,10 +11,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import tterrag.core.common.Lang;
-import tterrag.core.common.util.BlockCoord;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
+
+import com.enderio.core.common.Lang;
+import com.enderio.core.common.util.BlockCoord;
 
 public abstract class PluginBase implements IPlugin
 {

@@ -17,10 +17,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import tterrag.core.common.Lang;
-import tterrag.core.common.util.BlockCoord;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
+
+import com.enderio.core.common.Lang;
+import com.enderio.core.common.util.BlockCoord;
+
 import forestry.api.apiculture.EnumBeeChromosome;
 import forestry.api.apiculture.IBeekeepingLogic;
 import forestry.api.arboriculture.EnumTreeChromosome;
@@ -41,6 +43,7 @@ import forestry.core.inventory.InventoryAdapter;
 import forestry.core.proxy.Proxies;
 import forestry.core.utils.StringUtil;
 import forestry.plugins.PluginApiculture;
+
 import static forestry.apiculture.gadgets.TileBeehouse.*;
 
 public class Plugin_Forestry extends PluginBase
