@@ -91,6 +91,10 @@ task downloadZip(type: Download) {
     onlyIfNewer true
 }
 
+task clearOld(type: Delete) {
+    delete 'libs'
+}
+
 task downloadLibs(dependsOn: downloadZip, type: Copy) {
     from zipTree(downloadZip.dest)
     into file('libs')
@@ -98,6 +102,7 @@ task downloadLibs(dependsOn: downloadZip, type: Copy) {
 
 tasks.build.dependsOn sourceJar, deobfJar
 
+tasks.downloadLibs.dependsOn clearOld
 tasks.sourceMainJava.dependsOn downloadLibs
 tasks.eclipse.dependsOn downloadLibs
 tasks.idea.dependsOn downloadLibs
