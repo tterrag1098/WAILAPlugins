@@ -13,10 +13,11 @@ import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
 
 import com.enderio.core.client.render.RenderUtil;
-import com.mark719.magicalcrops.crops.BlockMagicalCrops;
+import com.mark719.magicalcrops.blocks.BlockMagicalCrops;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
 import static org.lwjgl.opengl.GL11.*;
 
 public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecorator

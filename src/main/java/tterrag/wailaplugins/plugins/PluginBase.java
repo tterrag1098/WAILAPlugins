@@ -7,6 +7,7 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaEntityProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.api.impl.ConfigHandler;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -149,7 +150,7 @@ public abstract class PluginBase implements IPlugin
     protected void getTail(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor) {}
     
     @Override
-    public final NBTTagCompound getNBTData(TileEntity te, NBTTagCompound tag, World world, int x, int y, int z)
+    public final NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x, int y, int z)
     {
         if (enabled())
         {

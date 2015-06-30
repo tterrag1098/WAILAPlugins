@@ -68,14 +68,14 @@ public class Plugin_Mekanism extends PluginBase
         if (tile instanceof TileEntityFactory)
         {
             RecipeType type = RecipeType.values()[tag.getInteger("recipeType")];
-            currenttip.add(EnumChatFormatting.AQUA + type.getName());
+            currenttip.add(EnumChatFormatting.AQUA + type.getLocalizedName());
         }
         
         if (tile instanceof TileEntityElectricBlock)
         {
             double power = tag.getDouble("electricityStored");
             MachineType type = MachineType.get(accessor.getBlock(), accessor.getMetadata());
-            double maxPower = type == null ? tile instanceof TileEntityEnergyCube ? EnergyCubeTier.getFromName(tag.getString("tier")).MAX_ELECTRICITY
+            double maxPower = type == null ? tile instanceof TileEntityEnergyCube ? EnergyCubeTier.getFromName(tag.getString("tier")).maxEnergy
                     : ((TileEntityElectricBlock) tile).getMaxEnergy() : type.baseEnergy;
 
             currenttip.add(String.format("%s%s %s/ %s%s", EnumChatFormatting.WHITE, MekanismUtils.getEnergyDisplay(power), EnumChatFormatting.GRAY, EnumChatFormatting.WHITE,

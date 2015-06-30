@@ -30,6 +30,7 @@ import mods.railcraft.common.fluids.tanks.FilteredTank;
 import mods.railcraft.common.fluids.tanks.StandardTank;
 import mods.railcraft.common.items.ItemElectricMeter;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -268,7 +269,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
     }
 
     @Override
-    public NBTTagCompound getNBTData(Entity ent, NBTTagCompound tag)
+    public  NBTTagCompound getNBTData(EntityPlayerMP player, Entity ent, NBTTagCompound tag, World world)
     {
         return tag;
     }
