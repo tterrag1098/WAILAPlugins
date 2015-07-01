@@ -17,7 +17,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 import static tterrag.wailaplugins.WailaPlugins.*;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, guiFactory = "tterrag.wailaplugins.config.WPConfigFactory")
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = DEPENDENCIES, guiFactory = "tterrag.wailaplugins.client.config.WPConfigFactory")
 public class WailaPlugins implements IEnderMod
 {
     public static final String MODID   = "wailaplugins";

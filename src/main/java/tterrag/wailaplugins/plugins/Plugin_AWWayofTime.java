@@ -59,7 +59,7 @@ public class Plugin_AWWayofTime extends PluginBase
         boolean hasSeer = false;
         boolean hasSigil = false;
 
-        switch (WPConfigHandler.sigilBehavior)
+        switch (WPConfigHandler.sigilRequirement)
         {
         case 0:
             hasSeer = hasSigil = true;

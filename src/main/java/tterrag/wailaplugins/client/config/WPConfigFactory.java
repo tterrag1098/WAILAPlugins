@@ -1,4 +1,4 @@
-package tterrag.wailaplugins.config;
+package tterrag.wailaplugins.client.config;
 
 import net.minecraft.client.gui.GuiScreen;
 
