@@ -1,7 +1,7 @@
 WAILAPlugins [![Build Status](http://ci.tterrag.com/job/WAILAPlugins/badge/icon)](http://ci.tterrag.com/job/WAILAPlugins/)
 ============
 
-Miscellaneous WAILA plugins for various mods. Requires [ttCore](http://ci.tterrag.com/job/ttCore/).
+Miscellaneous WAILA plugins for various mods. Requires [EnderCore](http://ci.tterrag.com/job/EnderCore/).
 
 ###Currently Supported:
 
