@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import WayofTime.alchemicalWizardry.ModItems;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
+import WayofTime.alchemicalWizardry.common.items.armour.BoundArmour;
 import WayofTime.alchemicalWizardry.common.tileEntity.TEAltar;
 import WayofTime.alchemicalWizardry.common.tileEntity.TEMasterStone;
 import WayofTime.alchemicalWizardry.common.tileEntity.TETeleposer;
@@ -139,6 +140,19 @@ public class Plugin_AWWayofTime extends PluginBase
             if (stack != null && stack.getItem() == item)
             {
                 return stack.copy();
+            }
+        }
+        for (ItemStack stack : player.inventory.armorInventory)
+        {
+            if (stack != null && stack.getItem() instanceof BoundArmour)
+            {
+                for (ItemStack sigil : ((BoundArmour)stack.getItem()).getInternalInventory(stack))
+                {
+                    if (sigil != null && sigil.getItem() == item)
+                    {
+                        return sigil;
+                    }
+                }
             }
         }
         return null;
