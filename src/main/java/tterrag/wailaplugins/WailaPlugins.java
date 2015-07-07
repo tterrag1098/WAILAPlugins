@@ -23,7 +23,7 @@ public class WailaPlugins implements IEnderMod
     public static final String MODID   = "wailaplugins";
     public static final String NAME    = "WAILA Plugins";
     public static final String VERSION = "@VERSION@";
-    public static final String DEPENDENCIES = "after:ttCore;after:Waila";
+    public static final String DEPENDENCIES = "after:endercore;after:Waila";
 
     @SidedProxy(serverSide = "tterrag.wailaplugins.proxy.CommonProxy", clientSide = "tterrag.wailaplugins.proxy.ClientProxy")
     public static CommonProxy proxy;
