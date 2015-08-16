@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -17,39 +18,43 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import cofh.api.energy.EnergyStorage;
-import cofh.api.energy.IEnergyHandler;
+import net.minecraftforge.common.util.ForgeDirection;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.util.BlockCoord;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import forestry.api.apiculture.EnumBeeChromosome;
-import forestry.api.apiculture.IBeekeepingLogic;
+import forestry.api.apiculture.IBeeHousing;
 import forestry.api.arboriculture.EnumTreeChromosome;
 import forestry.api.arboriculture.ITree;
+import forestry.api.core.ErrorStateRegistry;
 import forestry.api.core.IErrorState;
 import forestry.api.genetics.IGenome;
 import forestry.apiculture.BeekeepingLogic;
+import forestry.apiculture.gadgets.TileAlvearyPlain;
 import forestry.apiculture.gadgets.TileBeehouse;
 import forestry.apiculture.genetics.Bee;
 import forestry.arboriculture.gadgets.TileLeaves;
 import forestry.arboriculture.gadgets.TileSapling;
 import forestry.arboriculture.gadgets.TileTreeContainer;
-import forestry.core.EnumErrorCode;
+import forestry.arboriculture.genetics.Tree;
 import forestry.core.config.ForestryItem;
 import forestry.core.gadgets.Engine;
 import forestry.core.gadgets.TilePowered;
-import forestry.core.inventory.InventoryAdapter;
 import forestry.core.proxy.Proxies;
 import forestry.core.utils.StringUtil;
 import forestry.plugins.PluginApiculture;
-
-import static forestry.apiculture.gadgets.TileBeehouse.*;
 
 public class Plugin_Forestry extends PluginBase
 {
     private static Field _throttle;
     private static Field _maxHeat;
+    private static Field _logic;
+    private static Field _alvearyLogic;
     private static NumberFormat pctFmt = NumberFormat.getPercentInstance();
     private static Lang forLang = new Lang("for");
 
@@ -71,6 +76,12 @@ public class Plugin_Forestry extends PluginBase
         _maxHeat = Engine.class.getDeclaredField("maxHeat");
         _maxHeat.setAccessible(true);
 
+        _logic = TileBeehouse.class.getDeclaredField("logic");
+        _logic.setAccessible(true);
+
+        _alvearyLogic = TileAlvearyPlain.class.getDeclaredField("beekeepingLogic");
+        _alvearyLogic.setAccessible(true);
+
         pctFmt.setMinimumFractionDigits(2);
     }
 
@@ -79,9 +90,9 @@ public class Plugin_Forestry extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, TileBeehouse.class);
+        registerBody(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
 
-        registerNBT(TilePowered.class, Engine.class, TileBeehouse.class);
+        registerNBT(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
 
         addConfig("power");
         addConfig("heat");
@@ -103,53 +114,52 @@ public class Plugin_Forestry extends PluginBase
         NBTTagCompound tag = accessor.getNBTData();
         int x = pos.blockX, y = pos.blockY, z = pos.blockZ;
 
-        if ((tile instanceof TilePowered || tile instanceof Engine) && getConfig("power"))
+        if (tag.hasKey(ENERGY_STORED) && getConfig("power"))
         {
-            EnergyStorage storage = new EnergyStorage(Integer.MAX_VALUE).readFromNBT(tag.getCompoundTag("EnergyManager").getCompoundTag(
-                    "EnergyStorage"));
-            currenttip.add(storage.getEnergyStored() + " / " + ((IEnergyHandler) tile).getMaxEnergyStored(accessor.getSide()) + " RF");
-
-            if (tile instanceof Engine && getConfig("heat"))
-            {
-                double heat = tag.getInteger("EngineHeat");
-                double maxHeat = _maxHeat.getInt(tile);
-                currenttip.add(String.format(lang.localize("engineHeat"), pctFmt.format(heat / maxHeat)));
-            }
+            currenttip.add(tag.getInteger(ENERGY_STORED) + " / " + tag.getInteger(MAX_ENERGY_STORED) + " RF");
         }
 
-        if (tile instanceof TileSapling && getConfig("sapling"))
+        if (tag.hasKey(HEAT) && getConfig("heat"))
         {
-            addGenomeTooltip((TileSapling) tile, player, currenttip);
+            currenttip.add(lang.localize("engineHeat", tag.getInteger(HEAT) / 10D + "\u00B0C"));
+        }
+
+        if (tag.hasKey(TREE) && getConfig("sapling"))
+        {
+            ITree tree = new Tree(tag.getCompoundTag(TREE));
+            addGenomeTooltip((TileSapling) tile, tree, player, currenttip);
         }
 
         if (tile instanceof TileLeaves && getConfig("leaves"))
         {
-            TileLeaves leaf = (TileLeaves) tile;
-            if (leaf.isPollinated())
+            if (((TileLeaves) tile).isPollinated())
             {
-                currenttip.add(String.format(lang.localize("pollinated"), leaf.getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES)
-                        .getName()));
+                currenttip.add(lang.localize("pollinated", tag.getString("leafBredSpecies")));
             }
         }
 
-        if (tile instanceof TileBeehouse && getConfig("apiary"))
+        if (tile instanceof IBeeHousing && getConfig("apiary"))
         {
-            TileBeehouse apiary = (TileBeehouse) tile;
-            InventoryAdapter inv = new InventoryAdapter(12, "Items");
-            inv.readFromNBT(tag);
-
-            ItemStack queenstack = inv.getStackInSlot(SLOT_QUEEN);
-            ItemStack dronestack = inv.getStackInSlot(SLOT_DRONE);
+            ItemStack queenstack = null;
+            ItemStack dronestack = null;
+            if (tag.hasKey(QUEEN_STACK))
+            {
+                queenstack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(QUEEN_STACK));
+            }
+            if (tag.hasKey(DRONE_STACK))
+            {
+                dronestack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(DRONE_STACK));
+            }
 
             Bee queen = null;
 
-            if (inv.getStackInSlot(SLOT_QUEEN) != null)
+            if (queenstack != null)
             {
                 queen = new Bee(queenstack.getTagCompound());
                 String queenSpecies = getSpeciesName(queen.getGenome(), true);
 
                 currenttip.add(EnumChatFormatting.WHITE
-                        + String.format(lang.localize("mainbee"), getNameForBeeType(queenstack), EnumChatFormatting.GREEN + queenSpecies));
+                        + lang.localize("mainbee", getNameForBeeType(queenstack), EnumChatFormatting.GREEN + queenSpecies));
                 if (queen.isAnalyzed())
                 {
                     addIndentedBeeInfo(queen, currenttip);
@@ -178,40 +188,32 @@ public class Plugin_Forestry extends PluginBase
                 }
             }
 
-            IBeekeepingLogic logic = new BeekeepingLogic(apiary);
-            logic.readFromNBT(tag);
-            IErrorState err = logic.getHousing().getErrorState();
-            
-            if (err != EnumErrorCode.OK)
+            int[] ids = tag.getIntArray(ERRORS);
+            Set<IErrorState> errs = Sets.newHashSet();
+            for (int i : ids)
             {
-                currenttip.add(EnumChatFormatting.WHITE
-                        + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
+                errs.add(ErrorStateRegistry.getErrorState((short) i));
+            }
+
+            if (!errs.isEmpty())
+            {
+                for (IErrorState err : errs)
+                {
+                    currenttip.add(EnumChatFormatting.WHITE
+                            + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
+                }
             }
             else
             {
-                if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queenstack.getItem()))
-                {
-                    float throttle = _throttle.getInt(logic);
-                    float maxAge = queen.getMaxHealth();
-                    float age = Math.abs(queen.getHealth() - maxAge); // inverts the progress
-
-                    // determines the amount of percentage points between each breed tick
-                    float step = (1 / maxAge);
-
-                    // interpolates between 0 and step
-                    float progress = step * (throttle / PluginApiculture.ticksPerBeeWorkCycle);
-
-                    currenttip.add(EnumChatFormatting.WHITE
-                            + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format((age / maxAge) + progress)));
-                }
+                currenttip.add(EnumChatFormatting.WHITE
+                        + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format(tag.getDouble(BREED_PROGRESS))));
             }
         }
     }
 
-    private void addGenomeTooltip(TileTreeContainer te, EntityPlayer player, List<String> currenttip)
+    private void addGenomeTooltip(TileTreeContainer te, ITree tree, EntityPlayer player, List<String> currenttip)
     {
-        ITree tree = te.getTree();
-        if (te.isOwner(player) && (tree.isAnalyzed() || te instanceof TileLeaves))
+        if (/* XXX BUGGED Uncomment when using 4.x te.isOwner(player) && */ (tree.isAnalyzed() || te instanceof TileLeaves))
         {
             addTreeTooltip(tree, currenttip);
         }
@@ -263,9 +265,96 @@ public class Plugin_Forestry extends PluginBase
         }
     }
 
+    public static final String LEAF_BRED_SPECIES = "leafBredSpecies";
+    public static final String QUEEN_STACK = "queenStack";
+    public static final String DRONE_STACK = "droneStack";
+    public static final String ERRORS = "errors";
+    public static final String BREED_PROGRESS = "breedProgress";
+    public static final String TREE = "treeData";
+    public static final String ENERGY_STORED = "rfStored";
+    public static final String MAX_ENERGY_STORED = "maxRfStored";
+    public static final String HEAT = "engineHeat";
+
     @Override
+    @SneakyThrows
     protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
     {
         te.writeToNBT(tag);
+        if (te instanceof TileLeaves)
+        {
+            tag.setString("leafBredSpecies", ((TileLeaves) te).getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES).getName());
+        }
+        if (te instanceof IBeeHousing)
+        {
+            BeekeepingLogic logic = null;
+            if (te instanceof TileBeehouse)
+            {
+                logic = (BeekeepingLogic) _logic.get(te);
+            }
+            else if (te instanceof TileAlvearyPlain)
+            {
+                logic = (BeekeepingLogic) _alvearyLogic.get(te);
+            }
+
+            if (logic != null)
+            {
+                IBeeHousing beehouse = (TileBeehouse) te;
+                ItemStack queen = beehouse.getQueen();
+                ItemStack drone = beehouse.getDrone();
+                if (queen != null)
+                {
+                    NBTTagCompound queenTag = new NBTTagCompound();
+                    queen.writeToNBT(queenTag);
+                    tag.setTag(QUEEN_STACK, queenTag);
+                }
+                if (drone != null)
+                {
+                    NBTTagCompound droneTag = new NBTTagCompound();
+                    drone.writeToNBT(droneTag);
+                    tag.setTag(DRONE_STACK, droneTag);
+                }
+                Set<IErrorState> errors = beehouse.getErrorStates();
+                List<Integer> ids = Lists.newArrayList();
+                for (IErrorState error : errors)
+                {
+                    ids.add((int) error.getID());
+                }
+                tag.setIntArray(ERRORS, ArrayUtils.toPrimitive(ids.toArray(new Integer[0])));
+
+                if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queen.getItem()))
+                {
+                    Bee queenBee = new Bee(queen.getTagCompound());
+                    float throttle = _throttle.getInt(logic);
+                    float maxAge = queenBee.getMaxHealth();
+                    float age = Math.abs(queenBee.getHealth() - maxAge); // inverts the progress
+
+                    // determines the amount of percentage points between each breed tick
+                    float step = (1 / maxAge);
+
+                    // interpolates between 0 and step
+                    float progress = step * (throttle / PluginApiculture.ticksPerBeeWorkCycle);
+
+                    tag.setDouble(BREED_PROGRESS, (age / maxAge) + progress);
+                }
+            }
+        }
+        if (te instanceof TileSapling)
+        {
+            ITree tree = ((TileSapling) te).getTree();
+            NBTTagCompound treeTag = new NBTTagCompound();
+            tree.writeToNBT(treeTag);
+            tag.setTag(TREE, treeTag);
+        }
+        if (te instanceof TilePowered)
+        {
+            tag.setInteger(ENERGY_STORED, ((TilePowered)te).getEnergyStored(ForgeDirection.UNKNOWN));
+            tag.setInteger(MAX_ENERGY_STORED, ((TilePowered) te).getMaxEnergyStored(ForgeDirection.UNKNOWN));
+        }
+        if (te instanceof Engine)
+        {
+            tag.setInteger(ENERGY_STORED, ((Engine) te).getEnergyManager().getTotalEnergyStored());
+            tag.setInteger(MAX_ENERGY_STORED, ((Engine) te).maxEnergy);
+            tag.setInteger(HEAT, ((Engine) te).getHeat());
+        }
     }
 }

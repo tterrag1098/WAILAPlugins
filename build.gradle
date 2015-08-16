@@ -41,12 +41,16 @@ repositories {
         name 'CB Repo'
         url "http://chickenbones.net/maven/"
     }
+    maven { // Forestry
+        name 'Player Maven'
+        url "http://maven.ic2.player.to"
+    }
 }
 
 dependencies {
     compile "com.enderio.core:EnderCore:${endercore_version}:dev"
 	compile "mcp.mobius.waila:Waila:${WAILA_version}"
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile "net.sengir.forestry:forestry_1.7.10:${forestry_version}:dev"
 }
 
 processResources {
