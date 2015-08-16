@@ -44,7 +44,7 @@ wp.hud.msg.pollinated=Pollinated With: %s
 
 wp.hud.msg.mainbee=Current %s: %s
 wp.hud.msg.secondarybee=Breeding %s: %s
-wp.hud.msg.breedProgress=Breed Progress: %s
+wp.hud.msg.breedProgress=Work Progress: %s
 wp.hud.msg.breedError=Error: %s
 
 wp.hud.msg.queen=Queen
