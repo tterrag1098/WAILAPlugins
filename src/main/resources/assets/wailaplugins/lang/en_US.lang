@@ -56,7 +56,7 @@ wp.hud.msg.engineHeat=Heat: %s
 wp.config.Forestry.apiary=Show Apiary
 wp.config.Forestry.heat=Show Engine Heat
 wp.config.Forestry.leaves=Show Leaves
-wp.config.Forestry.power=Show Power
+wp.config.Forestry.power=Show Engine Power
 wp.config.Forestry.sapling=Show Sapling
 
 
