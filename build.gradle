@@ -45,12 +45,17 @@ repositories {
         name 'Player Maven'
         url "http://maven.ic2.player.to"
     }
+    maven { // RCrops
+        name 'TehNut Maven'
+        url "http://tehnut.info/maven"
+    }
 }
 
 dependencies {
     compile "com.enderio.core:EnderCore:${endercore_version}:dev"
 	compile "mcp.mobius.waila:Waila:${WAILA_version}"
     compile "net.sengir.forestry:forestry_1.7.10:${forestry_version}:dev"
+    compile "info.tehnut.resourcefulcrops:ResourcefulCrops:${rcrops_version}:deobf"
 }
 
 processResources {
