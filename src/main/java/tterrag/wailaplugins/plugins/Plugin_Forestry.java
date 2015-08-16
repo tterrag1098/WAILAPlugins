@@ -18,7 +18,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -44,7 +43,6 @@ import forestry.arboriculture.gadgets.TileTreeContainer;
 import forestry.arboriculture.genetics.Tree;
 import forestry.core.config.ForestryItem;
 import forestry.core.gadgets.Engine;
-import forestry.core.gadgets.TilePowered;
 import forestry.core.proxy.Proxies;
 import forestry.core.utils.StringUtil;
 import forestry.plugins.PluginApiculture;
@@ -90,9 +88,9 @@ public class Plugin_Forestry extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
+        registerBody(Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
 
-        registerNBT(TilePowered.class, Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
+        registerNBT(Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
 
         addConfig("power");
         addConfig("heat");
@@ -344,11 +342,6 @@ public class Plugin_Forestry extends PluginBase
             NBTTagCompound treeTag = new NBTTagCompound();
             tree.writeToNBT(treeTag);
             tag.setTag(TREE, treeTag);
-        }
-        if (te instanceof TilePowered)
-        {
-            tag.setInteger(ENERGY_STORED, ((TilePowered)te).getEnergyStored(ForgeDirection.UNKNOWN));
-            tag.setInteger(MAX_ENERGY_STORED, ((TilePowered) te).getMaxEnergyStored(ForgeDirection.UNKNOWN));
         }
         if (te instanceof Engine)
         {
