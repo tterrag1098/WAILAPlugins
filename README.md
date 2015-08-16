@@ -23,11 +23,11 @@ Miscellaneous WAILA plugins for various mods. Requires [EnderCore](http://ci.tte
 - Forestry
   - Sapling genomes
   - Pollinated leaves info
-  - Current bees inside apiaries (and genome info)
+  - Current bees inside apiaries/beehouses/alvearies (and genome info)
   - Apiary errors (No flowers, no drone, etc.)
   - Progress percentage of current breed
-  - RF leve of machines and engines
-  - Heat percentage of engines
+  - RF in of engines
+  - Heat in engines
   
 - Magical Crops
   - Growth percentage and hovering icon of the product of the plant
@@ -54,6 +54,9 @@ Miscellaneous WAILA plugins for various mods. Requires [EnderCore](http://ci.tte
   - Ported overlay rendering from the Project:Red plugin in WAILA
   - Info for certain gates such as Timer, Repeater, etc.
   - Strength of red alloy wires
+
+- Resourceful Crops
+  - Hovering icon of the product of the plant
   
 - Thermal Expansion
   - Augment info
