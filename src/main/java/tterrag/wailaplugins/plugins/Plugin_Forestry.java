@@ -34,6 +34,7 @@ import forestry.api.core.ErrorStateRegistry;
 import forestry.api.core.IErrorState;
 import forestry.api.genetics.IGenome;
 import forestry.apiculture.BeekeepingLogic;
+import forestry.apiculture.gadgets.TileAlveary;
 import forestry.apiculture.gadgets.TileAlvearyPlain;
 import forestry.apiculture.gadgets.TileBeehouse;
 import forestry.apiculture.genetics.Bee;
@@ -43,6 +44,7 @@ import forestry.arboriculture.gadgets.TileTreeContainer;
 import forestry.arboriculture.genetics.Tree;
 import forestry.core.config.ForestryItem;
 import forestry.core.gadgets.Engine;
+import forestry.core.gadgets.TileForestry;
 import forestry.core.proxy.Proxies;
 import forestry.core.utils.StringUtil;
 import forestry.plugins.PluginApiculture;
@@ -88,9 +90,9 @@ public class Plugin_Forestry extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
+        registerBody(TileForestry.class, TileTreeContainer.class);
 
-        registerNBT(Engine.class, TileSapling.class, TileLeaves.class, IBeeHousing.class);
+        registerNBT(TileForestry.class, TileTreeContainer.class);
 
         addConfig("power");
         addConfig("heat");
@@ -132,11 +134,11 @@ public class Plugin_Forestry extends PluginBase
         {
             if (((TileLeaves) tile).isPollinated())
             {
-                currenttip.add(lang.localize("pollinated", tag.getString("leafBredSpecies")));
+                currenttip.add(lang.localize("pollinated", tag.getString(LEAF_BRED_SPECIES)));
             }
         }
 
-        if (tile instanceof IBeeHousing && getConfig("apiary"))
+        if ((tile instanceof IBeeHousing || tile instanceof TileAlveary) && getConfig("apiary"))
         {
             ItemStack queenstack = null;
             ItemStack dronestack = null;
@@ -186,25 +188,28 @@ public class Plugin_Forestry extends PluginBase
                 }
             }
 
-            int[] ids = tag.getIntArray(ERRORS);
-            Set<IErrorState> errs = Sets.newHashSet();
-            for (int i : ids)
+            if (tag.hasKey(ERRORS) || tag.hasKey(BREED_PROGRESS))
             {
-                errs.add(ErrorStateRegistry.getErrorState((short) i));
-            }
+                int[] ids = tag.getIntArray(ERRORS);
+                Set<IErrorState> errs = Sets.newHashSet();
+                for (int i : ids)
+                {
+                    errs.add(ErrorStateRegistry.getErrorState((short) i));
+                }
 
-            if (!errs.isEmpty())
-            {
-                for (IErrorState err : errs)
+                if (!errs.isEmpty())
+                {
+                    for (IErrorState err : errs)
+                    {
+                        currenttip.add(EnumChatFormatting.WHITE
+                                + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
+                    }
+                }
+                else
                 {
                     currenttip.add(EnumChatFormatting.WHITE
-                            + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
+                            + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format(tag.getDouble(BREED_PROGRESS))));
                 }
-            }
-            else
-            {
-                currenttip.add(EnumChatFormatting.WHITE
-                        + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format(tag.getDouble(BREED_PROGRESS))));
             }
         }
     }
@@ -277,26 +282,34 @@ public class Plugin_Forestry extends PluginBase
     @SneakyThrows
     protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
     {
-        te.writeToNBT(tag);
         if (te instanceof TileLeaves)
         {
-            tag.setString("leafBredSpecies", ((TileLeaves) te).getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES).getName());
+            tag.setString(LEAF_BRED_SPECIES, ((TileLeaves) te).getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES).getName());
         }
-        if (te instanceof IBeeHousing)
+        if (te instanceof IBeeHousing || te instanceof TileAlveary)
         {
             BeekeepingLogic logic = null;
             if (te instanceof TileBeehouse)
             {
                 logic = (BeekeepingLogic) _logic.get(te);
             }
-            else if (te instanceof TileAlvearyPlain)
+            else if (te instanceof TileAlveary)
             {
-                logic = (BeekeepingLogic) _alvearyLogic.get(te);
+                te = (TileEntity) ((TileAlveary) te).getCentralTE();
+                if (te != null)
+                {
+                    logic = (BeekeepingLogic) _alvearyLogic.get(te);
+                }
             }
 
             if (logic != null)
             {
-                IBeeHousing beehouse = (TileBeehouse) te;
+                IBeeHousing beehouse = (IBeeHousing) te;
+                if (te instanceof TileAlvearyPlain)
+                {
+                    beehouse = (IBeeHousing) ((TileAlvearyPlain)te).getCentralTE();
+                }
+                
                 ItemStack queen = beehouse.getQueen();
                 ItemStack drone = beehouse.getDrone();
                 if (queen != null)
