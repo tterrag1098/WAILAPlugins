@@ -305,10 +305,6 @@ public class Plugin_Forestry extends PluginBase
             if (logic != null)
             {
                 IBeeHousing beehouse = (IBeeHousing) te;
-                if (te instanceof TileAlvearyPlain)
-                {
-                    beehouse = (IBeeHousing) ((TileAlvearyPlain)te).getCentralTE();
-                }
                 
                 ItemStack queen = beehouse.getQueen();
                 ItemStack drone = beehouse.getDrone();
