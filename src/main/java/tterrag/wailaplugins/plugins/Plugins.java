@@ -1,6 +1,7 @@
 package tterrag.wailaplugins.plugins;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 import mcp.mobius.waila.api.impl.ConfigHandler;
@@ -9,18 +10,18 @@ import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
 import tterrag.wailaplugins.config.WPConfigHandler;
 
+import com.google.common.collect.Lists;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 
-public class Plugins
+public enum Plugins
 {
-    public static final Plugins INSTANCE = new Plugins();
-
-    private Plugins()
-    {}
+    INSTANCE;
+    
+    public List<IPlugin> allPlugins = Lists.newArrayList();
 
     public void preInit()
     {
@@ -59,6 +60,7 @@ public class Plugins
                                 IPlugin inst = (IPlugin) clazz.newInstance();
                                 cfg.addConfig(WailaPlugins.NAME, modid, getModContainerFromID(modid).getName());
                                 inst.load(ModuleRegistrar.instance());
+                                allPlugins.add(inst);
                             }
                             catch (IllegalAccessException e)
                             {
@@ -101,6 +103,14 @@ public class Plugins
                     WailaPlugins.logger.info(err, modid);
                 }
             }
+        }
+    }
+    
+    public void postInit()
+    {
+        for (IPlugin p : allPlugins)
+        {
+            p.postLoad();
         }
     }
     

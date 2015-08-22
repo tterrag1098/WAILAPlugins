@@ -28,7 +28,8 @@ public abstract class PluginBase implements IPlugin
         TAIL        { void register(PluginBase inst, Class<?> c) { inst.reg.registerTailProvider(inst, c); }}, 
         NBT         { void register(PluginBase inst, Class<?> c) { inst.reg.registerNBTProvider(inst, c);  }}, 
         STACK       { void register(PluginBase inst, Class<?> c) { inst.reg.registerStackProvider(inst, c);}}, 
-        ENTITY_BODY { void register(PluginBase inst, Class<?> c) { inst.reg.registerBodyProvider((IWailaEntityProvider) inst, c); }};
+        ENTITY_BODY { void register(PluginBase inst, Class<?> c) { inst.reg.registerBodyProvider((IWailaEntityProvider) inst, c); }},
+        ENTITY_NBT  { void register(PluginBase inst, Class<?> c) { inst.reg.registerNBTProvider((IWailaEntityProvider) inst, c); }};
         // @formatter:on
         
         abstract void register(PluginBase inst, Class<?> c);
@@ -44,6 +45,12 @@ public abstract class PluginBase implements IPlugin
     public void load(IWailaRegistrar registrar)
     {
         this.reg = registrar;
+    }
+    
+    @Override
+    public void postLoad()
+    {
+        ;
     }
     
     protected void registerHead(Class<?>... classes)
@@ -74,6 +81,11 @@ public abstract class PluginBase implements IPlugin
     protected void registerEntityBody(IWailaEntityProvider inst, Class<?>... classes)
     {
         registerAll(RegType.ENTITY_BODY, classes);
+    }
+    
+    protected void registerEntityNBT(IWailaEntityProvider inst, Class<?>... classes)
+    {
+        registerAll(RegType.ENTITY_NBT, classes);
     }
     
     protected void registerAll(RegType type, Class<?>... classes)

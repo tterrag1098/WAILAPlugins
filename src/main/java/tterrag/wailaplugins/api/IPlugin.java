@@ -5,5 +5,7 @@ import mcp.mobius.waila.api.IWailaRegistrar;
 
 public interface IPlugin extends IWailaDataProvider
 {
-    public void load(IWailaRegistrar registrar);
+    void load(IWailaRegistrar registrar);
+    
+    void postLoad();
 }

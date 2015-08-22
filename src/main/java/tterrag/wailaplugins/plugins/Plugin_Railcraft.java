@@ -8,38 +8,36 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaEntityAccessor;
 import mcp.mobius.waila.api.IWailaEntityProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
+import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import mods.railcraft.api.electricity.IElectricGrid;
+import mods.railcraft.api.tracks.ITrackInstance;
 import mods.railcraft.common.blocks.machine.TileMachineBase;
 import mods.railcraft.common.blocks.machine.TileMultiBlock;
-import mods.railcraft.common.blocks.machine.alpha.TileCokeOven;
-import mods.railcraft.common.blocks.machine.beta.TileBoiler;
 import mods.railcraft.common.blocks.machine.beta.TileBoilerFirebox;
 import mods.railcraft.common.blocks.machine.beta.TileBoilerTank;
 import mods.railcraft.common.blocks.machine.beta.TileEngine;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteam;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteamHobby;
+import mods.railcraft.common.blocks.machine.beta.TileTankBase;
 import mods.railcraft.common.blocks.tracks.TileTrack;
 import mods.railcraft.common.blocks.tracks.TrackElectric;
 import mods.railcraft.common.carts.EntityLocomotive;
 import mods.railcraft.common.carts.EntityLocomotiveElectric;
 import mods.railcraft.common.carts.EntityLocomotiveSteam;
-import mods.railcraft.common.fluids.Fluids;
-import mods.railcraft.common.fluids.TankManager;
-import mods.railcraft.common.fluids.tanks.BoilerFuelTank;
-import mods.railcraft.common.fluids.tanks.FilteredTank;
 import mods.railcraft.common.fluids.tanks.StandardTank;
 import mods.railcraft.common.items.ItemElectricMeter;
+import mods.railcraft.common.plugins.buildcraft.triggers.ITemperature;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import tterrag.wailaplugins.config.WPConfigHandler;
-import cofh.api.energy.IEnergyHandler;
 
 import com.enderio.core.common.util.BlockCoord;
 import com.enderio.core.common.util.ItemUtil;
@@ -53,10 +51,10 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         super.load(registrar);
         
         registerBody(TileMachineBase.class, TileTrack.class);
-        
-        registerEntityBody(this, EntityLocomotive.class);
-                
-        registerNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, EntityLocomotive.class, TileMultiBlock.class);
+        registerNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, TileMultiBlock.class);
+
+        registerEntityBody(this, EntityLocomotive.class);        
+        registerEntityNBT(this, EntityLocomotive.class);
         
         addConfig("multiblocks");
         addConfig("heat");
@@ -66,16 +64,20 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         addConfig("charge");
         addConfig("locomotives");
     }
-    
+
+    @Override
+    public void postLoad()
+    {
+        // Remove WAILA's RC plugin
+        ModuleRegistrar.instance().bodyBlockProviders.remove(TileTankBase.class);
+    }
+
     @Override
     protected void getBody(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor)
     {
         TileEntity tile = accessor.getTileEntity();
         NBTTagCompound tag = accessor.getNBTData();
-        ItemStack current = accessor.getPlayer().getCurrentEquippedItem();
-        
-        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && ItemUtil.stacksEqual(current, ItemElectricMeter.getItem()));
-        
+
         if (tile instanceof TileMultiBlock && getConfig("multiblocks"))
         {
             currenttip.add(String.format(lang.localize("formed"), lang.localize(((TileMultiBlock)tile).isStructureValid() ? "yes" : "no")));
@@ -85,88 +87,34 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         {
             addHeatTooltip(currenttip, tag);
         }
-        
-        if (tile instanceof IEnergyHandler && getConfig("energy") && tag.hasKey("Energy"))
-        {
-            int energy = tag.getInteger("Energy");
-            currenttip.add(energy + " / " + ((IEnergyHandler) tile).getMaxEnergyStored(ForgeDirection.UP) + " RF");
-        }
-        
+
         if (tile instanceof TileEngine && getConfig("engines"))
         {
-            int energy  = tag.getInteger("energyRF");
-            int gen     = Math.round(tag.getFloat("currentOutput"));
+            int energy  = tag.getInteger(ENERGY_STORED);
+            int gen     = Math.round(tag.getFloat(CURRENT_OUTPUT));
             
-            currenttip.add(energy + " / " + ((TileEngine)tile).maxEnergy() + " RF");
-            currenttip.add(String.format(lang.localize("generating"), gen));
+            currenttip.add(lang.localize("energyStored", energy + " / " + ((TileEngine)tile).maxEnergy() + " RF"));
+            currenttip.add(lang.localize("generating", gen));
         }
         
-        if (getConfig("tanks"))
+        if (tag.hasKey(TANK_FLUID))
         {
-            int end = currenttip.size();
-            TankManager dummy = null;
-            Fluids[] fluids = null;
-
-            if (tile instanceof TileCokeOven)
-            {
-                dummy = ((TileCokeOven) tile).getTankManager();
-                fluids = new Fluids[] {Fluids.CREOSOTE};
-            }
-            else if (tile instanceof TileEngineSteamHobby)
-            {                
-                dummy = ((TileEngineSteamHobby) tile).getTankManager();
-                fluids = new Fluids[] {Fluids.STEAM, Fluids.WATER};
-            }
-            else if (tile instanceof TileEngineSteam)
-            {
-                dummy = ((TileEngineSteam) tile).getTankManager();
-                fluids = new Fluids[] {Fluids.STEAM};
-            }
-            // we do ID checks for multiblocks that are passing in the data of the master block
-            else if ("RCBoilerFireboxLiquidTile".equals(tag.getString("id")))
-            {
-                // this needs to be custom for the non-filtered tank
-                dummy = ((TileBoiler)tile).getTankManager();
-                
-                if (dummy != null)
-                {
-                    TankManager manager = new TankManager(
-                            new FilteredTank(dummy.get(0).getCapacity(), Fluids.WATER.get(), tile), 
-                            new FilteredTank(dummy.get(1).getCapacity(), Fluids.STEAM.get(), tile), 
-                            new BoilerFuelTank(dummy.get(2).getCapacity(), tile)
-                    );
-
-                    manager.readTanksFromNBT(tag);
-                    if (addTankTooltip(currenttip, manager))
-                    {
-                        currenttip.add(end, "");
-                    }
-                }
-            }
-            else if ("RCBoilerFireboxSoildTile".equals(tag.getString("id"))) // TYPOS D:<
-            {
-                dummy = ((TileBoiler)tile).getTankManager();
-                fluids = new Fluids[] {Fluids.WATER, Fluids.STEAM};
-            }
-            
-            if (fluids != null && dummy != null)
-            {
-                if (addTankTooltip(currenttip, getTankManager(tile, tag, dummy, fluids)))
-                {
-                    currenttip.add(end, "");
-                }
-            }
+            FluidTankInfo info = Plugin_Forge.readFluidInfoFromNBT(tag.getCompoundTag(TANK_FLUID));
+            Plugin_Forge.addTankTooltip(currenttip, info);
         }
         
-        if (getConfig("charge") && ((tile instanceof IElectricGrid && tag.hasKey("chargeHandler")) || (tile instanceof TileTrack && ((TileTrack)tile).getTrackInstance() instanceof TrackElectric)))
+        if (getConfig("charge") && tag.hasKey(CHARGE))
         {
-            addChargeTooltip(currenttip, tag, hasMeter);
+            addChargeTooltip(currenttip, tag, accessor.getPlayer());
         }
     }
     
-    private static void addChargeTooltip(List<String> currenttip, NBTTagCompound tag, boolean hasMeter)
+    private static void addChargeTooltip(List<String> currenttip, NBTTagCompound tag, EntityPlayer player)
     {
-        double charge = tag.getCompoundTag("chargeHandler").getDouble("charge");
+        ItemStack current = player.getCurrentEquippedItem();
+        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && ItemUtil.stacksEqual(current, ItemElectricMeter.getItem()));
+        
+        double charge = tag.getDouble(CHARGE);
         String chargeFmt = fmtCharge.format(charge) + "c";
         
         currenttip.add(EnumChatFormatting.RESET + String.format(lang.localize("charge"), hasMeter ? chargeFmt : (EnumChatFormatting.ITALIC + lang.localize("needMeter"))));
@@ -174,56 +122,58 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
     
     private static void addHeatTooltip(List<String> currenttip, NBTTagCompound tag)
     {
-        int heat = Math.round(tag.getFloat("heat"));
-        int max  = Math.round(tag.getFloat("maxHeat"));
+        int heat = Math.round(tag.getFloat(HEAT));
+        int max  = Math.round(tag.getFloat(MAX_HEAT));
                 
         currenttip.add(String.format(lang.localize("engineTemp"), heat, max));
     }
     
-    private static TankManager getTankManager(TileEntity tile, NBTTagCompound tag, TankManager dummy, Fluids... fluids)
-    {
-        FilteredTank[] tanks = new FilteredTank[fluids.length];
-        for (int i = 0; i < tanks.length; i++)
-        {
-            tanks[i] = new FilteredTank(dummy.get(i).getCapacity(), fluids[i].get(), tile);
-        }
-        TankManager manager = new TankManager(tanks);
-        manager.readTanksFromNBT(tag);
-        return manager;
-    }
+    public static final String TANK_FLUID = "tankFluid";
+    public static final String HEAT = "heat";
+    public static final String MAX_HEAT = "maxHeat";
+    public static final String CURRENT_OUTPUT = "currentOutput";
+    public static final String ENERGY_STORED = "energyStored";
+    public static final String CHARGE = "charge";
     
-    private static boolean addTankTooltip(List<String> currenttip, TankManager manager)
-    {
-        StandardTank tank = null;
-        boolean ret = false;
-        for (int i = 0; i < manager.getTankInfo().length; i++)
-        {
-            tank = manager.get(i);
-
-            if (tank != null)
-            {
-                FluidStack stored = tank.getFluid();
-
-                if (stored != null)
-                {
-                    ret = true;
-                    currenttip.add(stored.amount + " / " + tank.getCapacity() + " mB " + stored.getLocalizedName());
-                }
-            }
-        }
-        return ret;
-    }
-
     @Override
     protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
     {
         if (te instanceof TileMultiBlock && ((TileMultiBlock) te).getMasterBlock() != null)
         {
-            ((TileMultiBlock) te).getMasterBlock().writeToNBT(tag);
+            if (te instanceof TileTankBase && !(te instanceof IFluidHandler))
+            {
+                te = ((TileMultiBlock) te).getMasterBlock();
+                StandardTank tank = ((TileTankBase)te).getTank();
+                NBTTagCompound fluidTag = new NBTTagCompound();
+                Plugin_Forge.writeFluidInfoToNBT(tank.getInfo(), fluidTag);
+                tag.setTag(TANK_FLUID, fluidTag);
+            }
+            te = ((TileMultiBlock) te).getMasterBlock();
         }
-        else
+        if (te instanceof ITemperature)
         {
-            te.writeToNBT(tag);
+            tag.setFloat(HEAT, ((ITemperature) te).getTemperature());
+        }
+        if (te instanceof TileEngine)
+        {
+            tag.setFloat(CURRENT_OUTPUT, ((TileEngine) te).currentOutput);
+            tag.setInteger(ENERGY_STORED, ((TileEngine) te).getEnergy());
+            if (te instanceof TileEngineSteamHobby)
+            {
+                tag.setDouble(MAX_HEAT, ((TileEngineSteamHobby) te).boiler.getMaxHeat());
+            }
+        }
+        if (te instanceof IElectricGrid)
+        {
+            tag.setDouble(CHARGE, ((IElectricGrid) te).getChargeHandler().getCharge());
+        }
+        if (te instanceof TileTrack)
+        {
+            ITrackInstance track = ((TileTrack) te).getTrackInstance();
+            if (track instanceof IElectricGrid)
+            {
+                tag.setDouble(CHARGE, ((TrackElectric) track).getChargeHandler().getCharge());
+            }
         }
     }
 
@@ -251,7 +201,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         
         if (entity instanceof EntityLocomotiveElectric)
         {
-            addChargeTooltip(currenttip, tag, true);
+            addChargeTooltip(currenttip, tag, accessor.getPlayer());
         }
         
         if (entity instanceof EntityLocomotiveSteam)
@@ -271,6 +221,17 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
     @Override
     public  NBTTagCompound getNBTData(EntityPlayerMP player, Entity ent, NBTTagCompound tag, World world)
     {
+        if (ent instanceof EntityLocomotiveElectric)
+        {
+            tag.setDouble(CHARGE, ((EntityLocomotiveElectric) ent).getChargeHandler().getCharge());
+        }
+        
+        if (ent instanceof EntityLocomotiveSteam)
+        {
+            tag.setDouble(HEAT, ((EntityLocomotiveSteam) ent).boiler.getHeat());
+            tag.setDouble(MAX_HEAT, ((EntityLocomotiveSteam) ent).boiler.getMaxHeat());
+        }
+        
         return tag;
-    }
+     }
 }

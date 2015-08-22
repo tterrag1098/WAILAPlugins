@@ -6,8 +6,14 @@ import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 
 import com.enderio.core.common.util.BlockCoord;
@@ -23,8 +29,8 @@ public class Plugin_Forge extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(IDeepStorageUnit.class);
-        registerNBT(IDeepStorageUnit.class);
+        registerBody(IDeepStorageUnit.class, IFluidHandler.class);
+        registerNBT(IDeepStorageUnit.class, IFluidHandler.class);
     }
 
     @Override
@@ -66,6 +72,22 @@ public class Plugin_Forge extends PluginBase
                 currenttip.add(str);
             }
         }
+        if (te instanceof IFluidHandler)
+        {
+            FluidTankInfo[] infos = readFluidInfosFromNBT(tag);
+            addTankTooltip(currenttip, infos);
+        }
+    }
+
+    public static void addTankTooltip(List<String> currenttip, FluidTankInfo... tanks)
+    {
+        for (FluidTankInfo tank : tanks)
+        {
+            if (tank != null && tank.fluid != null)
+            {
+                currenttip.add(tank.fluid.amount + " / " + tank.capacity + " mB " + tank.fluid.getLocalizedName());
+            }
+        }
     }
 
     @Override
@@ -82,5 +104,54 @@ public class Plugin_Forge extends PluginBase
                 tag.setInteger(DSU_AMNT, stack.stackSize);
             }
         }
+        if (te instanceof IFluidHandler)
+        {
+            writeFluidInfoToNBT((IFluidHandler) te, tag);
+        }
+    }
+    
+    public static void writeFluidInfoToNBT(IFluidHandler te, NBTTagCompound tag)
+    {
+        FluidTankInfo[] infos = ((IFluidHandler)te).getTankInfo(ForgeDirection.UNKNOWN);
+        if (infos != null && infos.length > 0)
+        {
+            NBTTagList infoList = new NBTTagList();
+            for (FluidTankInfo info : infos)
+            {
+                NBTTagCompound infoTag = new NBTTagCompound();
+                writeFluidInfoToNBT(info, infoTag);
+                infoList.appendTag(infoTag);
+            }
+            tag.setTag("fluidInfo", infoList);
+        }
+    }
+    
+    public static FluidTankInfo[] readFluidInfosFromNBT(NBTTagCompound tag)
+    {
+        NBTTagList list = tag.getTagList("fluidInfo", Constants.NBT.TAG_COMPOUND);
+        FluidTankInfo[] ret = new FluidTankInfo[list.tagCount()];
+        for (int i = 0; i < ret.length; i++)
+        {
+            ret[i] = readFluidInfoFromNBT(list.getCompoundTagAt(i));
+        }
+        return ret;
+    }
+
+    public static void writeFluidInfoToNBT(FluidTankInfo info, NBTTagCompound tag)
+    {
+        if (info.fluid != null)
+        {
+            NBTTagCompound fluidTag = new NBTTagCompound();
+            info.fluid.writeToNBT(fluidTag);
+            tag.setTag("fluid", fluidTag);
+        }
+        tag.setInteger("capacity", info.capacity);
+    }
+    
+    public static FluidTankInfo readFluidInfoFromNBT(NBTTagCompound tag)
+    {
+        FluidStack fluid = tag.hasKey("fluid") ? FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("fluid")) : null;
+        int capacity = tag.getInteger("capacity");
+        return new FluidTankInfo(fluid, capacity);
     }
 }

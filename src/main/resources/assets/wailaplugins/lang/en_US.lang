@@ -5,8 +5,8 @@ wp.hud.msg.no=No
 
 wailaplugins.config.title=WAILAPlugins Configuration
 wailaplugins.config.section.blood_magic=Blood Magic Settings
+wailaplugins.config.section.railcraft=Railcraft Settings
 wailaplugins.config.section.plugins=Global Plugin Settings
-
 
 ## Blood Magic ##
 
@@ -80,6 +80,8 @@ wp.hud.msg.formed=Formed: %s
 
 wp.hud.msg.generating=Generating: %d RF/t
 wp.hud.msg.engineTemp=Temperature: %d / %d °C
+wp.hud.msg.temp=Temperature: %d °C
+wp.hud.msg.energyStored=Stored: %s
 
 wp.hud.msg.charge=Charge: %s
 wp.hud.msg.needMeter=Hold Charge Meter

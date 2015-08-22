@@ -13,6 +13,7 @@ import com.enderio.core.common.Lang;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
 import static tterrag.wailaplugins.WailaPlugins.*;
@@ -33,11 +34,17 @@ public class WailaPlugins implements IEnderMod
     public static final Lang lang = new Lang("wp.hud.msg");
     
     @EventHandler
-    public static void preInit(FMLPreInitializationEvent event)
+    public void preInit(FMLPreInitializationEvent event)
     {
         WPConfigHandler.INSTANCE.initialize(event.getSuggestedConfigurationFile());
         
         Plugins.INSTANCE.preInit();
+    }
+    
+    @EventHandler
+    public void loadComplete(FMLLoadCompleteEvent event)
+    {
+        Plugins.INSTANCE.postInit();
     }
     
     @Override

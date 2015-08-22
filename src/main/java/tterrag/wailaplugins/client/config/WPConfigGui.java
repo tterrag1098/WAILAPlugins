@@ -23,7 +23,7 @@ public class WPConfigGui extends BaseConfigGui
     @Override
     protected String getTitle()
     {
-        return WailaPlugins.lang.localize(WailaPlugins.MODID + ".config.title", false);
+        return WailaPlugins.lang.localizeExact(WailaPlugins.MODID + ".config.title", false);
     }
     
     @Override
