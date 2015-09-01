@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import lombok.SneakyThrows;
+import mcp.mobius.waila.api.ITaggedList;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import tterrag.wailaplugins.api.Order;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import WayofTime.alchemicalWizardry.ModItems;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
@@ -28,6 +30,8 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 /**
  * @author Pokefenn (edits by tterrag)
  */
+// Load last (or at least after forge plugin) so that we can remove fluid tooltip
+@Order(1)
 public class Plugin_AWWayofTime extends PluginBase
 {
     private static final String KEY_CURRENT_LP = "lp";
@@ -54,9 +58,12 @@ public class Plugin_AWWayofTime extends PluginBase
         addConfig("teleposer");
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void getBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor)
     {
+        ((ITaggedList<String, String>)currenttip).removeEntries("IFluidHandler");
+        
         boolean hasSeer = false;
         boolean hasSigil = false;
 

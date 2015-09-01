@@ -1,6 +1,7 @@
 package tterrag.wailaplugins.plugins;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -8,6 +9,7 @@ import mcp.mobius.waila.api.impl.ConfigHandler;
 import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
+import tterrag.wailaplugins.api.Order;
 import tterrag.wailaplugins.config.WPConfigHandler;
 
 import com.google.common.collect.Lists;
@@ -59,7 +61,6 @@ public enum Plugins
                             {
                                 IPlugin inst = (IPlugin) clazz.newInstance();
                                 cfg.addConfig(WailaPlugins.NAME, modid, getModContainerFromID(modid).getName());
-                                inst.load(ModuleRegistrar.instance());
                                 allPlugins.add(inst);
                             }
                             catch (IllegalAccessException e)
@@ -103,6 +104,26 @@ public enum Plugins
                     WailaPlugins.logger.info(err, modid);
                 }
             }
+        }
+        
+        allPlugins.sort(new Comparator<IPlugin>()
+        {
+            @Override
+            public int compare(IPlugin o1, IPlugin o2)
+            {
+                Order order1 = o1.getClass().getAnnotation(Order.class);
+                Order order2 = o2.getClass().getAnnotation(Order.class);
+
+                int i1 = order1 == null ? 0 : order1.value();
+                int i2 = order2 == null ? 0 : order2.value();
+
+                return Double.compare(i1, i2);
+            }
+        });
+
+        for (IPlugin p : allPlugins)
+        {
+            p.load(ModuleRegistrar.instance());
         }
     }
     

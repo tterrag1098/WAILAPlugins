@@ -2,14 +2,17 @@ package tterrag.wailaplugins.plugins;
 
 import java.util.List;
 
+import mcp.mobius.waila.api.ITaggedList;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
+import mcp.mobius.waila.api.impl.ConfigHandler;
+import mcp.mobius.waila.utils.Constants;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -31,6 +34,12 @@ public class Plugin_Forge extends PluginBase
 
         registerBody(IDeepStorageUnit.class, IFluidHandler.class);
         registerNBT(IDeepStorageUnit.class, IFluidHandler.class);
+    }
+
+    @Override
+    public void postLoad()
+    {
+        ConfigHandler.instance().setConfig(Constants.CATEGORY_MODULES, "thermalexpansion.fluidamount", false);
     }
 
     @Override
@@ -79,13 +88,14 @@ public class Plugin_Forge extends PluginBase
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static void addTankTooltip(List<String> currenttip, FluidTankInfo... tanks)
     {
         for (FluidTankInfo tank : tanks)
         {
             if (tank != null && tank.fluid != null)
             {
-                currenttip.add(tank.fluid.amount + " / " + tank.capacity + " mB " + tank.fluid.getLocalizedName());
+                ((ITaggedList<String, String>)currenttip).add(tank.fluid.amount + " / " + tank.capacity + " mB " + tank.fluid.getLocalizedName(), "IFluidHandler");
             }
         }
     }
@@ -128,7 +138,7 @@ public class Plugin_Forge extends PluginBase
     
     public static FluidTankInfo[] readFluidInfosFromNBT(NBTTagCompound tag)
     {
-        NBTTagList list = tag.getTagList("fluidInfo", Constants.NBT.TAG_COMPOUND);
+        NBTTagList list = tag.getTagList("fluidInfo", NBT.TAG_COMPOUND);
         FluidTankInfo[] ret = new FluidTankInfo[list.tagCount()];
         for (int i = 0; i < ret.length; i++)
         {
