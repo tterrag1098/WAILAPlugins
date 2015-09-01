@@ -1,6 +1,7 @@
 package tterrag.wailaplugins.plugins;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -106,7 +107,7 @@ public enum Plugins
             }
         }
         
-        allPlugins.sort(new Comparator<IPlugin>()
+        Collections.sort(allPlugins, new Comparator<IPlugin>()
         {
             @Override
             public int compare(IPlugin o1, IPlugin o2)
