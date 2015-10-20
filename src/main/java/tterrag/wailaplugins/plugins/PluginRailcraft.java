@@ -37,12 +37,14 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import tterrag.wailaplugins.api.Plugin;
 import tterrag.wailaplugins.config.WPConfigHandler;
 
 import com.enderio.core.common.util.BlockCoord;
 import com.enderio.core.common.util.ItemUtil;
 
-public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
+@Plugin(deps = "Railcraft")
+public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
 {
     private static final DecimalFormat fmtCharge = new DecimalFormat("#.##");
     @Override
@@ -99,8 +101,8 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
         
         if (tag.hasKey(TANK_FLUID))
         {
-            FluidTankInfo info = Plugin_Forge.readFluidInfoFromNBT(tag.getCompoundTag(TANK_FLUID));
-            Plugin_Forge.addTankTooltip(currenttip, info);
+            FluidTankInfo info = PluginForge.readFluidInfoFromNBT(tag.getCompoundTag(TANK_FLUID));
+            PluginForge.addTankTooltip(currenttip, info);
         }
         
         if (getConfig("charge") && tag.hasKey(CHARGE))
@@ -145,7 +147,7 @@ public class Plugin_Railcraft extends PluginBase implements IWailaEntityProvider
                 te = ((TileMultiBlock) te).getMasterBlock();
                 StandardTank tank = ((TileTankBase)te).getTank();
                 NBTTagCompound fluidTag = new NBTTagCompound();
-                Plugin_Forge.writeFluidInfoToNBT(tank.getInfo(), fluidTag);
+                PluginForge.writeFluidInfoToNBT(tank.getInfo(), fluidTag);
                 tag.setTag(TANK_FLUID, fluidTag);
             }
             te = ((TileMultiBlock) te).getMasterBlock();

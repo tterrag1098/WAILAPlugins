@@ -2,6 +2,7 @@ package tterrag.wailaplugins.plugins;
 
 import java.util.List;
 
+import tterrag.wailaplugins.api.Plugin;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mekanism.api.gas.GasStack;
@@ -24,7 +25,8 @@ import net.minecraftforge.fluids.FluidStack;
 
 import com.enderio.core.common.util.BlockCoord;
 
-public class Plugin_Mekanism extends PluginBase
+@Plugin(deps = "Mekanism")
+public class PluginMekanism extends PluginBase
 {
     @Override
     public void load(IWailaRegistrar registrar)

@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import tterrag.wailaplugins.api.Order;
+import tterrag.wailaplugins.api.Plugin;
 import tterrag.wailaplugins.config.WPConfigHandler;
 import WayofTime.alchemicalWizardry.ModItems;
 import WayofTime.alchemicalWizardry.api.rituals.Rituals;
@@ -30,9 +30,8 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 /**
  * @author Pokefenn (edits by tterrag)
  */
-// Load last (or at least after forge plugin) so that we can remove fluid tooltip
-@Order(1)
-public class Plugin_AWWayofTime extends PluginBase
+@Plugin(name = "Blood Magic", deps = "AWWayofTime", order = 1 /* After Forge Plugin */)
+public class PluginBloodMagic extends PluginBase
 {
     private static final String KEY_CURRENT_LP = "lp";
     private static final String KEY_CAPACITY = "cap";

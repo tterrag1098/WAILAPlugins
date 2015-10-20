@@ -15,6 +15,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
 import tterrag.wailaplugins.WailaPlugins;
+import tterrag.wailaplugins.api.Plugin;
 import cofh.api.item.IAugmentItem;
 import cofh.thermalexpansion.block.TileAugmentable;
 import cofh.thermalexpansion.block.machine.TileMachineBase;
@@ -22,7 +23,8 @@ import cofh.thermalexpansion.block.machine.TileMachineBase;
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.util.BlockCoord;
 
-public class Plugin_ThermalExpansion extends PluginBase
+@Plugin(name = "TE Augments", deps = "ThermalExpansion")
+public class PluginThermalExpansion extends PluginBase
 {
     private Lang teLang = new Lang("info.thermalexpansion");
 

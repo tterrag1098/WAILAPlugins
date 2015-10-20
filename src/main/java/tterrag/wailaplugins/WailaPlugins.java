@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import tterrag.wailaplugins.config.WPConfigHandler;
-import tterrag.wailaplugins.plugins.Plugins;
+import tterrag.wailaplugins.plugins.PluginRegistrar;
 import tterrag.wailaplugins.proxy.CommonProxy;
 
 import com.enderio.core.IEnderMod;
@@ -38,13 +38,13 @@ public class WailaPlugins implements IEnderMod
     {
         WPConfigHandler.INSTANCE.initialize(event.getSuggestedConfigurationFile());
         
-        Plugins.INSTANCE.preInit();
+        PluginRegistrar.INSTANCE.preInit(event);
     }
     
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event)
     {
-        Plugins.INSTANCE.postInit();
+        PluginRegistrar.INSTANCE.postInit();
     }
     
     @Override

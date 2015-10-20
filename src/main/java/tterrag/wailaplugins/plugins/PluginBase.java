@@ -14,6 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
+import tterrag.wailaplugins.api.Plugin;
 
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.util.BlockCoord;
@@ -103,7 +104,7 @@ public abstract class PluginBase implements IPlugin
 
     protected void addConfig(String key, boolean def)
     {
-        ConfigHandler.instance().addConfig(Plugins.getModName(this.getClass()), getKey(key), configLang.localize(String.format("config.%s.%s", Plugins.getModid(getClass()), key)), def);
+        ConfigHandler.instance().addConfig(PluginRegistrar.getPluginName(this.getClass()), getKey(key), configLang.localize(String.format("config.%s.%s", PluginRegistrar.getPluginName(getClass()), key)), def);
     }
     
     protected boolean getConfig(String key)
@@ -113,7 +114,7 @@ public abstract class PluginBase implements IPlugin
     
     private String getKey(String key)
     {
-        return Plugins.getModid(this.getClass()) + ":" + key;
+        return PluginRegistrar.getPluginName(this.getClass()) + ":" + key;
     }
     
     @Override
@@ -177,6 +178,18 @@ public abstract class PluginBase implements IPlugin
 
     protected boolean enabled()
     {
-        return ConfigHandler.instance().getConfig("modules", Plugins.getModid(this.getClass()), true);
+        return ConfigHandler.instance().getConfig("modules", PluginRegistrar.getPluginName(this.getClass()), true);
+    }
+
+    @Override
+    public String toString()
+    {
+        Plugin annot = getClass().getAnnotation(Plugin.class);
+        if (annot == null)
+        {
+            return super.toString();
+        }
+        String ret = annot.name();
+        return ret.isEmpty() ? PluginRegistrar.getModContainerFromID(annot.deps()[0]).getName() : ret;
     }
 }

@@ -15,15 +15,16 @@ import tehnut.resourceful.crops.block.BlockRCrop;
 import tehnut.resourceful.crops.registry.ItemRegistry;
 import tehnut.resourceful.crops.tile.TileRCrop;
 import tehnut.resourceful.crops.util.Utils;
+import tterrag.wailaplugins.api.Plugin;
 
 import com.enderio.core.client.render.RenderUtil;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
 import static org.lwjgl.opengl.GL11.*;
 
-public class Plugin_ResourcefulCrops extends PluginBase implements IWailaBlockDecorator {
+@Plugin(deps = "ResourcefulCrops")
+public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDecorator {
 
     private static EntityItem item;
 

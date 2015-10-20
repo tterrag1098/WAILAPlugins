@@ -10,11 +10,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidTankInfo;
+import tterrag.wailaplugins.api.Plugin;
 
 import com.enderio.core.common.util.BlockCoord;
 import com.rwtema.extrautils.tileentity.TileEntityDrum;
 
-public class Plugin_ExtraUtilities extends PluginBase
+@Plugin(deps = "ExtraUtilities")
+public class PluginExtraUtilities extends PluginBase
 {
     @Override
     public void load(IWailaRegistrar registrar)

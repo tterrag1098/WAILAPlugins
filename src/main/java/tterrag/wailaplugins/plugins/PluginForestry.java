@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -21,45 +22,50 @@ import net.minecraft.world.World;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import tterrag.wailaplugins.api.Plugin;
+
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.util.BlockCoord;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mojang.authlib.GameProfile;
 
 import forestry.api.apiculture.EnumBeeChromosome;
+import forestry.api.apiculture.IBee;
 import forestry.api.apiculture.IBeeHousing;
+import forestry.api.apiculture.IBeeHousingInventory;
+import forestry.api.apiculture.IBeekeepingLogic;
 import forestry.api.arboriculture.EnumTreeChromosome;
 import forestry.api.arboriculture.ITree;
-import forestry.api.core.ErrorStateRegistry;
+import forestry.api.arboriculture.ITreeGenome;
+import forestry.api.core.ForestryAPI;
+import forestry.api.core.IErrorLogic;
 import forestry.api.core.IErrorState;
 import forestry.api.genetics.IGenome;
 import forestry.apiculture.BeekeepingLogic;
-import forestry.apiculture.gadgets.TileAlveary;
-import forestry.apiculture.gadgets.TileAlvearyPlain;
-import forestry.apiculture.gadgets.TileBeehouse;
 import forestry.apiculture.genetics.Bee;
-import forestry.arboriculture.gadgets.TileLeaves;
-import forestry.arboriculture.gadgets.TileSapling;
-import forestry.arboriculture.gadgets.TileTreeContainer;
+import forestry.apiculture.multiblock.TileAlveary;
 import forestry.arboriculture.genetics.Tree;
+import forestry.arboriculture.tiles.TileLeaves;
+import forestry.arboriculture.tiles.TileTreeContainer;
+import forestry.core.access.IOwnable;
 import forestry.core.config.ForestryItem;
-import forestry.core.gadgets.Engine;
-import forestry.core.gadgets.TileForestry;
 import forestry.core.proxy.Proxies;
+import forestry.core.tiles.TileEngine;
+import forestry.core.tiles.TileForestry;
 import forestry.core.utils.StringUtil;
 import forestry.plugins.PluginApiculture;
 
-public class Plugin_Forestry extends PluginBase
+@Plugin(name = "Forestry", deps = "Forestry")
+public class PluginForestry extends PluginBase
 {
     private static Field _throttle;
     private static Field _maxHeat;
-    private static Field _logic;
-    private static Field _alvearyLogic;
     private static NumberFormat pctFmt = NumberFormat.getPercentInstance();
     private static Lang forLang = new Lang("for");
 
     @SneakyThrows
-    public Plugin_Forestry()
+    public PluginForestry()
     {
         try
         {
@@ -73,14 +79,8 @@ public class Plugin_Forestry extends PluginBase
 
         _throttle.setAccessible(true);
 
-        _maxHeat = Engine.class.getDeclaredField("maxHeat");
+        _maxHeat = TileEngine.class.getDeclaredField("maxHeat");
         _maxHeat.setAccessible(true);
-
-        _logic = TileBeehouse.class.getDeclaredField("logic");
-        _logic.setAccessible(true);
-
-        _alvearyLogic = TileAlvearyPlain.class.getDeclaredField("beekeepingLogic");
-        _alvearyLogic.setAccessible(true);
 
         pctFmt.setMinimumFractionDigits(2);
     }
@@ -90,9 +90,9 @@ public class Plugin_Forestry extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(TileForestry.class, TileTreeContainer.class);
+        registerBody(TileForestry.class, TileTreeContainer.class, TileAlveary.class);
 
-        registerNBT(TileForestry.class, TileTreeContainer.class);
+        registerNBT(TileForestry.class, TileTreeContainer.class, TileAlveary.class);
 
         addConfig("power");
         addConfig("heat");
@@ -127,7 +127,7 @@ public class Plugin_Forestry extends PluginBase
         if (tag.hasKey(TREE) && getConfig("sapling"))
         {
             ITree tree = new Tree(tag.getCompoundTag(TREE));
-            addGenomeTooltip((TileSapling) tile, tree, player, currenttip);
+            addGenomeTooltip(tag, (TileTreeContainer) tile, tree, player, currenttip);
         }
 
         if (tile instanceof TileLeaves && getConfig("leaves"))
@@ -138,7 +138,7 @@ public class Plugin_Forestry extends PluginBase
             }
         }
 
-        if ((tile instanceof IBeeHousing || tile instanceof TileAlveary) && getConfig("apiary"))
+        if (tile instanceof IBeeHousing && getConfig("apiary"))
         {
             ItemStack queenstack = null;
             ItemStack dronestack = null;
@@ -151,7 +151,7 @@ public class Plugin_Forestry extends PluginBase
                 dronestack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(DRONE_STACK));
             }
 
-            Bee queen = null;
+            IBee queen = null;
 
             if (queenstack != null)
             {
@@ -166,7 +166,7 @@ public class Plugin_Forestry extends PluginBase
                 }
             }
 
-            Bee drone = null;
+            IBee drone = null;
 
             if (queen != null && queen.getMate() != null)
             {
@@ -194,7 +194,7 @@ public class Plugin_Forestry extends PluginBase
                 Set<IErrorState> errs = Sets.newHashSet();
                 for (int i : ids)
                 {
-                    errs.add(ErrorStateRegistry.getErrorState((short) i));
+                    errs.add(ForestryAPI.errorStateRegistry.getErrorState((short) i));
                 }
 
                 if (!errs.isEmpty())
@@ -214,9 +214,11 @@ public class Plugin_Forestry extends PluginBase
         }
     }
 
-    private void addGenomeTooltip(TileTreeContainer te, ITree tree, EntityPlayer player, List<String> currenttip)
+    private void addGenomeTooltip(NBTTagCompound tag, TileTreeContainer te, ITree tree, EntityPlayer player, List<String> currenttip)
     {
-        if (/* XXX BUGGED Uncomment when using 4.x te.isOwner(player) && */ (tree.isAnalyzed() || te instanceof TileLeaves))
+        UUID owner = UUID.fromString(tag.getString(OWNER));
+        // XXX Leaf isAnalyzed is not working properly, wait for forestry fix
+        if (owner.equals(player.getGameProfile().getId()) && (tree.isAnalyzed() || te instanceof TileLeaves))
         {
             addTreeTooltip(tree, currenttip);
         }
@@ -250,7 +252,7 @@ public class Plugin_Forestry extends PluginBase
                 : ForestryItem.beePrincessGE.isItemEqual(bee.getItem()) ? lang.localize("princess") : lang.localize("queen");
     }
 
-    private void addIndentedBeeInfo(Bee bee, List<String> currenttip)
+    private void addIndentedBeeInfo(IBee bee, List<String> currenttip)
     {
         if (Proxies.common.isShiftDown())
         {
@@ -277,6 +279,7 @@ public class Plugin_Forestry extends PluginBase
     public static final String ENERGY_STORED = "rfStored";
     public static final String MAX_ENERGY_STORED = "maxRfStored";
     public static final String HEAT = "engineHeat";
+    public static final String OWNER = "tileOwner";
 
     @Override
     @SneakyThrows
@@ -284,30 +287,23 @@ public class Plugin_Forestry extends PluginBase
     {
         if (te instanceof TileLeaves)
         {
-            tag.setString(LEAF_BRED_SPECIES, ((TileLeaves) te).getTree().getMate().getActiveAllele(EnumTreeChromosome.SPECIES).getName());
+            ITreeGenome mate = ((TileLeaves) te).getTree().getMate();
+            if (mate != null)
+            {
+                tag.setString(LEAF_BRED_SPECIES, mate.getActiveAllele(EnumTreeChromosome.SPECIES).getName());
+            }
         }
-        if (te instanceof IBeeHousing || te instanceof TileAlveary)
+        if (te instanceof IBeeHousing)
         {
-            BeekeepingLogic logic = null;
-            if (te instanceof TileBeehouse)
-            {
-                logic = (BeekeepingLogic) _logic.get(te);
-            }
-            else if (te instanceof TileAlveary)
-            {
-                te = (TileEntity) ((TileAlveary) te).getCentralTE();
-                if (te != null)
-                {
-                    logic = (BeekeepingLogic) _alvearyLogic.get(te);
-                }
-            }
+            IBeeHousing housing = (IBeeHousing) te;
+            IBeekeepingLogic logic = housing.getBeekeepingLogic();
+            IBeeHousingInventory inv = housing.getBeeInventory();
+            IErrorLogic errs = housing.getErrorLogic();
 
             if (logic != null)
             {
-                IBeeHousing beehouse = (IBeeHousing) te;
-                
-                ItemStack queen = beehouse.getQueen();
-                ItemStack drone = beehouse.getDrone();
+                ItemStack queen = inv.getQueen();
+                ItemStack drone = inv.getDrone();
                 if (queen != null)
                 {
                     NBTTagCompound queenTag = new NBTTagCompound();
@@ -320,7 +316,7 @@ public class Plugin_Forestry extends PluginBase
                     drone.writeToNBT(droneTag);
                     tag.setTag(DRONE_STACK, droneTag);
                 }
-                Set<IErrorState> errors = beehouse.getErrorStates();
+                Set<IErrorState> errors = errs.getErrorStates();
                 List<Integer> ids = Lists.newArrayList();
                 for (IErrorState error : errors)
                 {
@@ -345,18 +341,23 @@ public class Plugin_Forestry extends PluginBase
                 }
             }
         }
-        if (te instanceof TileSapling)
+        if (te instanceof TileTreeContainer)
         {
-            ITree tree = ((TileSapling) te).getTree();
+            ITree tree = ((TileTreeContainer) te).getTree();
             NBTTagCompound treeTag = new NBTTagCompound();
             tree.writeToNBT(treeTag);
             tag.setTag(TREE, treeTag);
         }
-        if (te instanceof Engine)
+        if (te instanceof TileEngine)
         {
-            tag.setInteger(ENERGY_STORED, ((Engine) te).getEnergyManager().getTotalEnergyStored());
-            tag.setInteger(MAX_ENERGY_STORED, ((Engine) te).maxEnergy);
-            tag.setInteger(HEAT, ((Engine) te).getHeat());
+            tag.setInteger(ENERGY_STORED, ((TileEngine) te).getEnergyManager().getTotalEnergyStored());
+            tag.setInteger(MAX_ENERGY_STORED, ((TileEngine) te).getEnergyManager().getMaxEnergyStored());
+            tag.setInteger(HEAT, ((TileEngine) te).getHeat());
+        }
+        if (te instanceof IOwnable)
+        {
+            GameProfile owner = ((TileTreeContainer) te).getOwner();
+            tag.setString(OWNER, owner.getId().toString());
         }
     }
 }

@@ -2,6 +2,7 @@ package tterrag.wailaplugins.plugins;
 
 import java.util.List;
 
+import tterrag.wailaplugins.api.Plugin;
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -17,10 +18,10 @@ import com.mark719.magicalcrops.blocks.BlockMagicalCrops;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
 import static org.lwjgl.opengl.GL11.*;
 
-public class Plugin_magicalcrops extends PluginBase implements IWailaBlockDecorator
+@Plugin(deps = "magicalcrops")
+public class PluginMagicalCrops extends PluginBase implements IWailaBlockDecorator
 {
     public void load(IWailaRegistrar registrar)
     {

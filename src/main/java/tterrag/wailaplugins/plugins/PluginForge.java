@@ -18,11 +18,13 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
+import tterrag.wailaplugins.api.Plugin;
 
 import com.enderio.core.common.util.BlockCoord;
 
 // Plugin for those which should be enabled 100% of the time
-public class Plugin_Forge extends PluginBase
+@Plugin(name = "Stuff")
+public class PluginForge extends PluginBase
 {
     public static final String DSU_STACK = "dsuStack";
     public static final String DSU_AMNT = "dsuAmnt";

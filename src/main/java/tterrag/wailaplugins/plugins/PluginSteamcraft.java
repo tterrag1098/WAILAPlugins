@@ -11,6 +11,7 @@ import net.minecraft.util.EnumChatFormatting;
 
 import org.apache.commons.lang3.StringUtils;
 
+import tterrag.wailaplugins.api.Plugin;
 import flaxbeard.steamcraft.api.CrucibleLiquid;
 import flaxbeard.steamcraft.block.BlockSteamGauge;
 import flaxbeard.steamcraft.block.BlockSteamTank;
@@ -21,7 +22,8 @@ import flaxbeard.steamcraft.tile.TileEntitySteamGauge;
 import flaxbeard.steamcraft.tile.TileEntitySteamTank;
 import flaxbeard.steamcraft.tile.TileEntityValvePipe;
 
-public class Plugin_Steamcraft extends PluginBase
+@Plugin(deps = "Steamcraft")
+public class PluginSteamcraft extends PluginBase
 {
     @Override
     public void load(IWailaRegistrar registrar)

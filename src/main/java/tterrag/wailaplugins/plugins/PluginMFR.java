@@ -9,10 +9,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import powercrystals.minefactoryreloaded.tile.base.TileEntityFactoryPowered;
+import tterrag.wailaplugins.api.Plugin;
 
 import com.enderio.core.common.util.BlockCoord;
 
-public class Plugin_MineFactoryReloaded extends PluginBase
+@Plugin(name = "MFR", deps = "MineFactoryReloaded")
+public class PluginMFR extends PluginBase
 {
     public static final String WORK_DONE = "workDone";
     public static final String IDLE_TIME = "idleTime";

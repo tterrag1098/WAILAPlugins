@@ -3,6 +3,7 @@ package tterrag.wailaplugins.plugins;
 import java.text.NumberFormat;
 import java.util.List;
 
+import tterrag.wailaplugins.api.Plugin;
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -32,7 +33,8 @@ import static net.minecraftforge.common.util.ForgeDirection.*;
 /**
  * @author ProfMobius, ported and adapted to RedLogic by tterrag
  */
-public class Plugin_RedLogic extends PluginBase implements IWailaBlockDecorator
+@Plugin(deps = "RedLogic")
+public class PluginRedLogic extends PluginBase implements IWailaBlockDecorator
 {
     // @formatter:off
     byte[][] IOARRAY = {
