@@ -112,6 +112,10 @@ public enum PluginRegistrar
             }
             else
             {
+                if (name == null)
+                {
+                    name = deps.get(0);
+                }
                 String[] unfound = getUnfoundDeps(deps);
                 WailaPlugins.logger.info("Skipping over plugin {} as its dependencies {} were not found.", name, unfound);
             }
@@ -196,9 +200,18 @@ public enum PluginRegistrar
     public static String getPluginName(Class<?> c)
     {
         Plugin p = c.getAnnotation(Plugin.class);
-        return p == null ? null : p.name();
+        if (p == null)
+        {
+            return null;
+        }
+        String name = p.name();
+        if (name.isEmpty() && p.deps().length > 0)
+        {
+            name = p.deps()[0];
+        }
+        return name;
     }
-    
+
     public static ModContainer getModContainerFromID(String modid)
     {
         for (ModContainer c : Loader.instance().getModList())
