@@ -101,8 +101,8 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
         
         if (tag.hasKey(TANK_FLUID))
         {
-            FluidTankInfo info = PluginForge.readFluidInfoFromNBT(tag.getCompoundTag(TANK_FLUID));
-            PluginForge.addTankTooltip(currenttip, info);
+            FluidTankInfo info = PluginIFluidHandler.readFluidInfoFromNBT(tag.getCompoundTag(TANK_FLUID));
+            PluginIFluidHandler.addTankTooltip(currenttip, info);
         }
         
         if (getConfig("charge") && tag.hasKey(CHARGE))
@@ -147,7 +147,7 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
                 te = ((TileMultiBlock) te).getMasterBlock();
                 StandardTank tank = ((TileTankBase)te).getTank();
                 NBTTagCompound fluidTag = new NBTTagCompound();
-                PluginForge.writeFluidInfoToNBT(tank.getInfo(), fluidTag);
+                PluginIFluidHandler.writeFluidInfoToNBT(tank.getInfo(), fluidTag);
                 tag.setTag(TANK_FLUID, fluidTag);
             }
             te = ((TileMultiBlock) te).getMasterBlock();
