@@ -356,7 +356,7 @@ public class PluginForestry extends PluginBase
         }
         if (te instanceof IOwnable)
         {
-            GameProfile owner = ((TileTreeContainer) te).getOwner();
+            GameProfile owner = ((IOwnable) te).getOwner();
             tag.setString(OWNER, owner.getId().toString());
         }
     }
