@@ -1,5 +1,8 @@
 package tterrag.wailaplugins.plugins;
 
+import com.enderio.core.client.render.RenderUtil;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -17,10 +20,6 @@ import tehnut.resourceful.crops.tile.TileRCrop;
 import tehnut.resourceful.crops.util.Utils;
 import tterrag.wailaplugins.api.Plugin;
 
-import com.enderio.core.client.render.RenderUtil;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import static org.lwjgl.opengl.GL11.*;
 
 @Plugin(deps = "ResourcefulCrops")
@@ -29,8 +28,7 @@ public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDec
     private static EntityItem item;
 
     @Override
-    public void load(IWailaRegistrar registrar)
-    {
+    public void load(IWailaRegistrar registrar) {
         super.load(registrar);
 
         registrar.registerDecorator(this, BlockRCrop.class);
@@ -40,24 +38,21 @@ public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDec
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void decorateBlock(ItemStack itemStack, IWailaDataAccessor accessor, IWailaConfigHandler config)
-    {
+    public void decorateBlock(ItemStack itemStack, IWailaDataAccessor accessor, IWailaConfigHandler config) {
         if (!getConfig("showHover") || !enabled())
             return;
 
         Vec3 pos = accessor.getRenderingPosition();
 
-        if (accessor.getBlock() instanceof BlockRCrop)
-        {
+        if (accessor.getBlock() instanceof BlockRCrop) {
             TileEntity cropTile = accessor.getTileEntity();
-            if (cropTile != null && cropTile instanceof TileRCrop)
-            {
+            if (cropTile != null && cropTile instanceof TileRCrop) {
                 Seed seed = SeedRegistry.getSeed(((TileRCrop) cropTile).getSeedName());
                 ItemStack hoverStack = Utils.isValidSeed(seed) ? new ItemStack(ItemRegistry.shard, 1, SeedRegistry.getIndexOf(seed)) : Utils.getInvalidSeed(ItemRegistry.shard);
-                
+
                 if (getConfig("showOutputItem"))
                     hoverStack = new ItemStack(seed.getOutput().getItem(), 1, seed.getOutput().getItemDamage());
-                
+
                 new ItemStack(ItemRegistry.shard, 1, SeedRegistry.getIndexOf(seed));
 
                 if (item == null)

@@ -1,19 +1,14 @@
 package tterrag.wailaplugins.api;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Plugin
-{
+public @interface Plugin {
     /**
      * The name of the plugin.
-     * 
+     * <p/>
      * If this is not implemented, it will use the mod name of the <b>first</b> dependency.
      */
     String name() default "";

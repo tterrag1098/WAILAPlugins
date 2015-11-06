@@ -1,31 +1,26 @@
 package tterrag.wailaplugins.plugins;
 
-import java.util.List;
-
-import tterrag.wailaplugins.api.Plugin;
+import com.pam.harvestcraft.BlockPamFruit;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
+import tterrag.wailaplugins.api.Plugin;
 
-import com.pam.harvestcraft.BlockPamFruit;
+import java.util.List;
 
 @Plugin(name = "Pam's Fruit", deps = "harvestcraft")
-public class PluginHarvestcraft extends PluginBase
-{
+public class PluginHarvestcraft extends PluginBase {
     @Override
-    public void load(IWailaRegistrar registrar)
-    {
+    public void load(IWailaRegistrar registrar) {
         super.load(registrar);
-        
+
         registerBody(BlockPamFruit.class);
     }
 
     @Override
-    public void getBody(ItemStack itemStack, List<String> toolTip, IWailaDataAccessor accessor)
-    {
-        if (accessor.getBlock() instanceof BlockPamFruit)
-        {
+    public void getBody(ItemStack itemStack, List<String> toolTip, IWailaDataAccessor accessor) {
+        if (accessor.getBlock() instanceof BlockPamFruit) {
             float growthValue = (accessor.getMetadata() / 2.0F) * 100.0F;
             if (growthValue < 100)
                 toolTip.add(String.format("%s : %.0f %%", StatCollector.translateToLocal("hud.msg.growth"), growthValue));
