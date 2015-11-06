@@ -2,11 +2,9 @@ package tterrag.wailaplugins.plugins;
 
 import com.enderio.core.common.Lang;
 import com.enderio.core.common.util.BlockCoord;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaEntityProvider;
-import mcp.mobius.waila.api.IWailaRegistrar;
+import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.impl.ConfigHandler;
+import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,16 +16,12 @@ import tterrag.wailaplugins.api.Plugin;
 
 import java.util.List;
 
-public abstract class PluginBase implements IPlugin {
+public abstract class WailaPluginBase implements IPlugin, IWailaDataProvider{
+
     protected static final Lang lang = WailaPlugins.lang;
     protected static final Lang wailaLang = new Lang("hud.msg");
     private static final Lang configLang = new Lang("wp");
-    private IWailaRegistrar reg;
-
-    @Override
-    public void load(IWailaRegistrar registrar) {
-        this.reg = registrar;
-    }
+    protected static final IWailaRegistrar registrar = ModuleRegistrar.instance();
 
     @Override
     public void postLoad() {
@@ -161,42 +155,42 @@ public abstract class PluginBase implements IPlugin {
     private enum RegType {
         // @formatter:off
         HEAD {
-            void register(PluginBase inst, Class<?> c) {
-                inst.reg.registerHeadProvider(inst, c);
+            void register(WailaPluginBase inst, Class<?> c) {
+                registrar.registerHeadProvider(inst, c);
             }
         },
         BODY {
-            void register(PluginBase inst, Class<?> c) {
-                inst.reg.registerBodyProvider(inst, c);
+            void register(WailaPluginBase inst, Class<?> c) {
+                registrar.registerBodyProvider(inst, c);
             }
         },
         TAIL {
-            void register(PluginBase inst, Class<?> c) {
-                inst.reg.registerTailProvider(inst, c);
+            void register(WailaPluginBase inst, Class<?> c) {
+                registrar.registerTailProvider(inst, c);
             }
         },
         NBT {
-            void register(PluginBase inst, Class<?> c) {
-                inst.reg.registerNBTProvider(inst, c);
+            void register(WailaPluginBase inst, Class<?> c) {
+                registrar.registerNBTProvider(inst, c);
             }
         },
         STACK {
-            void register(PluginBase inst, Class<?> c) {
-                inst.reg.registerStackProvider(inst, c);
+            void register(WailaPluginBase inst, Class<?> c) {
+                registrar.registerStackProvider(inst, c);
             }
         },
         ENTITY_BODY {
-            void register(PluginBase inst, Class<?> c) {
-                inst.reg.registerBodyProvider((IWailaEntityProvider) inst, c);
+            void register(WailaPluginBase inst, Class<?> c) {
+                registrar.registerBodyProvider((IWailaEntityProvider) inst, c);
             }
         },
         ENTITY_NBT {
-            void register(PluginBase inst, Class<?> c) {
-                inst.reg.registerNBTProvider((IWailaEntityProvider) inst, c);
+            void register(WailaPluginBase inst, Class<?> c) {
+                registrar.registerNBTProvider((IWailaEntityProvider) inst, c);
             }
         };
         // @formatter:on
 
-        abstract void register(PluginBase inst, Class<?> c);
+        abstract void register(WailaPluginBase inst, Class<?> c);
     }
 }

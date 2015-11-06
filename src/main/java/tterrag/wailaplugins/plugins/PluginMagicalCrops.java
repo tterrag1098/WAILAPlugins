@@ -7,7 +7,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
@@ -20,12 +19,12 @@ import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 
 @Plugin(deps = "magicalcrops")
-public class PluginMagicalCrops extends PluginBase implements IWailaBlockDecorator {
+public class PluginMagicalCrops extends WailaPluginBase implements IWailaBlockDecorator {
+
     private static EntityItem item;
 
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
-
+    @Override
+    public void load() {
         registerBody(BlockMagicalCrops.class);
 
         registrar.registerDecorator(this, BlockMagicalCrops.class);

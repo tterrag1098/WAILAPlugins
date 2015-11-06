@@ -12,7 +12,6 @@ import cpw.mods.fml.relauncher.ReflectionHelper;
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.ITaggedList;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,7 +28,8 @@ import java.util.List;
  * @author Pokefenn (edits by tterrag)
  */
 @Plugin(name = "Blood Magic", deps = "AWWayofTime", order = 1 /* After Forge Plugin */)
-public class PluginBloodMagic extends PluginBase {
+public class PluginBloodMagic extends WailaPluginBase {
+
     private static final String KEY_CURRENT_LP = "lp";
     private static final String KEY_CAPACITY = "cap";
     private static final String KEY_TIER = "tier";
@@ -41,8 +41,7 @@ public class PluginBloodMagic extends PluginBase {
     private static final Field liquidRequired = ReflectionHelper.findField(TEAltar.class, "liquidRequired");
 
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    public void load() {
 
         registerBody(TEAltar.class, TEWritingTable.class, TEMasterStone.class, TETeleposer.class);
 

@@ -2,7 +2,6 @@ package tterrag.wailaplugins.plugins;
 
 import com.enderio.core.common.util.BlockCoord;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import mekanism.api.gas.GasStack;
 import mekanism.common.Tier.EnergyCubeTier;
 import mekanism.common.base.IFactory.RecipeType;
@@ -20,10 +19,10 @@ import tterrag.wailaplugins.api.Plugin;
 import java.util.List;
 
 @Plugin(deps = "Mekanism")
-public class PluginMekanism extends PluginBase {
+public class PluginMekanism extends WailaPluginBase {
+
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    public void load() {
 
         registerBody(TileEntitySolarEvaporationController.class, TileEntityPortableTank.class, TileEntityGasTank.class, TileEntityElectricBlock.class);
 

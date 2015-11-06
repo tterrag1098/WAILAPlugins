@@ -3,7 +3,6 @@ package tterrag.wailaplugins.plugins;
 import com.enderio.core.common.util.BlockCoord;
 import mcp.mobius.waila.api.ITaggedList;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -19,7 +18,25 @@ import tterrag.wailaplugins.api.Plugin;
 import java.util.List;
 
 @Plugin(name = "IFluidHandler")
-public class PluginIFluidHandler extends PluginBase {
+public class PluginIFluidHandler extends WailaPluginBase {
+
+    @Override
+    public void load() {
+        registerBody(IFluidHandler.class);
+        registerNBT(IFluidHandler.class);
+    }
+
+    @Override
+    protected void getBody(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor) {
+        FluidTankInfo[] infos = readFluidInfosFromNBT(accessor.getNBTData());
+        addTankTooltip(currenttip, infos);
+    }
+
+    @Override
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos) {
+        writeFluidInfoToNBT((IFluidHandler) te, tag);
+    }
+
     @SuppressWarnings("unchecked")
     public static void addTankTooltip(List<String> currenttip, FluidTankInfo... tanks) {
         for (FluidTankInfo tank : tanks) {
@@ -65,24 +82,5 @@ public class PluginIFluidHandler extends PluginBase {
         FluidStack fluid = tag.hasKey("fluid") ? FluidStack.loadFluidStackFromNBT(tag.getCompoundTag("fluid")) : null;
         int capacity = tag.getInteger("capacity");
         return new FluidTankInfo(fluid, capacity);
-    }
-
-    @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
-
-        registerBody(IFluidHandler.class);
-        registerNBT(IFluidHandler.class);
-    }
-
-    @Override
-    protected void getBody(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor) {
-        FluidTankInfo[] infos = readFluidInfosFromNBT(accessor.getNBTData());
-        addTankTooltip(currenttip, infos);
-    }
-
-    @Override
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos) {
-        writeFluidInfoToNBT((IFluidHandler) te, tag);
     }
 }

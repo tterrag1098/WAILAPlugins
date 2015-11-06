@@ -2,7 +2,6 @@ package tterrag.wailaplugins.plugins;
 
 import com.enderio.core.common.util.BlockCoord;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.api.impl.ConfigHandler;
 import mcp.mobius.waila.utils.Constants;
 import net.minecraft.item.ItemStack;
@@ -15,14 +14,13 @@ import tterrag.wailaplugins.api.Plugin;
 import java.util.List;
 
 @Plugin(name = "DSU")
-public class PluginDSU extends PluginBase {
+public class PluginDSU extends WailaPluginBase {
+
     public static final String DSU_STACK = "dsuStack";
     public static final String DSU_AMNT = "dsuAmnt";
 
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
-
+    public void load() {
         registerBody(IDeepStorageUnit.class);
         registerNBT(IDeepStorageUnit.class);
     }

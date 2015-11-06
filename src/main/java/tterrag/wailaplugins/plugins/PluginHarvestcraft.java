@@ -2,7 +2,6 @@ package tterrag.wailaplugins.plugins;
 
 import com.pam.harvestcraft.BlockPamFruit;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
 import tterrag.wailaplugins.api.Plugin;
@@ -10,11 +9,10 @@ import tterrag.wailaplugins.api.Plugin;
 import java.util.List;
 
 @Plugin(name = "Pam's Fruit", deps = "harvestcraft")
-public class PluginHarvestcraft extends PluginBase {
-    @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+public class PluginHarvestcraft extends WailaPluginBase {
 
+    @Override
+    public void load() {
         registerBody(BlockPamFruit.class);
     }
 

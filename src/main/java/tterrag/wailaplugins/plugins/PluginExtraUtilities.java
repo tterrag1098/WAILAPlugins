@@ -3,7 +3,6 @@ package tterrag.wailaplugins.plugins;
 import com.enderio.core.common.util.BlockCoord;
 import com.rwtema.extrautils.tileentity.TileEntityDrum;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -15,11 +14,10 @@ import tterrag.wailaplugins.api.Plugin;
 import java.util.List;
 
 @Plugin(deps = "ExtraUtilities")
-public class PluginExtraUtilities extends PluginBase {
-    @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+public class PluginExtraUtilities extends WailaPluginBase {
 
+    @Override
+    public void load() {
         registerBody(TileEntityDrum.class);
         registerNBT(TileEntityDrum.class);
     }

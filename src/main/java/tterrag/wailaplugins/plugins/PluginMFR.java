@@ -2,7 +2,6 @@ package tterrag.wailaplugins.plugins;
 
 import com.enderio.core.common.util.BlockCoord;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -13,13 +12,13 @@ import tterrag.wailaplugins.api.Plugin;
 import java.util.List;
 
 @Plugin(name = "MFR", deps = "MineFactoryReloaded")
-public class PluginMFR extends PluginBase {
+public class PluginMFR extends WailaPluginBase {
+
     public static final String WORK_DONE = "workDone";
     public static final String IDLE_TIME = "idleTime";
 
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    public void load() {
         registerBody(TileEntityFactoryPowered.class);
         registerNBT(TileEntityFactoryPowered.class);
     }

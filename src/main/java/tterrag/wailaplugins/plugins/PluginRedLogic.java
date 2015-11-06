@@ -4,7 +4,6 @@ import com.enderio.core.common.util.BlockCoord;
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.gui.helpers.UIHelper;
 import mods.immibis.redlogic.gates.*;
 import mods.immibis.redlogic.gates.GateLogic.Flippable;
@@ -29,7 +28,7 @@ import static net.minecraftforge.common.util.ForgeDirection.*;
  * @author ProfMobius, ported and adapted to RedLogic by tterrag
  */
 @Plugin(deps = "RedLogic")
-public class PluginRedLogic extends PluginBase implements IWailaBlockDecorator {
+public class PluginRedLogic extends WailaPluginBase implements IWailaBlockDecorator {
     // repeater delays
     private static final int[] DELAYS = {1, 2, 4, 8, 16, 32, 64, 128}; // in redstone ticks
     private static final NumberFormat secFmt = NumberFormat.getNumberInstance();
@@ -69,8 +68,7 @@ public class PluginRedLogic extends PluginBase implements IWailaBlockDecorator {
     String[] IONAMES = {"", "IN", "OUT", "SWAP", "IN_A", "IN_B", "LOCK", "IO", "POS", "NEG", "BUS", "A", "B", "UNLOCK", "COMPARE", "SUBTRACT"};
 
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    public void load() {
 
         registrar.registerDecorator(this, GateBlock.class);
 

@@ -10,7 +10,6 @@ import flaxbeard.steamcraft.tile.TileEntitySteamGauge;
 import flaxbeard.steamcraft.tile.TileEntitySteamTank;
 import flaxbeard.steamcraft.tile.TileEntityValvePipe;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
@@ -21,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 @Plugin(deps = "Steamcraft")
-public class PluginSteamcraft extends PluginBase {
+public class PluginSteamcraft extends WailaPluginBase {
+
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    public void load() {
 
         registerBody(BlockSteamcraftCrucible.class, BlockSteamGauge.class, BlockValvePipe.class, BlockSteamTank.class);
 

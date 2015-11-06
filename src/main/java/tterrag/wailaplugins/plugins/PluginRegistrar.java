@@ -128,7 +128,7 @@ public enum PluginRegistrar {
         for (IPlugin p : allPlugins) {
             String name = getPluginName(p.getClass());
             try {
-                p.load(ModuleRegistrar.instance());
+                p.load();
                 WailaPlugins.logger.info("Successfully loaded plugin {}.", name);
             } catch (Throwable e) {
                 WailaPlugins.logger.fatal("Plugin {} threw an error on init. Skipping...", name);

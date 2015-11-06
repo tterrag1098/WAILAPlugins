@@ -34,7 +34,8 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 @Plugin(deps = "Railcraft")
-public class PluginRailcraft extends PluginBase implements IWailaEntityProvider {
+public class PluginRailcraft extends WailaPluginBase implements IWailaEntityProvider {
+
     public static final String TANK_FLUID = "tankFluid";
     public static final String HEAT = "heat";
     public static final String MAX_HEAT = "maxHeat";
@@ -43,26 +44,9 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider 
     public static final String CHARGE = "charge";
     private static final DecimalFormat fmtCharge = new DecimalFormat("#.##");
 
-    private static void addChargeTooltip(List<String> currenttip, NBTTagCompound tag, EntityPlayer player) {
-        ItemStack current = player.getCurrentEquippedItem();
-        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && ItemUtil.stacksEqual(current, ItemElectricMeter.getItem()));
-
-        double charge = tag.getDouble(CHARGE);
-        String chargeFmt = fmtCharge.format(charge) + "c";
-
-        currenttip.add(EnumChatFormatting.RESET + String.format(lang.localize("charge"), hasMeter ? chargeFmt : (EnumChatFormatting.ITALIC + lang.localize("needMeter"))));
-    }
-
-    private static void addHeatTooltip(List<String> currenttip, NBTTagCompound tag) {
-        int heat = Math.round(tag.getFloat(HEAT));
-        int max = Math.round(tag.getFloat(MAX_HEAT));
-
-        currenttip.add(String.format(lang.localize("engineTemp"), heat, max));
-    }
 
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    public void load() {
 
         registerBody(TileMachineBase.class, TileTrack.class);
         registerNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, TileMultiBlock.class);
@@ -195,5 +179,22 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider 
         }
 
         return tag;
+    }
+
+    private static void addChargeTooltip(List<String> currenttip, NBTTagCompound tag, EntityPlayer player) {
+        ItemStack current = player.getCurrentEquippedItem();
+        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && ItemUtil.stacksEqual(current, ItemElectricMeter.getItem()));
+
+        double charge = tag.getDouble(CHARGE);
+        String chargeFmt = fmtCharge.format(charge) + "c";
+
+        currenttip.add(EnumChatFormatting.RESET + String.format(lang.localize("charge"), hasMeter ? chargeFmt : (EnumChatFormatting.ITALIC + lang.localize("needMeter"))));
+    }
+
+    private static void addHeatTooltip(List<String> currenttip, NBTTagCompound tag) {
+        int heat = Math.round(tag.getFloat(HEAT));
+        int max = Math.round(tag.getFloat(MAX_HEAT));
+
+        currenttip.add(String.format(lang.localize("engineTemp"), heat, max));
     }
 }

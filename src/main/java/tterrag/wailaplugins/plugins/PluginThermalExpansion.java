@@ -7,7 +7,6 @@ import com.enderio.core.common.Lang;
 import com.enderio.core.common.util.BlockCoord;
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.api.SpecialChars;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,11 +22,12 @@ import java.util.List;
 import java.util.Set;
 
 @Plugin(name = "TE Augments", deps = "ThermalExpansion")
-public class PluginThermalExpansion extends PluginBase {
+public class PluginThermalExpansion extends WailaPluginBase {
+
     private Lang teLang = new Lang("info.thermalexpansion");
 
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    @Override
+    public void load() {
         registerBody(TileMachineBase.class);
         registerNBT(TileMachineBase.class);
     }

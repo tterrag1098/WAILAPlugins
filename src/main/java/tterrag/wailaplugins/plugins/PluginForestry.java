@@ -28,7 +28,6 @@ import forestry.core.utils.StringUtil;
 import forestry.plugins.PluginApiculture;
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.api.SpecialChars;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -49,7 +48,8 @@ import java.util.Set;
 import java.util.UUID;
 
 @Plugin(name = "Forestry", deps = "Forestry")
-public class PluginForestry extends PluginBase {
+public class PluginForestry extends WailaPluginBase {
+
     public static final String LEAF_BRED_SPECIES = "leafBredSpecies";
     public static final String QUEEN_STACK = "queenStack";
     public static final String DRONE_STACK = "droneStack";
@@ -64,6 +64,7 @@ public class PluginForestry extends PluginBase {
     private static Field _maxHeat;
     private static NumberFormat pctFmt = NumberFormat.getPercentInstance();
     private static Lang forLang = new Lang("for");
+
     @SneakyThrows
     public PluginForestry() {
         try {
@@ -82,8 +83,7 @@ public class PluginForestry extends PluginBase {
     }
 
     @Override
-    public void load(IWailaRegistrar registrar) {
-        super.load(registrar);
+    public void load() {
 
         registerBody(TileForestry.class, TileTreeContainer.class, TileAlveary.class);
 
