@@ -7,7 +7,6 @@ import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.discovery.ASMDataTable.ASMData;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import mcp.mobius.waila.api.impl.ConfigHandler;
-import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
 import tterrag.wailaplugins.api.Plugin;

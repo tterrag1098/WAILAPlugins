@@ -22,23 +22,26 @@ import forestry.arboriculture.tiles.TileTreeContainer;
 import forestry.core.access.IOwnable;
 import forestry.core.config.ForestryItem;
 import forestry.core.proxy.Proxies;
+import forestry.core.tiles.IPowerHandler;
+import forestry.core.tiles.IRestrictedAccessTile;
 import forestry.core.tiles.TileEngine;
 import forestry.core.tiles.TileForestry;
 import forestry.core.utils.StringUtil;
+import forestry.mail.tiles.IMailContainer;
 import forestry.plugins.PluginApiculture;
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.SpecialChars;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.ArrayUtils;
 import tterrag.wailaplugins.api.Plugin;
+import tterrag.wailaplugins.client.ClientMessageHandler;
 
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
@@ -61,7 +64,7 @@ public class PluginForestry extends WailaPluginBase {
     public static final String HEAT = "engineHeat";
     public static final String OWNER = "tileOwner";
     private static Field _throttle;
-    private static Field _maxHeat;
+    //private static Field _maxHeat;
     private static NumberFormat pctFmt = NumberFormat.getPercentInstance();
     private static Lang forLang = new Lang("for");
 
@@ -76,8 +79,8 @@ public class PluginForestry extends WailaPluginBase {
 
         _throttle.setAccessible(true);
 
-        _maxHeat = TileEngine.class.getDeclaredField("maxHeat");
-        _maxHeat.setAccessible(true);
+        //_maxHeat = TileEngine.class.getDeclaredField("maxHeat");
+        //_maxHeat.setAccessible(true);
 
         pctFmt.setMinimumFractionDigits(2);
     }
@@ -94,94 +97,127 @@ public class PluginForestry extends WailaPluginBase {
         addConfig("sapling");
         addConfig("leaves");
         addConfig("apiary");
+
+        addConfig("showAccessData");
+        addConfig("showMailData");
     }
 
     @Override
     @SneakyThrows
     @SuppressWarnings("unused")
     protected void getBody(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor) {
-        Block block = accessor.getBlock();
+        //Block block = accessor.getBlock();
         TileEntity tile = accessor.getTileEntity();
-        World world = accessor.getWorld();
+        //World world = accessor.getWorld();
         EntityPlayer player = accessor.getPlayer();
-        MovingObjectPosition pos = accessor.getPosition();
+        //MovingObjectPosition pos = accessor.getPosition();
         NBTTagCompound tag = accessor.getNBTData();
-        int x = pos.blockX, y = pos.blockY, z = pos.blockZ;
+        //int x = pos.blockX, y = pos.blockY, z = pos.blockZ;
 
-        if (tag.hasKey(ENERGY_STORED) && getConfig("power")) {
-            currenttip.add(tag.getInteger(ENERGY_STORED) + " / " + tag.getInteger(MAX_ENERGY_STORED) + " RF");
-        }
-
-        if (tag.hasKey(HEAT) && getConfig("heat")) {
-            currenttip.add(lang.localize("engineHeat", tag.getInteger(HEAT) / 10D + "\u00B0C"));
-        }
-
-        if (tag.hasKey(TREE) && getConfig("sapling")) {
-            ITree tree = new Tree(tag.getCompoundTag(TREE));
-            addGenomeTooltip(tag, (TileTreeContainer) tile, tree, player, currenttip);
-        }
-
-        if (tile instanceof TileLeaves && getConfig("leaves")) {
-            if (((TileLeaves) tile).isPollinated()) {
-                currenttip.add(lang.localize("pollinated", tag.getString(LEAF_BRED_SPECIES)));
+        if (tag != null) {
+            if (tag.hasKey(access)){
+                currenttip.add(ClientMessageHandler.getAccessMessage()+ StatCollector.translateToLocal("for." + tag.getString(access)));
             }
-        }
-
-        if (tile instanceof IBeeHousing && getConfig("apiary")) {
-            ItemStack queenstack = null;
-            ItemStack dronestack = null;
-            if (tag.hasKey(QUEEN_STACK)) {
-                queenstack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(QUEEN_STACK));
+            /*if (tag.hasKey(energy)){
+                currenttip.add(ClientMessageHandler.getEnergyMessage()+tag.getInteger(energy)+"/"+tag.getInteger(maxEnergy)+" RF");
+            }*/
+            if (tag.hasKey(energyOut)){
+                currenttip.add(ClientMessageHandler.getOutputMessage()+tag.getInteger(energyOut)+" RF/t");
+                //currenttip.add(ClientMessageHandler.getHeatMessage()+tag.getString(heat));
             }
-            if (tag.hasKey(DRONE_STACK)) {
-                dronestack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(DRONE_STACK));
+            /*if (tag.hasKey(specialData4)){
+                boolean q = false;
+                if (tag.hasKey(specialData1)){
+                    currenttip.add(ClientMessageHandler.getDroneMessage()+tag.getString(specialData1));
+                }
+                if (tag.hasKey(specialData2)){
+                    q = true;
+                    currenttip.add(ClientMessageHandler.getQueenMessage()+tag.getString(specialData2));
+                }
+                if (tag.hasKey(progress) && q){
+                    currenttip.add(ClientMessageHandler.getLifeSpanMessage()+ClientMessageHandler.format(tag.getInteger(progress))+"%");
+                }
+            }*/
+            if (tag.hasKey(specialData3)){
+                currenttip.add(ClientMessageHandler.getMailMessage(tag.getBoolean(specialData3)));
             }
 
-            IBee queen = null;
+            //Original WP below
+            if (tag.hasKey(ENERGY_STORED) && getConfig("power")) {
+                currenttip.add(tag.getInteger(ENERGY_STORED) + " / " + tag.getInteger(MAX_ENERGY_STORED) + " RF");
+            }
 
-            if (queenstack != null) {
-                queen = new Bee(queenstack.getTagCompound());
-                String queenSpecies = getSpeciesName(queen.getGenome(), true);
+            if (tag.hasKey(HEAT) && getConfig("heat")) {
+                currenttip.add(lang.localize("engineHeat", tag.getInteger(HEAT) / 10D + "\u00B0C"));
+            }
 
-                currenttip.add(EnumChatFormatting.WHITE
-                        + lang.localize("mainbee", getNameForBeeType(queenstack), EnumChatFormatting.GREEN + queenSpecies));
-                if (queen.isAnalyzed()) {
-                    addIndentedBeeInfo(queen, currenttip);
+            if (tag.hasKey(TREE) && getConfig("sapling")) {
+                ITree tree = new Tree(tag.getCompoundTag(TREE));
+                addGenomeTooltip(tag, (TileTreeContainer) tile, tree, player, currenttip);
+            }
+
+            if (tile instanceof TileLeaves && getConfig("leaves")) {
+                if (((TileLeaves) tile).isPollinated()) {
+                    currenttip.add(lang.localize("pollinated", tag.getString(LEAF_BRED_SPECIES)));
                 }
             }
 
-            IBee drone = null;
-
-            if (queen != null && queen.getMate() != null) {
-                drone = new Bee(queen.getMate());
-            } else if (dronestack != null) {
-                drone = new Bee(dronestack.getTagCompound());
-            }
-
-            if (drone != null) {
-                currenttip.add(String.format(EnumChatFormatting.WHITE + lang.localize("secondarybee"), lang.localize("drone"),
-                        EnumChatFormatting.GREEN + getSpeciesName(drone.getGenome(), true)));
-
-                if (drone.isAnalyzed()) {
-                    addIndentedBeeInfo(drone, currenttip);
+            if (tile instanceof IBeeHousing && getConfig("apiary")) {
+                ItemStack queenstack = null;
+                ItemStack dronestack = null;
+                if (tag.hasKey(QUEEN_STACK)) {
+                    queenstack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(QUEEN_STACK));
                 }
-            }
-
-            if (tag.hasKey(ERRORS) || tag.hasKey(BREED_PROGRESS)) {
-                int[] ids = tag.getIntArray(ERRORS);
-                Set<IErrorState> errs = Sets.newHashSet();
-                for (int i : ids) {
-                    errs.add(ForestryAPI.errorStateRegistry.getErrorState((short) i));
+                if (tag.hasKey(DRONE_STACK)) {
+                    dronestack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(DRONE_STACK));
                 }
 
-                if (!errs.isEmpty()) {
-                    for (IErrorState err : errs) {
-                        currenttip.add(EnumChatFormatting.WHITE
-                                + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
-                    }
-                } else {
+                IBee queen = null;
+
+                if (queenstack != null) {
+                    queen = new Bee(queenstack.getTagCompound());
+                    String queenSpecies = getSpeciesName(queen.getGenome(), true);
+
                     currenttip.add(EnumChatFormatting.WHITE
-                            + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format(tag.getDouble(BREED_PROGRESS))));
+                            + lang.localize("mainbee", getNameForBeeType(queenstack), EnumChatFormatting.GREEN + queenSpecies));
+                    if (queen.isAnalyzed()) {
+                        addIndentedBeeInfo(queen, currenttip);
+                    }
+                }
+
+                IBee drone = null;
+
+                if (queen != null && queen.getMate() != null) {
+                    drone = new Bee(queen.getMate());
+                } else if (dronestack != null) {
+                    drone = new Bee(dronestack.getTagCompound());
+                }
+
+                if (drone != null) {
+                    currenttip.add(String.format(EnumChatFormatting.WHITE + lang.localize("secondarybee"), lang.localize("drone"),
+                            EnumChatFormatting.GREEN + getSpeciesName(drone.getGenome(), true)));
+
+                    if (drone.isAnalyzed()) {
+                        addIndentedBeeInfo(drone, currenttip);
+                    }
+                }
+
+                if (tag.hasKey(ERRORS) || tag.hasKey(BREED_PROGRESS)) {
+                    int[] ids = tag.getIntArray(ERRORS);
+                    Set<IErrorState> errs = Sets.newHashSet();
+                    for (int i : ids) {
+                        errs.add(ForestryAPI.errorStateRegistry.getErrorState((short) i));
+                    }
+
+                    if (!errs.isEmpty()) {
+                        for (IErrorState err : errs) {
+                            currenttip.add(EnumChatFormatting.WHITE
+                                    + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
+                        }
+                    } else {
+                        currenttip.add(EnumChatFormatting.WHITE
+                                + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format(tag.getDouble(BREED_PROGRESS))));
+                    }
                 }
             }
         }
@@ -232,69 +268,102 @@ public class PluginForestry extends WailaPluginBase {
 
     @Override
     @SneakyThrows
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos) {
-        if (te instanceof TileLeaves) {
-            ITreeGenome mate = ((TileLeaves) te).getTree().getMate();
-            if (mate != null) {
-                tag.setString(LEAF_BRED_SPECIES, mate.getActiveAllele(EnumTreeChromosome.SPECIES).getName());
+    protected void getNBTData(TileEntity tile, NBTTagCompound tag, World world, BlockCoord pos) {
+        if (tile != null && tag != null){
+            if (tile instanceof IRestrictedAccessTile && getConfig("showAccessData")){
+                tag.setString(access, ((IRestrictedAccessTile) tile).getAccessHandler().getAccessType().getName());
             }
-        }
-        if (te instanceof IBeeHousing) {
-            IBeeHousing housing = (IBeeHousing) te;
-            IBeekeepingLogic logic = housing.getBeekeepingLogic();
-            IBeeHousingInventory inv = housing.getBeeInventory();
-            IErrorLogic errs = housing.getErrorLogic();
-
-            if (logic != null) {
-                ItemStack queen = inv.getQueen();
-                ItemStack drone = inv.getDrone();
-                if (queen != null) {
-                    NBTTagCompound queenTag = new NBTTagCompound();
-                    queen.writeToNBT(queenTag);
-                    tag.setTag(QUEEN_STACK, queenTag);
+            if (tile instanceof IPowerHandler){
+                tag.setInteger(ENERGY_STORED, ((IPowerHandler) tile).getEnergyManager().getTotalEnergyStored());
+                tag.setInteger(MAX_ENERGY_STORED, ((IPowerHandler) tile).getEnergyManager().getMaxEnergyStored());
+            }
+            if (tile instanceof TileEngine){
+                tag.setString(HEAT, ((TileEngine) tile).getTemperatureState().toString());
+                tag.setInteger(energyOut, ((TileEngine) tile).getCurrentOutput());
+            }
+            /*if (tile instanceof IBeeHousing && Config.WAILA.Forestry.showBeeData){
+                tag.setBoolean(specialData4, true);
+                IBeeHousingInventory inv = ((IBeeHousing) tile).getBeeInventory();
+                if (inv != null) {
+                    if (inv.getDrone() != null)
+                        tag.setString(specialData1, inv.getDrone().getItem().getItemStackDisplayName(inv.getDrone()));
+                    if (inv.getQueen() != null)
+                        tag.setString(specialData2, inv.getQueen().getItem().getItemStackDisplayName(inv.getQueen()));
                 }
-                if (drone != null) {
-                    NBTTagCompound droneTag = new NBTTagCompound();
-                    drone.writeToNBT(droneTag);
-                    tag.setTag(DRONE_STACK, droneTag);
+                IBeekeepingLogic beekeepingLogic = ((IBeeHousing) tile).getBeekeepingLogic();
+                if (beekeepingLogic != null) {
+                    tag.setInteger(progress, beekeepingLogic.getBeeProgressPercent());
                 }
-                Set<IErrorState> errors = errs.getErrorStates();
-                List<Integer> ids = Lists.newArrayList();
-                for (IErrorState error : errors) {
-                    ids.add((int) error.getID());
-                }
-                tag.setIntArray(ERRORS, ArrayUtils.toPrimitive(ids.toArray(new Integer[0])));
+            }*/
+            if (tile instanceof IMailContainer && getConfig("showMailData")){
+                tag.setBoolean(specialData3, ((IMailContainer) tile).hasMail());
+            }
 
-                if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queen.getItem())) {
-                    Bee queenBee = new Bee(queen.getTagCompound());
-                    float throttle = _throttle.getInt(logic);
-                    float maxAge = queenBee.getMaxHealth();
-                    float age = Math.abs(queenBee.getHealth() - maxAge); // inverts the progress
-
-                    // determines the amount of percentage points between each breed tick
-                    float step = (1 / maxAge);
-
-                    // interpolates between 0 and step
-                    float progress = step * (throttle / PluginApiculture.ticksPerBeeWorkCycle);
-
-                    tag.setDouble(BREED_PROGRESS, (age / maxAge) + progress);
+            // Original WP below
+            if (tile instanceof TileLeaves) {
+                ITreeGenome mate = ((TileLeaves) tile).getTree().getMate();
+                if (mate != null) {
+                    tag.setString(LEAF_BRED_SPECIES, mate.getActiveAllele(EnumTreeChromosome.SPECIES).getName());
                 }
             }
-        }
-        if (te instanceof TileTreeContainer) {
-            ITree tree = ((TileTreeContainer) te).getTree();
-            NBTTagCompound treeTag = new NBTTagCompound();
-            tree.writeToNBT(treeTag);
-            tag.setTag(TREE, treeTag);
-        }
-        if (te instanceof TileEngine) {
-            tag.setInteger(ENERGY_STORED, ((TileEngine) te).getEnergyManager().getTotalEnergyStored());
-            tag.setInteger(MAX_ENERGY_STORED, ((TileEngine) te).getEnergyManager().getMaxEnergyStored());
-            tag.setInteger(HEAT, ((TileEngine) te).getHeat());
-        }
-        if (te instanceof IOwnable) {
-            GameProfile owner = ((IOwnable) te).getOwner();
-            tag.setString(OWNER, owner.getId().toString());
+            if (tile instanceof IBeeHousing) {
+                IBeeHousing housing = (IBeeHousing) tile;
+                IBeekeepingLogic logic = housing.getBeekeepingLogic();
+                IBeeHousingInventory inv = housing.getBeeInventory();
+                IErrorLogic errs = housing.getErrorLogic();
+
+                if (logic != null) {
+                    ItemStack queen = inv.getQueen();
+                    ItemStack drone = inv.getDrone();
+                    if (queen != null) {
+                        NBTTagCompound queenTag = new NBTTagCompound();
+                        queen.writeToNBT(queenTag);
+                        tag.setTag(QUEEN_STACK, queenTag);
+                    }
+                    if (drone != null) {
+                        NBTTagCompound droneTag = new NBTTagCompound();
+                        drone.writeToNBT(droneTag);
+                        tag.setTag(DRONE_STACK, droneTag);
+                    }
+                    Set<IErrorState> errors = errs.getErrorStates();
+                    List<Integer> ids = Lists.newArrayList();
+                    for (IErrorState error : errors) {
+                        ids.add((int) error.getID());
+                    }
+                    tag.setIntArray(ERRORS, ArrayUtils.toPrimitive(ids.toArray(new Integer[ids.size()])));
+
+                    if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queen.getItem())) {
+                        Bee queenBee = new Bee(queen.getTagCompound());
+                        float throttle = _throttle.getInt(logic);
+                        float maxAge = queenBee.getMaxHealth();
+                        float age = Math.abs(queenBee.getHealth() - maxAge); // inverts the progress
+
+                        // determines the amount of percentage points between each breed tick
+                        float step = (1 / maxAge);
+
+                        // interpolates between 0 and step
+                        float progress = step * (throttle / PluginApiculture.ticksPerBeeWorkCycle);
+
+                        tag.setDouble(BREED_PROGRESS, (age / maxAge) + progress);
+                    }
+                }
+            }
+            if (tile instanceof TileTreeContainer) {
+                ITree tree = ((TileTreeContainer) tile).getTree();
+                NBTTagCompound treeTag = new NBTTagCompound();
+                tree.writeToNBT(treeTag);
+                tag.setTag(TREE, treeTag);
+            }
+        /*if (tile instanceof TileEngine) {
+            tag.setInteger(ENERGY_STORED, ((TileEngine) tile).getEnergyManager().getTotalEnergyStored());
+            tag.setInteger(MAX_ENERGY_STORED, ((TileEngine) tile).getEnergyManager().getMaxEnergyStored());
+            tag.setInteger(HEAT, ((TileEngine) tile).getHeat());
+        }*/
+            if (tile instanceof IOwnable) {
+                GameProfile owner = ((IOwnable) tile).getOwner();
+                tag.setString(OWNER, owner.getId().toString());
+            }
         }
     }
+
 }

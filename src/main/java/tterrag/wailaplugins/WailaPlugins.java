@@ -19,7 +19,7 @@ import static tterrag.wailaplugins.WailaPlugins.*;
 public class WailaPlugins implements IEnderMod {
 
     public static final String MODID = "wailaplugins";
-    public static final String NAME = "Waila Plugins";
+    public static final String NAME = "WAILA Plugins";
     public static final String VERSION = "@VERSION@";
     public static final String DEPENDENCIES = "after:endercore;after:Waila";
 

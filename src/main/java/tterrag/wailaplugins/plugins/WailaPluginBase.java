@@ -152,7 +152,7 @@ public abstract class WailaPluginBase implements IPlugin, IWailaDataProvider{
         return ret.isEmpty() ? PluginRegistrar.getModContainerFromID(annot.deps()[0]).getName() : ret;
     }
 
-    private enum RegType {
+    protected enum RegType {
         // @formatter:off
         HEAD {
             void register(WailaPluginBase inst, Class<?> c) {
@@ -193,4 +193,36 @@ public abstract class WailaPluginBase implements IPlugin, IWailaDataProvider{
 
         abstract void register(WailaPluginBase inst, Class<?> c);
     }
+
+    protected static final String energy, maxEnergy, tier, progress, tpLoc, heat, maxHeat, laser, avgEnergy, name, access,
+            range, active, specialData1, energyOut, specialData2, specialData3, specialData4, specialData5,
+            pressure, maxPressure, temperature, maxTemperature, fluid;
+
+    static {
+        energy = "energy";
+        maxEnergy = "maxEnergy";
+        tier = "tier";
+        progress = "progress";
+        tpLoc = "tpLoc";
+        heat = "heat";
+        maxHeat = "maxHeat";
+        laser = "laser";
+        avgEnergy = "avgEnergy";
+        name = "name";
+        access = "access";
+        range = "range";
+        active = "active";
+        specialData1 = "specialData1";
+        energyOut = "energyOut";
+        specialData2 = "specialData2";
+        specialData3 = "specialData3";
+        specialData4 = "specialData4";
+        specialData5 = "specialData5";
+        pressure = "pressure";
+        maxPressure = "maxPressure";
+        temperature = "temperature";
+        maxTemperature = "maxTemperature";
+        fluid = "fluid";
+    }
+
 }

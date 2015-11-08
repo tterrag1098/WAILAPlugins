@@ -49,6 +49,10 @@ repositories {
         name 'TehNut Maven'
         url "http://tehnut.info/maven"
     }
+	maven {
+		name = "ic2"
+		url = "http://maven.ic2.player.to/"
+	}
 }
 
 dependencies {
@@ -56,6 +60,7 @@ dependencies {
 	compile "mcp.mobius.waila:Waila:${WAILA_version}"
     compile "net.sengir.forestry:forestry_1.7.10:${forestry_version}:dev"
     compile "info.tehnut.resourcefulcrops:ResourcefulCrops:${rcrops_version}:deobf"
+	compile "net.industrial-craft:industrialcraft-2:${IC2_version}:dev"
 }
 
 processResources {

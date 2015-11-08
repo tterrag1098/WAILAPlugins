@@ -2,7 +2,10 @@ package tterrag.wailaplugins.plugins;
 
 import com.enderio.core.common.util.BlockCoord;
 import com.enderio.core.common.util.ItemUtil;
-import mcp.mobius.waila.api.*;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaEntityAccessor;
+import mcp.mobius.waila.api.IWailaEntityProvider;
 import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import mods.railcraft.api.electricity.IElectricGrid;
 import mods.railcraft.api.tracks.ITrackInstance;
