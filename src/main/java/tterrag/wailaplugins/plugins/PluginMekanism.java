@@ -2,6 +2,7 @@ package tterrag.wailaplugins.plugins;
 
 import java.util.List;
 
+import mekanism.api.MekanismConfig;
 import tterrag.wailaplugins.api.Plugin;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
@@ -13,8 +14,8 @@ import mekanism.common.tile.TileEntityElectricBlock;
 import mekanism.common.tile.TileEntityEnergyCube;
 import mekanism.common.tile.TileEntityFactory;
 import mekanism.common.tile.TileEntityGasTank;
-import mekanism.common.tile.TileEntityPortableTank;
-import mekanism.common.tile.TileEntitySolarEvaporationController;
+import mekanism.common.tile.TileEntityFluidTank;
+import mekanism.common.tile.TileEntityThermalEvaporationController;
 import mekanism.common.util.MekanismUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -33,7 +34,7 @@ public class PluginMekanism extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(TileEntitySolarEvaporationController.class, TileEntityPortableTank.class, TileEntityGasTank.class, TileEntityElectricBlock.class);
+        registerBody(TileEntityThermalEvaporationController.class, TileEntityFluidTank.class, TileEntityGasTank.class, TileEntityElectricBlock.class);
 
         registerNBT(TileEntityElectricBlock.class);
 
@@ -50,14 +51,16 @@ public class PluginMekanism extends PluginBase
         TileEntity tile = accessor.getTileEntity();
         NBTTagCompound tag = accessor.getNBTData();
 
-        if (tile instanceof TileEntitySolarEvaporationController)
+        if (tile instanceof TileEntityThermalEvaporationController)
         {
-            currenttip.add(EnumChatFormatting.GREEN.toString() + ((float) Math.round(((TileEntitySolarEvaporationController) tile).getTempMultiplier() * 10)) / 10f + "x");
+            TileEntityThermalEvaporationController controller = ((TileEntityThermalEvaporationController) tile);
+            double multiplier = controller.biomeTemp * (controller.getActiveSolars() / 4);
+            currenttip.add(Math.round(multiplier * 10) / 10f+"x");
         }
 
-        if (tile instanceof TileEntityPortableTank)
+        if (tile instanceof TileEntityFluidTank)
         {
-            FluidStack fluid = ((TileEntityPortableTank) tile).getFluidStack();
+            FluidStack fluid = ((TileEntityFluidTank) tile).getFluidStack();
             addFluidTooltip(currenttip, fluid);
         }
 
