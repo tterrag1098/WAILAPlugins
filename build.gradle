@@ -120,7 +120,7 @@ task delombok(type: DelombokTask) {
 tasks.eclipse.dependsOn installLombok
 
 
-tasks.curseforge.enabled = !dev && project.hasProperty('curseforge_key')
+tasks.curseforge.enabled = System.getenv('CURSE') != null && System.getenv('CURSE').equals('true') && project.hasProperty('curseforge_key')
     
 curseforge {
     if (project.hasProperty('curseforge_key')) {
