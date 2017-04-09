@@ -9,11 +9,10 @@ import mcp.mobius.waila.utils.Constants;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 import tterrag.wailaplugins.api.Plugin;
-
-import com.enderio.core.common.util.BlockCoord;
 
 @Plugin(name = "DSU")
 public class PluginDSU extends PluginBase
@@ -72,7 +71,7 @@ public class PluginDSU extends PluginBase
     }
 
     @Override
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockPos pos)
     {
         NBTTagCompound stackTag = new NBTTagCompound();
         ItemStack stack = ((IDeepStorageUnit) te).getStoredItemType();

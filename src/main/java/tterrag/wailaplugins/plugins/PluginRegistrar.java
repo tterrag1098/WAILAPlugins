@@ -16,10 +16,10 @@ import tterrag.wailaplugins.config.WPConfigHandler;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.discovery.ASMDataTable.ASMData;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public enum PluginRegistrar
 {

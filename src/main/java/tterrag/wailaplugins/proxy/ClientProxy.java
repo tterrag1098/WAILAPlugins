@@ -3,12 +3,12 @@ package tterrag.wailaplugins.proxy;
 import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.math.RayTraceResult;
 
 public class ClientProxy extends CommonProxy
 {
     @Override
-    public MovingObjectPosition getMouseOver()
+    public RayTraceResult getMouseOver()
     {
         return Minecraft.getMinecraft().objectMouseOver;
     }

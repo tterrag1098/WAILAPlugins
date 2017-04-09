@@ -5,23 +5,29 @@ buildscript {
         maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies { 
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT' 
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT' 
         classpath 'de.undercouch:gradle-download-task:1.0'
     }
 }
+plugins {
+    id 'net.franz-becker.gradle-lombok' version '1.5'
+}
 
-apply plugin: 'forge'
+apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'maven-publish'
-apply plugin: 'curseforge'
 
 
 group = 'tterrag.wailaplugins'
 archivesBaseName = "WAILAPlugins"
 version = "MC${minecraft_version}-${mod_version}-${System.getenv().BUILD_NUMBER}"
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 minecraft {
     version = "${minecraft_version}-${forge_version}"
     runDir = 'run'
+    mappings = 'stable_29'
     
     replace "@VERSION@", project.version
 	replace "${toReplace}", "required-after:Forge@[${forge_version},);required-after:endercore@[${endercore_version},);required-after:Waila;"
@@ -35,7 +41,7 @@ repositories {
     }
 	maven { // WAILA
         name "Mobius Repo"
-        url "http://mobiusstrip.eu/maven"
+        url "http://mobiusstrip.eu/maven/"
     }
 	maven { // CCC/NEI (for WAILA)
         name 'CB Repo'
@@ -43,19 +49,41 @@ repositories {
     }
     maven { // Forestry
         name 'Player Maven'
-        url "http://maven.ic2.player.to"
+        url "http://maven.ic2.player.to/"
     }
     maven { // RCrops
         name 'TehNut Maven'
-        url "http://tehnut.info/maven"
+        url "http://tehnut.info/maven/"
+    }
+    maven { // JEI
+        url "http://dvs1.progwml6.com/files/maven/"
+    }
+    ivy {
+        name = "RailCraft"
+        url = "http://www.railcraft.info/ivy/"
+    }
+    maven { // CurseForge
+    	url "https://minecraft.curseforge.com/api/maven/"
     }
 }
 
 dependencies {
-    compile "com.enderio.core:EnderCore:${endercore_version}:dev"
-	compile "mcp.mobius.waila:Waila:${WAILA_version}"
-    compile "net.sengir.forestry:forestry_1.7.10:${forestry_version}:dev"
-    compile "info.tehnut.resourcefulcrops:ResourcefulCrops:${rcrops_version}:deobf"
+    deobfCompile "com.enderio.core:EnderCore:${endercore_version}"
+	deobfCompile "mcp.mobius.waila:Hwyla:${HWYLA_version}_${minecraft_version}"
+    deobfCompile "net.sengir.forestry:forestry_${minecraft_version}:${forestry_version}"
+    deobfCompile "info.tehnut.resourcefulcrops:ResourcefulCrops:${minecraft_version}-${rcrops_version}"
+    deobfCompile "com.wayoftime.bloodmagic:BloodMagic:${minecraft_version}-${bloodmagic_version}"
+    deobfCompile "info.amerifrance.guideapi:Guide-API:${minecraft_version}-${guideapi_version}"
+    
+    deobfCompile "thermalexpansion:ThermalExpansion-${minecraft_version}:${te_version}:universal"
+    deobfCompile "thermal-foundation:ThermalFoundation-${minecraft_version}:${tf_version}:universal"
+    deobfCompile "cofhcore:CoFHCore-${minecraft_version}:${cofhcore_version}:universal"
+    deobfCompile "codechicken-lib-1-8:CodeChickenLib-${minecraft_version}:${ccl_version}:universal"
+    
+    deobfCompile ("com.headlamp-games:Railcraft:${railcraft_version}") {
+        exclude module: "forestry_1.10.2"
+        exclude module: "industrialcraft-2"
+    }
 }
 
 processResources {
@@ -78,18 +106,21 @@ processResources {
     }
 }
 
+lombok {
+    version = "1.16.6"
+    sha256 = "e0a471be03e1e6b02bf019480cec7a3ac9801702bf7bf62f15d077ad4df8dd5d"
+}
+
+import net.franz_becker.gradle.lombok.task.DelombokTask
+
+task delombok(type: DelombokTask) {
+    args("src/main/java", "-d", "build/sources/delomboked/java")
+}
+
+tasks.eclipse.dependsOn installLombok
+
 jar {
 
-}
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
 }
 
 import de.undercouch.gradle.tasks.download.Download
@@ -105,17 +136,16 @@ task clearOld(type: Delete) {
 }
 
 task downloadLibs(dependsOn: downloadZip, type: Copy) {
-    from zipTree(downloadZip.dest)
-    into file('libs')
+    //from zipTree(downloadZip.dest)
+    //into file('libs')
 }
-
-tasks.build.dependsOn sourceJar, deobfJar
 
 tasks.downloadLibs.dependsOn clearOld
 tasks.sourceMainJava.dependsOn downloadLibs
 tasks.eclipse.dependsOn downloadLibs
 tasks.idea.dependsOn downloadLibs
 
+/*
 curse {
     dependsOn 'reobf'
     
@@ -127,6 +157,6 @@ curse {
     projectId = project.curse_projectId
     changelog = project.hasProperty('changelog') ? project.changelog : ''
     releaseType = project.curse_type
-    additionalArtifact deobfJar
     relatedProject 'endercore'
 }
+*/

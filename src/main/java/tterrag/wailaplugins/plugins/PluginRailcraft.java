@@ -3,14 +3,17 @@ package tterrag.wailaplugins.plugins;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import com.enderio.core.common.util.ItemUtil;
+
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaEntityAccessor;
 import mcp.mobius.waila.api.IWailaEntityProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mcp.mobius.waila.api.impl.ModuleRegistrar;
-import mods.railcraft.api.electricity.IElectricGrid;
-import mods.railcraft.api.tracks.ITrackInstance;
+import mods.railcraft.common.blocks.charge.CapabilityCartBattery;
+import mods.railcraft.common.blocks.charge.ChargeManager;
+import mods.railcraft.common.blocks.charge.IChargeBlock;
 import mods.railcraft.common.blocks.machine.TileMachineBase;
 import mods.railcraft.common.blocks.machine.TileMultiBlock;
 import mods.railcraft.common.blocks.machine.beta.TileBoilerFirebox;
@@ -19,13 +22,12 @@ import mods.railcraft.common.blocks.machine.beta.TileEngine;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteam;
 import mods.railcraft.common.blocks.machine.beta.TileEngineSteamHobby;
 import mods.railcraft.common.blocks.machine.beta.TileTankBase;
-import mods.railcraft.common.blocks.tracks.TileTrack;
-import mods.railcraft.common.blocks.tracks.TrackElectric;
 import mods.railcraft.common.carts.EntityLocomotive;
 import mods.railcraft.common.carts.EntityLocomotiveElectric;
 import mods.railcraft.common.carts.EntityLocomotiveSteam;
 import mods.railcraft.common.fluids.tanks.StandardTank;
-import mods.railcraft.common.items.ItemElectricMeter;
+import mods.railcraft.common.items.ItemChargeMeter;
+import mods.railcraft.common.items.RailcraftItems;
 import mods.railcraft.common.plugins.buildcraft.triggers.ITemperature;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,17 +35,16 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fluids.capability.FluidTankPropertiesWrapper;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import tterrag.wailaplugins.api.Plugin;
 import tterrag.wailaplugins.config.WPConfigHandler;
 
-import com.enderio.core.common.util.BlockCoord;
-import com.enderio.core.common.util.ItemUtil;
-
-@Plugin(deps = "Railcraft")
+@Plugin(name = "Railcraft", deps = "railcraft")
 public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
 {
     private static final DecimalFormat fmtCharge = new DecimalFormat("#.##");
@@ -52,8 +53,8 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
     {
         super.load(registrar);
         
-        registerBody(TileMachineBase.class, TileTrack.class);
-        registerNBT(TileEngineSteam.class, IElectricGrid.class, TileTrack.class, TileMultiBlock.class);
+        registerBody(TileMachineBase.class, IChargeBlock.class);
+        registerNBT(TileEngineSteam.class, IChargeBlock.class, TileMultiBlock.class);
 
         registerEntityBody(this, EntityLocomotive.class);        
         registerEntityNBT(this, EntityLocomotive.class);
@@ -113,13 +114,13 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
     
     private static void addChargeTooltip(List<String> currenttip, NBTTagCompound tag, EntityPlayer player)
     {
-        ItemStack current = player.getCurrentEquippedItem();
-        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && ItemUtil.stacksEqual(current, ItemElectricMeter.getItem()));
+        ItemStack current = player.getHeldItemMainhand();
+        boolean hasMeter = !WPConfigHandler.meterInHand || (current != null && ItemUtil.stacksEqual(current, RailcraftItems.CHARGE_METER.getStack()));
         
         double charge = tag.getDouble(CHARGE);
         String chargeFmt = fmtCharge.format(charge) + "c";
         
-        currenttip.add(EnumChatFormatting.RESET + String.format(lang.localize("charge"), hasMeter ? chargeFmt : (EnumChatFormatting.ITALIC + lang.localize("needMeter"))));
+        currenttip.add(TextFormatting.RESET + String.format(lang.localize("charge"), hasMeter ? chargeFmt : (TextFormatting.ITALIC + lang.localize("needMeter"))));
     }
     
     private static void addHeatTooltip(List<String> currenttip, NBTTagCompound tag)
@@ -138,7 +139,7 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
     public static final String CHARGE = "charge";
     
     @Override
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockPos pos)
     {
         if (te instanceof TileMultiBlock && ((TileMultiBlock) te).getMasterBlock() != null)
         {
@@ -147,7 +148,7 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
                 te = ((TileMultiBlock) te).getMasterBlock();
                 StandardTank tank = ((TileTankBase)te).getTank();
                 NBTTagCompound fluidTag = new NBTTagCompound();
-                PluginIFluidHandler.writeFluidInfoToNBT(tank.getInfo(), fluidTag);
+                PluginIFluidHandler.writeFluidInfoToNBT(new FluidTankPropertiesWrapper(tank), fluidTag);
                 tag.setTag(TANK_FLUID, fluidTag);
             }
             te = ((TileMultiBlock) te).getMasterBlock();
@@ -165,17 +166,10 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
                 tag.setDouble(MAX_HEAT, ((TileEngineSteamHobby) te).boiler.getMaxHeat());
             }
         }
-        if (te instanceof IElectricGrid)
+        // XXX WAILA does not call this on TE-less blocks, so shunting wire does not work atm
+        if (te.getBlockType() instanceof IChargeBlock)
         {
-            tag.setDouble(CHARGE, ((IElectricGrid) te).getChargeHandler().getCharge());
-        }
-        if (te instanceof TileTrack)
-        {
-            ITrackInstance track = ((TileTrack) te).getTrackInstance();
-            if (track instanceof IElectricGrid)
-            {
-                tag.setDouble(CHARGE, ((TrackElectric) track).getChargeHandler().getCharge());
-            }
+            tag.setDouble(CHARGE, ChargeManager.getNetwork(world).getNode(pos).getBattery().getCharge());
         }
     }
 
@@ -225,7 +219,7 @@ public class PluginRailcraft extends PluginBase implements IWailaEntityProvider
     {
         if (ent instanceof EntityLocomotiveElectric)
         {
-            tag.setDouble(CHARGE, ((EntityLocomotiveElectric) ent).getChargeHandler().getCharge());
+            tag.setDouble(CHARGE, ent.getCapability(CapabilityCartBattery.CHARGE_CART_CAPABILITY, null).getCharge());
         }
         
         if (ent instanceof EntityLocomotiveSteam)

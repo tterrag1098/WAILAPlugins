@@ -1,36 +1,49 @@
 package tterrag.wailaplugins.plugins;
 
-import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
+import WayofTime.bloodmagic.altar.BloodAltar;
+import WayofTime.bloodmagic.api.recipe.AlchemyTableRecipe;
+import WayofTime.bloodmagic.api.registry.AlchemyTableRecipeRegistry;
+import WayofTime.bloodmagic.api.registry.RitualRegistry;
+import WayofTime.bloodmagic.block.BlockAlchemyArray;
+import WayofTime.bloodmagic.block.BlockAltar;
+import WayofTime.bloodmagic.block.BlockBloodTank;
+import WayofTime.bloodmagic.block.BlockMimic;
+import WayofTime.bloodmagic.block.BlockRitualController;
+import WayofTime.bloodmagic.block.BlockTeleposer;
+import WayofTime.bloodmagic.compat.waila.provider.DataProviderAlchemyArray;
+import WayofTime.bloodmagic.compat.waila.provider.DataProviderBloodAltar;
+import WayofTime.bloodmagic.compat.waila.provider.DataProviderBloodTank;
+import WayofTime.bloodmagic.compat.waila.provider.DataProviderMimic;
+import WayofTime.bloodmagic.compat.waila.provider.DataProviderRitualController;
+import WayofTime.bloodmagic.compat.waila.provider.DataProviderTeleposer;
+import WayofTime.bloodmagic.registry.ModItems;
+import WayofTime.bloodmagic.tile.TileAlchemyTable;
+import WayofTime.bloodmagic.tile.TileAltar;
+import WayofTime.bloodmagic.tile.TileMasterRitualStone;
+import WayofTime.bloodmagic.tile.TileTeleposer;
 import lombok.SneakyThrows;
 import mcp.mobius.waila.api.ITaggedList;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
+import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import tterrag.wailaplugins.api.Plugin;
 import tterrag.wailaplugins.config.WPConfigHandler;
-import WayofTime.alchemicalWizardry.ModItems;
-import WayofTime.alchemicalWizardry.api.rituals.Rituals;
-import WayofTime.alchemicalWizardry.common.items.armour.BoundArmour;
-import WayofTime.alchemicalWizardry.common.tileEntity.TEAltar;
-import WayofTime.alchemicalWizardry.common.tileEntity.TEMasterStone;
-import WayofTime.alchemicalWizardry.common.tileEntity.TETeleposer;
-import WayofTime.alchemicalWizardry.common.tileEntity.TEWritingTable;
-
-import com.enderio.core.common.util.BlockCoord;
-
-import cpw.mods.fml.relauncher.ReflectionHelper;
 
 /**
  * @author Pokefenn (edits by tterrag)
  */
-@Plugin(name = "Blood Magic", deps = "AWWayofTime", order = 1 /* After Forge Plugin */)
+@Plugin(name = "Blood Magic", deps = "BloodMagic", order = 1 /* After Forge Plugin */)
 public class PluginBloodMagic extends PluginBase
 {
     private static final String KEY_CURRENT_LP = "lp";
@@ -40,21 +53,29 @@ public class PluginBloodMagic extends PluginBase
     private static final String KEY_RESULT_STACK = "resStack";
     private static final String KEY_OWNER = "owner";
     private static final String KEY_RITUAL_NAME = "ritName";
-    private static final String KEY_STACK_NAME = "stackName";
+    private static final String KEY_FOCUS_STACK = "stackName";
 
     @Override
     public void load(IWailaRegistrar registrar)
     {
         super.load(registrar);
 
-        registerBody(TEAltar.class, TEWritingTable.class, TEMasterStone.class, TETeleposer.class);
+        registerBody(TileAltar.class, TileAlchemyTable.class, TileTeleposer.class);
 
-        registerNBT(TEAltar.class, TEWritingTable.class, TEMasterStone.class, TETeleposer.class);
+        registerNBT(TileAltar.class, TileAlchemyTable.class, TileTeleposer.class);
 
         addConfig("altar");
         addConfig("chemistrySet");
         addConfig("masterStone");
         addConfig("teleposer");
+    }
+    
+    @Override
+    public void postLoad() 
+    {
+        // Remove BM's altar stuff
+        ModuleRegistrar.instance().bodyBlockProviders.remove(BlockAltar.class);
+        ModuleRegistrar.instance().NBTDataProviders.remove(BlockAltar.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -72,13 +93,13 @@ public class PluginBloodMagic extends PluginBase
             hasSeer = hasSigil = true;
             break;
         case 1:
-            hasSeer = searchInventory(ModItems.itemSeerSigil, accessor.getPlayer()) != null;
-            hasSigil = hasSeer || searchInventory(ModItems.divinationSigil, accessor.getPlayer()) != null;
+            hasSeer = searchInventory(ModItems.SIGIL_SEER, accessor.getPlayer()) != null;
+            hasSigil = hasSeer || searchInventory(ModItems.SIGIL_DIVINATION, accessor.getPlayer()) != null;
             break;
         case 2:
-            hasSeer = accessor.getPlayer().getHeldItem() != null && accessor.getPlayer().getHeldItem().getItem() == ModItems.itemSeerSigil;
+            hasSeer = accessor.getPlayer().getHeldItemMainhand() != null && accessor.getPlayer().getHeldItemMainhand().getItem() == ModItems.SIGIL_SEER;
             hasSigil = hasSeer
-                    || (accessor.getPlayer().getHeldItem() != null && accessor.getPlayer().getHeldItem().getItem() == ModItems.divinationSigil);
+                    || (accessor.getPlayer().getHeldItemMainhand() != null && accessor.getPlayer().getHeldItemMainhand().getItem() == ModItems.SIGIL_DIVINATION);
             break;
         default:
             break;
@@ -89,7 +110,7 @@ public class PluginBloodMagic extends PluginBase
         TileEntity te = accessor.getTileEntity();
         NBTTagCompound tag = accessor.getNBTData();
 
-        if (hasSigil && te instanceof TEAltar && getConfig("altar"))
+        if (hasSigil && te instanceof TileAltar && getConfig("altar"))
         {
             currenttip.add(lang.localize("currentLP") + tag.getInteger(KEY_CURRENT_LP));
             currenttip.add(lang.localize("capacity") + tag.getInteger(KEY_CAPACITY));
@@ -101,7 +122,7 @@ public class PluginBloodMagic extends PluginBase
             }
         }
 
-        if (te instanceof TEWritingTable && getConfig("chemistrySet"))
+        if (te instanceof TileAlchemyTable && getConfig("chemistrySet"))
         {
             currenttip.add(lang.localize("progress") + tag.getInteger(KEY_PROGRESS) + "%");
 
@@ -112,29 +133,11 @@ public class PluginBloodMagic extends PluginBase
             }
         }
 
-        if (te instanceof TEMasterStone && getConfig("masterStone"))
+        if (te instanceof TileTeleposer && getConfig("teleposer"))
         {
-            String owner = tag.getString(KEY_OWNER);
-            if (!owner.isEmpty())
+            if (tag.hasKey(KEY_FOCUS_STACK)) 
             {
-                currenttip.add(lang.localize("owner") + tag.getString("owner"));
-            }
-
-            String ritualName = tag.getString(KEY_RITUAL_NAME);
-            if (!ritualName.isEmpty())
-            {
-                currenttip.add(Rituals.getNameOfRitual((ritualName)));
-            }
-        }
-
-        if (te instanceof TETeleposer && getConfig("teleposer"))
-        {
-            TETeleposer teleposer = (TETeleposer) te;
-            te.readFromNBT(tag);
-
-            if (teleposer.getStackInSlot(0) != null)
-            {
-                currenttip.add(teleposer.getStackInSlot(0).getDisplayName());
+                currenttip.add(ItemStack.loadItemStackFromNBT(tag.getCompoundTag(KEY_FOCUS_STACK)).getDisplayName());
             }
         }
     }
@@ -148,69 +151,54 @@ public class PluginBloodMagic extends PluginBase
                 return stack.copy();
             }
         }
-        for (ItemStack stack : player.inventory.armorInventory)
-        {
-            if (stack != null && stack.getItem() instanceof BoundArmour)
-            {
-                for (ItemStack sigil : ((BoundArmour)stack.getItem()).getInternalInventory(stack))
-                {
-                    if (sigil != null && sigil.getItem() == item)
-                    {
-                        return sigil;
-                    }
-                }
-            }
-        }
         return null;
     }
 
-    private static final Field liquidRequired = ReflectionHelper.findField(TEAltar.class, "liquidRequired");
-
     @Override
     @SneakyThrows
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockPos pos)
     {
-        if (!liquidRequired.isAccessible())
+        if (te instanceof TileAltar)
         {
-            liquidRequired.setAccessible(true);
-        }
-
-        if (te instanceof TEAltar)
-        {
-            TEAltar altar = (TEAltar) te;
+            TileAltar altar = (TileAltar) te;
             tag.setInteger(KEY_CURRENT_LP, altar.getCurrentBlood());
             tag.setInteger(KEY_CAPACITY, altar.getCapacity());
-            tag.setInteger(KEY_TIER, altar.getTier());
+            tag.setInteger(KEY_TIER, altar.getTier().ordinal());
 
             if (altar.isActive())
             {
                 int cur = altar.getProgress();
-                int max = liquidRequired.getInt(altar) * altar.getStackInSlot(0).stackSize;
+                int max = ((BloodAltar)altar.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)).getLiquidRequired() * altar.getStackInSlot(0).stackSize;
                 tag.setInteger(KEY_PROGRESS, (int) (((double) cur / (double) max) * 100));
             }
         }
-        if (te instanceof TEWritingTable)
+        if (te instanceof TileAlchemyTable)
         {
-            NBTTagCompound datahack = new NBTTagCompound();
-            te.writeToNBT(datahack);
-            tag.setInteger(KEY_PROGRESS, datahack.getInteger("progress"));
+            if (((TileAlchemyTable)te).isSlave()){
+                te = world.getTileEntity(((TileAlchemyTable)te).getConnectedPos());
+            }
+
+            tag.setInteger(KEY_PROGRESS, (int) (((TileAlchemyTable)te).getProgressForGui() * 100));
             NBTTagCompound stack = new NBTTagCompound();
-            if (((TEWritingTable) te).getResultingItemStack() != null)
+            List<ItemStack> inputs = new ArrayList<>();
+            for (int i = 0; i < ((TileAlchemyTable)te).getSizeInventory() - 3; i++) {
+                ItemStack input = ((TileAlchemyTable)te).getStackInSlot(i);
+                if (input != null) {
+                    inputs.add(input.copy());
+                }
+            }
+            AlchemyTableRecipe recipe = AlchemyTableRecipeRegistry.getMatchingRecipe(inputs, world, pos);
+            if (recipe != null && recipe.getRecipeOutput(inputs) != null)
             {
-                ((TEWritingTable) te).getResultingItemStack().writeToNBT(stack);
+                recipe.getRecipeOutput(inputs).writeToNBT(stack);
                 tag.setTag(KEY_RESULT_STACK, stack);
             }
         }
-        if (te instanceof TEMasterStone) 
+        if (te instanceof TileTeleposer)
         {
-            tag.setString(KEY_OWNER, ((TEMasterStone)te).getOwner());
-            tag.setString(KEY_RITUAL_NAME, ((TEMasterStone)te).getCurrentRitual());
-        }
-        if (te instanceof TETeleposer)
-        {
-            if (((TETeleposer)te).getStackInSlot(0) != null)
+            if (((TileTeleposer)te).getStackInSlot(0) != null)
             {
-                tag.setString(KEY_STACK_NAME, ((TETeleposer)te).getStackInSlot(0).getDisplayName());
+                tag.setTag(KEY_FOCUS_STACK, ((TileTeleposer)te).getStackInSlot(0).writeToNBT(new NBTTagCompound()));
             }
         }
     }

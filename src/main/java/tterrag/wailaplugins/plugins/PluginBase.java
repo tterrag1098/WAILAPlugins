@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
@@ -104,7 +105,7 @@ public abstract class PluginBase implements IPlugin
 
     protected void addConfig(String key, boolean def)
     {
-        ConfigHandler.instance().addConfig(PluginRegistrar.getPluginName(this.getClass()), getKey(key), configLang.localize(String.format("config.%s.%s", PluginRegistrar.getPluginName(getClass()), key)), def);
+        ConfigHandler.instance().addConfig("WP: " + PluginRegistrar.getPluginName(this.getClass()), getKey(key), configLang.localize(String.format("config.%s.%s", PluginRegistrar.getPluginName(getClass()), key)), def);
     }
     
     protected boolean getConfig(String key)
@@ -163,18 +164,18 @@ public abstract class PluginBase implements IPlugin
     protected void getTail(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor) {}
     
     @Override
-    public final NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x, int y, int z)
+    public final NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos)
     {
         if (enabled())
         {
-            getNBTData(te, tag, world, new BlockCoord(x, y, z));
-            tag.setInteger("x", x);
-            tag.setInteger("y", y);
-            tag.setInteger("z", z);
+            getNBTData(te, tag, world, pos);
+            tag.setInteger("x", pos.getX());
+            tag.setInteger("y", pos.getY());
+            tag.setInteger("z", pos.getZ());
         }
         return tag;
     }
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos) {}
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockPos pos) {}
 
     protected boolean enabled()
     {

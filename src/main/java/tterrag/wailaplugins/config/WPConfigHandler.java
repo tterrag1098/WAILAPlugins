@@ -84,7 +84,7 @@ public class WPConfigHandler extends AbstractConfigHandler
     {
         activateSection(SECTION_PLUGINS);
         Property prop = getProperty(modid, true);
-        prop.comment = "Should the plugin for the mod with modid '" + modid + "' be loaded";
+        prop.setComment("Should the plugin for the mod with modid '" + modid + "' be loaded");
         return prop;
     }
 }

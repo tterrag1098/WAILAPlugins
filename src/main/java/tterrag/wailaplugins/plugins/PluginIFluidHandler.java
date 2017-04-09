@@ -2,8 +2,6 @@ package tterrag.wailaplugins.plugins;
 
 import java.util.List;
 
-import com.enderio.core.common.util.BlockCoord;
-
 import mcp.mobius.waila.api.ITaggedList;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaRegistrar;
@@ -11,12 +9,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import tterrag.wailaplugins.api.Plugin;
 
 @Plugin(name = "IFluidHandler")
@@ -27,8 +27,8 @@ public class PluginIFluidHandler extends PluginBase
     {
         super.load(registrar);
 
-        registerBody(IFluidHandler.class);
-        registerNBT(IFluidHandler.class);
+        registerBody(TileEntity.class);
+        registerNBT(TileEntity.class);
     }
 
     @Override
@@ -52,18 +52,21 @@ public class PluginIFluidHandler extends PluginBase
     }
 
     @Override
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockPos pos)
     {
-        writeFluidInfoToNBT((IFluidHandler) te, tag);
+        if (te.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+        {
+            writeFluidInfoToNBT(te.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null), tag);
+        }
     }
 
     public static void writeFluidInfoToNBT(IFluidHandler te, NBTTagCompound tag)
     {
-        FluidTankInfo[] infos = ((IFluidHandler) te).getTankInfo(ForgeDirection.UNKNOWN);
+        IFluidTankProperties[] infos = ((IFluidHandler) te).getTankProperties();
         if (infos != null && infos.length > 0)
         {
             NBTTagList infoList = new NBTTagList();
-            for (FluidTankInfo info : infos)
+            for (IFluidTankProperties info : infos)
             {
                 NBTTagCompound infoTag = new NBTTagCompound();
                 writeFluidInfoToNBT(info, infoTag);
@@ -84,15 +87,15 @@ public class PluginIFluidHandler extends PluginBase
         return ret;
     }
 
-    public static void writeFluidInfoToNBT(FluidTankInfo info, NBTTagCompound tag)
+    public static void writeFluidInfoToNBT(IFluidTankProperties info, NBTTagCompound tag)
     {
-        if (info.fluid != null)
+        if (info.getContents() != null)
         {
             NBTTagCompound fluidTag = new NBTTagCompound();
-            info.fluid.writeToNBT(fluidTag);
+            info.getContents().writeToNBT(fluidTag);
             tag.setTag("fluid", fluidTag);
         }
-        tag.setInteger("capacity", info.capacity);
+        tag.setInteger("capacity", info.getCapacity());
     }
 
     public static FluidTankInfo readFluidInfoFromNBT(NBTTagCompound tag)

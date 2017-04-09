@@ -1,5 +1,9 @@
 package tterrag.wailaplugins.plugins;
 
+import com.enderio.core.client.render.RenderUtil;
+
+import static net.minecraft.client.renderer.GlStateManager.*;
+
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -8,22 +12,19 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
-import tehnut.resourceful.crops.api.base.Seed;
-import tehnut.resourceful.crops.api.registry.SeedRegistry;
-import tehnut.resourceful.crops.block.BlockRCrop;
-import tehnut.resourceful.crops.registry.ItemRegistry;
-import tehnut.resourceful.crops.tile.TileRCrop;
-import tehnut.resourceful.crops.util.Utils;
+import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.registry.IForgeRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tehnut.resourceful.crops.block.BlockResourcefulCrop;
+import tehnut.resourceful.crops.block.tile.TileSeedContainer;
+import tehnut.resourceful.crops.core.ModObjects;
+import tehnut.resourceful.crops.core.data.Seed;
+import tehnut.resourceful.crops.item.ItemResourceful;
 import tterrag.wailaplugins.api.Plugin;
 
-import com.enderio.core.client.render.RenderUtil;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import static org.lwjgl.opengl.GL11.*;
-
-@Plugin(deps = "ResourcefulCrops")
+@Plugin(deps = "resourcefulcrops")
 public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDecorator {
 
     private static EntityItem item;
@@ -33,7 +34,7 @@ public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDec
     {
         super.load(registrar);
 
-        registrar.registerDecorator(this, BlockRCrop.class);
+        registrar.registerDecorator(this, BlockResourcefulCrop.class);
         addConfig("showHover");
         addConfig("showOutputItem", false);
     }
@@ -45,37 +46,45 @@ public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDec
         if (!getConfig("showHover") || !enabled())
             return;
 
-        Vec3 pos = accessor.getRenderingPosition();
+        Vec3d pos = accessor.getRenderingPosition();
+        if (pos == null) {
+            return;
+        }
 
-        if (accessor.getBlock() instanceof BlockRCrop)
+        if (accessor.getBlock() instanceof BlockResourcefulCrop)
         {
             TileEntity cropTile = accessor.getTileEntity();
-            if (cropTile != null && cropTile instanceof TileRCrop)
+            if (cropTile != null && cropTile instanceof TileSeedContainer)
             {
-                Seed seed = SeedRegistry.getSeed(((TileRCrop) cropTile).getSeedName());
-                ItemStack hoverStack = Utils.isValidSeed(seed) ? new ItemStack(ItemRegistry.shard, 1, SeedRegistry.getIndexOf(seed)) : Utils.getInvalidSeed(ItemRegistry.shard);
+                IForgeRegistry<Seed> seedRegistry = GameRegistry.findRegistry(Seed.class);
+                Seed seed = seedRegistry.getValue(((TileSeedContainer) cropTile).getSeedKey());
                 
-                if (getConfig("showOutputItem"))
-                    hoverStack = new ItemStack(seed.getOutput().getItem(), 1, seed.getOutput().getItemDamage());
+                ItemStack hoverStack;
+                if (getConfig("showOutputItem")) {
+                    hoverStack = seed.getOutputs()[0].getItem().copy();
+                } else {
+                    hoverStack = ItemResourceful.getResourcefulStack(ModObjects.SHARD, seed.getRegistryName());
+                }
                 
-                new ItemStack(ItemRegistry.shard, 1, SeedRegistry.getIndexOf(seed));
+                if (hoverStack == null) {
+                    return;
+                }
 
                 if (item == null)
                     item = new EntityItem(accessor.getWorld(), 0, 0, 0, hoverStack);
                 else
                     item.setEntityItemStack(hoverStack);
 
-                glPushMatrix();
-                glPushAttrib(GL_ALL_ATTRIB_BITS);
-                glEnable(GL_TEXTURE_2D);
+                pushMatrix();
+                disableTexture2D();
+                enableTexture2D();
                 RenderHelper.enableStandardItemLighting();
-                glTranslated(pos.xCoord + 0.5, pos.yCoord + 0.9, pos.zCoord + 0.5);
-                glPushMatrix();
-                glScalef(0.75f, 0.75f, 0.75f);
+                translate(pos.xCoord + 0.5, pos.yCoord + 0.9, pos.zCoord + 0.5);
+                pushMatrix();
+                scale(0.75f, 0.75f, 0.75f);
                 RenderUtil.render3DItem(item, true);
-                glPopMatrix();
-                glPopAttrib();
-                glPopMatrix();
+                popMatrix();
+                popMatrix();
             }
         }
     }

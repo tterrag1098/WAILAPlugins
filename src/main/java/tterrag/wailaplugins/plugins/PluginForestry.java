@@ -1,31 +1,16 @@
 package tterrag.wailaplugins.plugins;
 
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import lombok.SneakyThrows;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaRegistrar;
-import mcp.mobius.waila.api.SpecialChars;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.World;
-
 import org.apache.commons.lang3.ArrayUtils;
 
-import tterrag.wailaplugins.api.Plugin;
-
 import com.enderio.core.common.Lang;
-import com.enderio.core.common.util.BlockCoord;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.authlib.GameProfile;
@@ -43,20 +28,32 @@ import forestry.api.core.IErrorLogic;
 import forestry.api.core.IErrorState;
 import forestry.api.genetics.IGenome;
 import forestry.apiculture.BeekeepingLogic;
+import forestry.apiculture.PluginApiculture;
 import forestry.apiculture.genetics.Bee;
 import forestry.apiculture.multiblock.TileAlveary;
 import forestry.arboriculture.genetics.Tree;
 import forestry.arboriculture.tiles.TileLeaves;
 import forestry.arboriculture.tiles.TileTreeContainer;
-import forestry.core.access.IOwnable;
-import forestry.core.config.ForestryItem;
+import forestry.core.owner.IOwnedTile;
 import forestry.core.proxy.Proxies;
 import forestry.core.tiles.TileEngine;
 import forestry.core.tiles.TileForestry;
-import forestry.core.utils.StringUtil;
-import forestry.plugins.PluginApiculture;
+import lombok.SneakyThrows;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaRegistrar;
+import mcp.mobius.waila.api.SpecialChars;
+import net.minecraft.block.Block;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
+import tterrag.wailaplugins.api.Plugin;
 
-@Plugin(name = "Forestry", deps = "Forestry")
+@Plugin(name = "Forestry", deps = "forestry")
 public class PluginForestry extends PluginBase
 {
     private static Field _throttle;
@@ -110,9 +107,9 @@ public class PluginForestry extends PluginBase
         TileEntity tile = accessor.getTileEntity();
         World world = accessor.getWorld();
         EntityPlayer player = accessor.getPlayer();
-        MovingObjectPosition pos = accessor.getPosition();
+        BlockPos pos = accessor.getPosition();
         NBTTagCompound tag = accessor.getNBTData();
-        int x = pos.blockX, y = pos.blockY, z = pos.blockZ;
+        int x = pos.getX(), y = pos.getY(), z = pos.getZ();
 
         if (tag.hasKey(ENERGY_STORED) && getConfig("power"))
         {
@@ -121,7 +118,9 @@ public class PluginForestry extends PluginBase
 
         if (tag.hasKey(HEAT) && getConfig("heat"))
         {
-            currenttip.add(lang.localize("engineHeat", tag.getInteger(HEAT) / 10D + "\u00B0C"));
+            int heat = tag.getInteger(HEAT);
+            int maxHeat = tag.getInteger(MAX_HEAT);
+            currenttip.add(lang.localize("engineHeat", pctFmt.format((double) heat / maxHeat)));
         }
 
         if (tag.hasKey(TREE) && getConfig("sapling"))
@@ -158,8 +157,8 @@ public class PluginForestry extends PluginBase
                 queen = new Bee(queenstack.getTagCompound());
                 String queenSpecies = getSpeciesName(queen.getGenome(), true);
 
-                currenttip.add(EnumChatFormatting.WHITE
-                        + lang.localize("mainbee", getNameForBeeType(queenstack), EnumChatFormatting.GREEN + queenSpecies));
+                currenttip.add(TextFormatting.WHITE
+                        + lang.localize("mainbee", getNameForBeeType(queenstack), TextFormatting.GREEN + queenSpecies));
                 if (queen.isAnalyzed())
                 {
                     addIndentedBeeInfo(queen, currenttip);
@@ -179,8 +178,8 @@ public class PluginForestry extends PluginBase
 
             if (drone != null)
             {
-                currenttip.add(String.format(EnumChatFormatting.WHITE + lang.localize("secondarybee"), lang.localize("drone"),
-                        EnumChatFormatting.GREEN + getSpeciesName(drone.getGenome(), true)));
+                currenttip.add(String.format(TextFormatting.WHITE + lang.localize("secondarybee"), lang.localize("drone"),
+                        TextFormatting.GREEN + getSpeciesName(drone.getGenome(), true)));
 
                 if (drone.isAnalyzed())
                 {
@@ -201,14 +200,14 @@ public class PluginForestry extends PluginBase
                 {
                     for (IErrorState err : errs)
                     {
-                        currenttip.add(EnumChatFormatting.WHITE
-                                + String.format(lang.localize("breedError"), EnumChatFormatting.RED + forLang.localize(err.getDescription())));
+                        currenttip.add(TextFormatting.WHITE
+                                + String.format(lang.localize("breedError"), TextFormatting.RED + I18n.format(err.getUnlocalizedDescription())));
                     }
                 }
                 else
                 {
-                    currenttip.add(EnumChatFormatting.WHITE
-                            + String.format(lang.localize("breedProgress"), EnumChatFormatting.AQUA + pctFmt.format(tag.getDouble(BREED_PROGRESS))));
+                    currenttip.add(TextFormatting.WHITE
+                            + String.format(lang.localize("breedProgress"), TextFormatting.AQUA + pctFmt.format(tag.getDouble(BREED_PROGRESS))));
                 }
             }
         }
@@ -218,13 +217,13 @@ public class PluginForestry extends PluginBase
     {
         UUID owner = UUID.fromString(tag.getString(OWNER));
         // XXX Leaf isAnalyzed is not working properly, wait for forestry fix
-        if (owner.equals(player.getGameProfile().getId()) && (tree.isAnalyzed() || te instanceof TileLeaves))
+        if (owner.equals(player.getGameProfile().getId()) && tree.isAnalyzed())
         {
             addTreeTooltip(tree, currenttip);
         }
         else if (tree != null)
         {
-            currenttip.add(EnumChatFormatting.ITALIC + (tree.isAnalyzed() ? lang.localize("notOwner") : lang.localize("notAnalyzed")));
+            currenttip.add(TextFormatting.ITALIC + (tree.isAnalyzed() ? lang.localize("notOwner") : lang.localize("notAnalyzed")));
         }
     }
 
@@ -238,7 +237,7 @@ public class PluginForestry extends PluginBase
 
     private String getTMI()
     {
-        return EnumChatFormatting.ITALIC + "<" + StringUtil.localize("gui.tooltip.tmi") + ">";
+        return TextFormatting.ITALIC + "<" + forLang.localize("gui.tooltip.tmi") + ">";
     }
 
     private String getSpeciesName(IGenome genome, boolean active)
@@ -248,8 +247,8 @@ public class PluginForestry extends PluginBase
 
     private String getNameForBeeType(ItemStack bee)
     {
-        return ForestryItem.beeDroneGE.isItemEqual(bee.getItem()) ? lang.localize("drone")
-                : ForestryItem.beePrincessGE.isItemEqual(bee.getItem()) ? lang.localize("princess") : lang.localize("queen");
+        return PluginApiculture.items.beeDroneGE == bee.getItem() ? lang.localize("drone")
+                : PluginApiculture.items.beePrincessGE == bee.getItem() ? lang.localize("princess") : lang.localize("queen");
     }
 
     private void addIndentedBeeInfo(IBee bee, List<String> currenttip)
@@ -279,11 +278,12 @@ public class PluginForestry extends PluginBase
     public static final String ENERGY_STORED = "rfStored";
     public static final String MAX_ENERGY_STORED = "maxRfStored";
     public static final String HEAT = "engineHeat";
+    public static final String MAX_HEAT = "engineMaxHeat";
     public static final String OWNER = "tileOwner";
 
     @Override
     @SneakyThrows
-    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockCoord pos)
+    protected void getNBTData(TileEntity te, NBTTagCompound tag, World world, BlockPos pos)
     {
         if (te instanceof TileLeaves)
         {
@@ -324,7 +324,7 @@ public class PluginForestry extends PluginBase
                 }
                 tag.setIntArray(ERRORS, ArrayUtils.toPrimitive(ids.toArray(new Integer[0])));
 
-                if (queen != null && ForestryItem.beeQueenGE.isItemEqual(queen.getItem()))
+                if (queen != null && PluginApiculture.items.beeQueenGE == queen.getItem())
                 {
                     Bee queenBee = new Bee(queen.getTagCompound());
                     float throttle = _throttle.getInt(logic);
@@ -350,14 +350,17 @@ public class PluginForestry extends PluginBase
         }
         if (te instanceof TileEngine)
         {
-            tag.setInteger(ENERGY_STORED, ((TileEngine) te).getEnergyManager().getTotalEnergyStored());
+            tag.setInteger(ENERGY_STORED, ((TileEngine) te).getEnergyManager().getEnergyStored());
             tag.setInteger(MAX_ENERGY_STORED, ((TileEngine) te).getEnergyManager().getMaxEnergyStored());
             tag.setInteger(HEAT, ((TileEngine) te).getHeat());
+            tag.setInteger(MAX_HEAT, _maxHeat.getInt(te));
         }
-        if (te instanceof IOwnable)
+        if (te instanceof IOwnedTile)
         {
-            GameProfile owner = ((IOwnable) te).getOwner();
-            tag.setString(OWNER, owner.getId().toString());
+            GameProfile owner = ((IOwnedTile) te).getOwnerHandler().getOwner();
+            if (owner != null) {
+                tag.setString(OWNER, owner.getId().toString());
+            }
         }
     }
 }

@@ -1,10 +1,10 @@
 package tterrag.wailaplugins.proxy;
 
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.math.RayTraceResult;
 
 public class CommonProxy
 {
-    public MovingObjectPosition getMouseOver()
+    public RayTraceResult getMouseOver()
     {
         return null;
     }
