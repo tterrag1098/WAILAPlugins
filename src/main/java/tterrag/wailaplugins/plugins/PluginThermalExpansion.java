@@ -1,15 +1,11 @@
 package tterrag.wailaplugins.plugins;
 
 import java.util.List;
-import java.util.Set;
 
 import com.enderio.core.common.Lang;
-import com.enderio.core.common.util.BlockCoord;
 
 import cofh.api.core.IAugmentable;
 import cofh.api.item.IAugmentItem;
-import cofh.api.item.IAugmentItem.AugmentType;
-import cofh.thermalexpansion.block.TileAugmentableSecure;
 import cofh.thermalexpansion.block.machine.TileMachineBase;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;

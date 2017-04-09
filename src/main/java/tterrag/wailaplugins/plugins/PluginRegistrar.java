@@ -6,20 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import mcp.mobius.waila.api.impl.ConfigHandler;
-import mcp.mobius.waila.api.impl.ModuleRegistrar;
-import tterrag.wailaplugins.WailaPlugins;
-import tterrag.wailaplugins.api.IPlugin;
-import tterrag.wailaplugins.api.Plugin;
-import tterrag.wailaplugins.config.WPConfigHandler;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import mcp.mobius.waila.api.impl.ConfigHandler;
+import mcp.mobius.waila.api.impl.ModuleRegistrar;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import tterrag.wailaplugins.WailaPlugins;
+import tterrag.wailaplugins.api.IPlugin;
+import tterrag.wailaplugins.api.Plugin;
+import tterrag.wailaplugins.config.WPConfigHandler;
 
 public enum PluginRegistrar
 {

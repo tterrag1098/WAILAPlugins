@@ -1,7 +1,6 @@
 package tterrag.wailaplugins.plugins;
 
 import java.lang.reflect.Field;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;

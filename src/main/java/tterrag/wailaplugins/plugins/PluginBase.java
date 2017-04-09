@@ -2,6 +2,8 @@ package tterrag.wailaplugins.plugins;
 
 import java.util.List;
 
+import com.enderio.core.common.Lang;
+
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaEntityProvider;
@@ -16,9 +18,6 @@ import net.minecraft.world.World;
 import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.IPlugin;
 import tterrag.wailaplugins.api.Plugin;
-
-import com.enderio.core.common.Lang;
-import com.enderio.core.common.util.BlockCoord;
 
 public abstract class PluginBase implements IPlugin
 {

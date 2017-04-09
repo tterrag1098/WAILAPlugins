@@ -26,7 +26,6 @@ import mods.railcraft.common.carts.EntityLocomotive;
 import mods.railcraft.common.carts.EntityLocomotiveElectric;
 import mods.railcraft.common.carts.EntityLocomotiveSteam;
 import mods.railcraft.common.fluids.tanks.StandardTank;
-import mods.railcraft.common.items.ItemChargeMeter;
 import mods.railcraft.common.items.RailcraftItems;
 import mods.railcraft.common.plugins.buildcraft.triggers.ITemperature;
 import net.minecraft.entity.Entity;
