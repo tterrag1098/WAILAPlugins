@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import WayofTime.bloodmagic.altar.BloodAltar;
-import WayofTime.bloodmagic.api.recipe.AlchemyTableRecipe;
-import WayofTime.bloodmagic.api.registry.AlchemyTableRecipeRegistry;
 import WayofTime.bloodmagic.block.BlockAltar;
-import WayofTime.bloodmagic.registry.ModItems;
+import WayofTime.bloodmagic.core.RegistrarBloodMagicItems;
+import WayofTime.bloodmagic.core.registry.AlchemyTableRecipeRegistry;
+import WayofTime.bloodmagic.recipe.alchemyTable.AlchemyTableRecipe;
 import WayofTime.bloodmagic.tile.TileAlchemyTable;
 import WayofTime.bloodmagic.tile.TileAltar;
 import WayofTime.bloodmagic.tile.TileTeleposer;
@@ -80,13 +80,13 @@ public class PluginBloodMagic extends PluginBase
             hasSeer = hasSigil = true;
             break;
         case 1:
-            hasSeer = searchInventory(ModItems.SIGIL_SEER, accessor.getPlayer()) != null;
-            hasSigil = hasSeer || searchInventory(ModItems.SIGIL_DIVINATION, accessor.getPlayer()) != null;
+            hasSeer = searchInventory(RegistrarBloodMagicItems.SIGIL_SEER, accessor.getPlayer()) != null;
+            hasSigil = hasSeer || searchInventory(RegistrarBloodMagicItems.SIGIL_DIVINATION, accessor.getPlayer()) != null;
             break;
         case 2:
-            hasSeer = accessor.getPlayer().getHeldItemMainhand() != null && accessor.getPlayer().getHeldItemMainhand().getItem() == ModItems.SIGIL_SEER;
+            hasSeer = accessor.getPlayer().getHeldItemMainhand() != null && accessor.getPlayer().getHeldItemMainhand().getItem() == RegistrarBloodMagicItems.SIGIL_SEER;
             hasSigil = hasSeer
-                    || (accessor.getPlayer().getHeldItemMainhand() != null && accessor.getPlayer().getHeldItemMainhand().getItem() == ModItems.SIGIL_DIVINATION);
+                    || (accessor.getPlayer().getHeldItemMainhand() != null && accessor.getPlayer().getHeldItemMainhand().getItem() == RegistrarBloodMagicItems.SIGIL_DIVINATION);
             break;
         default:
             break;
@@ -115,7 +115,7 @@ public class PluginBloodMagic extends PluginBase
 
             if (tag.hasKey(KEY_RESULT_STACK))
             {
-                ItemStack stack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(KEY_RESULT_STACK));
+                ItemStack stack = new ItemStack(tag.getCompoundTag(KEY_RESULT_STACK));
                 currenttip.add(stack.getDisplayName());
             }
         }
@@ -124,7 +124,7 @@ public class PluginBloodMagic extends PluginBase
         {
             if (tag.hasKey(KEY_FOCUS_STACK)) 
             {
-                currenttip.add(ItemStack.loadItemStackFromNBT(tag.getCompoundTag(KEY_FOCUS_STACK)).getDisplayName());
+                currenttip.add(new ItemStack(tag.getCompoundTag(KEY_FOCUS_STACK)).getDisplayName());
             }
         }
     }
@@ -155,7 +155,7 @@ public class PluginBloodMagic extends PluginBase
             if (altar.isActive())
             {
                 int cur = altar.getProgress();
-                int max = ((BloodAltar)altar.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)).getLiquidRequired() * altar.getStackInSlot(0).stackSize;
+                int max = ((BloodAltar)altar.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null)).getLiquidRequired() * altar.getStackInSlot(0).getCount();
                 tag.setInteger(KEY_PROGRESS, (int) (((double) cur / (double) max) * 100));
             }
         }

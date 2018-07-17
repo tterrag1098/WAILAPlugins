@@ -50,7 +50,7 @@ public class PluginThermalExpansion extends PluginBase
                 TObjectIntMap<String> occurances = new TObjectIntHashMap<>();
                 for (int i = 0; i < augments.tagCount(); i++)
                 {
-                    ItemStack augmentStack = ItemStack.loadItemStackFromNBT(augments.getCompoundTagAt(i));
+                    ItemStack augmentStack = new ItemStack(augments.getCompoundTagAt(i));
                     if (augmentStack != null)
                     {
                         IAugmentItem augment = (IAugmentItem) augmentStack.getItem();

@@ -38,7 +38,7 @@ public class PluginDSU extends PluginBase
     @Override
     protected void getBody(ItemStack stack, List<String> currenttip, IWailaDataAccessor accessor)
     {
-        ItemStack stored = ItemStack.loadItemStackFromNBT(accessor.getNBTData().getCompoundTag(DSU_STACK));
+        ItemStack stored = new ItemStack(accessor.getNBTData().getCompoundTag(DSU_STACK));
         if (stored != null)
         {
             int amount = accessor.getNBTData().getInteger(DSU_AMNT);
@@ -79,7 +79,7 @@ public class PluginDSU extends PluginBase
         {
             stack.writeToNBT(stackTag);
             tag.setTag(DSU_STACK, stackTag);
-            tag.setInteger(DSU_AMNT, stack.stackSize);
+            tag.setInteger(DSU_AMNT, stack.getCount());
         }
     }
 }

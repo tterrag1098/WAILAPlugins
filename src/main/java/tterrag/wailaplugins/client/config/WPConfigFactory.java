@@ -7,8 +7,8 @@ import com.enderio.core.common.config.BaseConfigFactory;
 public class WPConfigFactory extends BaseConfigFactory
 {
     @Override
-    public Class<? extends GuiScreen> mainConfigGuiClass()
+    public GuiScreen createConfigGui(GuiScreen parentScreen) 
     {
-        return WPConfigGui.class;
+        return new WPConfigGui(parentScreen);
     }
 }

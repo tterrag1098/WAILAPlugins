@@ -1,8 +1,13 @@
 package tterrag.wailaplugins.plugins;
 
-import com.enderio.core.client.render.RenderUtil;
+import static net.minecraft.client.renderer.GlStateManager.disableTexture2D;
+import static net.minecraft.client.renderer.GlStateManager.enableTexture2D;
+import static net.minecraft.client.renderer.GlStateManager.popMatrix;
+import static net.minecraft.client.renderer.GlStateManager.pushMatrix;
+import static net.minecraft.client.renderer.GlStateManager.scale;
+import static net.minecraft.client.renderer.GlStateManager.translate;
 
-import static net.minecraft.client.renderer.GlStateManager.*;
+import com.enderio.core.client.render.RenderUtil;
 
 import mcp.mobius.waila.api.IWailaBlockDecorator;
 import mcp.mobius.waila.api.IWailaConfigHandler;
@@ -14,12 +19,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.common.registry.IForgeRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.IForgeRegistry;
 import tehnut.resourceful.crops.block.BlockResourcefulCrop;
 import tehnut.resourceful.crops.block.tile.TileSeedContainer;
-import tehnut.resourceful.crops.core.ModObjects;
+import tehnut.resourceful.crops.core.RegistrarResourcefulCrops;
 import tehnut.resourceful.crops.core.data.Seed;
 import tehnut.resourceful.crops.item.ItemResourceful;
 import tterrag.wailaplugins.api.Plugin;
@@ -63,7 +68,7 @@ public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDec
                 if (getConfig("showOutputItem")) {
                     hoverStack = seed.getOutputs()[0].getItem().copy();
                 } else {
-                    hoverStack = ItemResourceful.getResourcefulStack(ModObjects.SHARD, seed.getRegistryName());
+                    hoverStack = ItemResourceful.getResourcefulStack(RegistrarResourcefulCrops.SHARD, seed.getRegistryName());
                 }
                 
                 if (hoverStack == null) {
@@ -73,13 +78,13 @@ public class PluginResourcefulCrops extends PluginBase implements IWailaBlockDec
                 if (item == null)
                     item = new EntityItem(accessor.getWorld(), 0, 0, 0, hoverStack);
                 else
-                    item.setEntityItemStack(hoverStack);
+                    item.setItem(hoverStack);
 
                 pushMatrix();
                 disableTexture2D();
                 enableTexture2D();
                 RenderHelper.enableStandardItemLighting();
-                translate(pos.xCoord + 0.5, pos.yCoord + 0.9, pos.zCoord + 0.5);
+                translate(pos.x + 0.5, pos.y + 0.9, pos.z + 0.5);
                 pushMatrix();
                 scale(0.75f, 0.75f, 0.75f);
                 RenderUtil.render3DItem(item, true);

@@ -27,14 +27,13 @@ import forestry.api.core.IErrorLogic;
 import forestry.api.core.IErrorState;
 import forestry.api.genetics.IGenome;
 import forestry.apiculture.BeekeepingLogic;
-import forestry.apiculture.PluginApiculture;
+import forestry.apiculture.ModuleApiculture;
 import forestry.apiculture.genetics.Bee;
 import forestry.apiculture.multiblock.TileAlveary;
 import forestry.arboriculture.genetics.Tree;
 import forestry.arboriculture.tiles.TileLeaves;
 import forestry.arboriculture.tiles.TileTreeContainer;
 import forestry.core.owner.IOwnedTile;
-import forestry.core.proxy.Proxies;
 import forestry.core.tiles.TileEngine;
 import forestry.core.tiles.TileForestry;
 import lombok.SneakyThrows;
@@ -50,6 +49,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tterrag.wailaplugins.WailaPlugins;
 import tterrag.wailaplugins.api.Plugin;
 
 @Plugin(name = "Forestry", deps = "forestry")
@@ -142,11 +144,11 @@ public class PluginForestry extends PluginBase
             ItemStack dronestack = null;
             if (tag.hasKey(QUEEN_STACK))
             {
-                queenstack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(QUEEN_STACK));
+                queenstack = new ItemStack(tag.getCompoundTag(QUEEN_STACK));
             }
             if (tag.hasKey(DRONE_STACK))
             {
-                dronestack = ItemStack.loadItemStackFromNBT(tag.getCompoundTag(DRONE_STACK));
+                dronestack = new ItemStack(tag.getCompoundTag(DRONE_STACK));
             }
 
             IBee queen = null;
@@ -226,9 +228,10 @@ public class PluginForestry extends PluginBase
         }
     }
 
+    @SideOnly(Side.CLIENT)
     private void addTreeTooltip(ITree tree, List<String> currenttip)
     {
-        if (Proxies.common.isShiftDown())
+        if (WailaPlugins.proxy.isShiftKeyDown())
             tree.addTooltip(currenttip);
         else
             currenttip.add(getTMI());
@@ -246,13 +249,13 @@ public class PluginForestry extends PluginBase
 
     private String getNameForBeeType(ItemStack bee)
     {
-        return PluginApiculture.items.beeDroneGE == bee.getItem() ? lang.localize("drone")
-                : PluginApiculture.items.beePrincessGE == bee.getItem() ? lang.localize("princess") : lang.localize("queen");
+        return ModuleApiculture.getItems().beeDroneGE == bee.getItem() ? lang.localize("drone")
+                : ModuleApiculture.getItems().beePrincessGE == bee.getItem() ? lang.localize("princess") : lang.localize("queen");
     }
 
     private void addIndentedBeeInfo(IBee bee, List<String> currenttip)
     {
-        if (Proxies.common.isShiftDown())
+        if (WailaPlugins.proxy.isShiftKeyDown())
         {
             List<String> tt = new ArrayList<String>();
             bee.addTooltip(tt);
@@ -323,7 +326,7 @@ public class PluginForestry extends PluginBase
                 }
                 tag.setIntArray(ERRORS, ArrayUtils.toPrimitive(ids.toArray(new Integer[0])));
 
-                if (queen != null && PluginApiculture.items.beeQueenGE == queen.getItem())
+                if (queen != null && ModuleApiculture.getItems().beeQueenGE == queen.getItem())
                 {
                     Bee queenBee = new Bee(queen.getTagCompound());
                     float throttle = _throttle.getInt(logic);
@@ -334,7 +337,7 @@ public class PluginForestry extends PluginBase
                     float step = (1 / maxAge);
 
                     // interpolates between 0 and step
-                    float progress = step * (throttle / PluginApiculture.ticksPerBeeWorkCycle);
+                    float progress = step * (throttle / ModuleApiculture.ticksPerBeeWorkCycle);
 
                     tag.setDouble(BREED_PROGRESS, (age / maxAge) + progress);
                 }

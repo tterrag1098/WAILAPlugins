@@ -5,7 +5,7 @@ buildscript {
         maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies { 
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT' 
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT' 
     }
 }
 plugins {
@@ -27,7 +27,7 @@ targetCompatibility = '1.8'
 minecraft {
     version = "${minecraft_version}-${forge_version}"
     runDir = 'run'
-    mappings = 'stable_29'
+    mappings = 'snapshot_20180717'
     
     replace "@VERSION@", project.version
 	replace "${toReplace}", "required-after:Forge@[${forge_version},);required-after:endercore@[${endercore_version},);required-after:Waila;"
@@ -55,13 +55,26 @@ repositories {
         name 'TehNut Maven'
         url "http://tehnut.info/maven/"
     }
+    maven { // Thermal Expansion / CoFH
+        name = "CoFH Maven"
+        url = "http://maven.covers1624.net"
+    }
+    maven { // CCL
+        name = "CB Maven"
+        url = "http://chickenbones.net/maven"
+    }
     maven { // JEI
         url "http://dvs1.progwml6.com/files/maven/"
     }
+	maven { // MystCraft
+		name 'XCompWiz Maven'
+		url "http://maven.xcompwiz.com"
+	}
     ivy {
         name = "RailCraft"
         url = "http://www.railcraft.info/ivy/"
     }
+	maven { url 'https://jitpack.io' }
     maven { // CurseForge
     	url "https://minecraft.curseforge.com/api/maven/"
     }
@@ -71,19 +84,24 @@ dependencies {
     deobfCompile "com.enderio.core:EnderCore:${endercore_version}"
 	deobfCompile "mcp.mobius.waila:Hwyla:${HWYLA_version}_${minecraft_version}"
     deobfCompile "net.sengir.forestry:forestry_${minecraft_version}:${forestry_version}"
-    deobfCompile "info.tehnut.resourcefulcrops:ResourcefulCrops:${minecraft_version}-${rcrops_version}"
+    deobfCompile "info.tehnut.resourcefulcrops:ResourcefulCrops:${rcrops_version}"
     deobfCompile "com.wayoftime.bloodmagic:BloodMagic:${minecraft_version}-${bloodmagic_version}"
-    deobfCompile "info.amerifrance.guideapi:Guide-API:${minecraft_version}-${guideapi_version}"
+    deobfCompile "info.amerifrance.guideapi:Guide-API:${guideapi_version}"
+//  deobfCompile 'com.github.railcraft:railcraft:indev-1.12.2-SNAPSHOT'
+//	compile "com.xcompwiz.mystcraft:mystcraft:${mystcraft_version}:dev"
+
+
+    deobfCompile "cofh:ThermalExpansion:${minecraft_version}-${te_version}:universal"
+    deobfCompile "cofh:ThermalFoundation:${minecraft_version}-${tf_version}:universal"
+    deobfCompile "cofh:CoFHCore:${minecraft_version}-${cofhcore_version}:universal"
+    deobfCompile "cofh:CoFHWorld:${minecraft_version}-${cofhworld_version}:universal"
+    deobfCompile "cofh:RedstoneFlux:1.12-${rf_version}:universal"
+    deobfCompile "codechicken:CodeChickenLib:${minecraft_version}-${ccl_version}:universal"
     
-    deobfCompile "thermalexpansion:ThermalExpansion-${minecraft_version}:${te_version}:universal"
-    deobfCompile "thermal-foundation:ThermalFoundation-${minecraft_version}:${tf_version}:universal"
-    deobfCompile "cofhcore:CoFHCore-${minecraft_version}:${cofhcore_version}:universal"
-    deobfCompile "codechicken-lib-1-8:CodeChickenLib-${minecraft_version}:${ccl_version}:universal"
-    
-    deobfCompile ("com.headlamp-games:Railcraft:${railcraft_version}") {
-        exclude module: "forestry_1.10.2"
-        exclude module: "industrialcraft-2"
-    }
+//    deobfCompile ("com.headlamp-games:Railcraft:${railcraft_version}") {
+//        exclude module: "forestry_1.10.2"
+//        exclude module: "industrialcraft-2"
+//    }
 }
 
 processResources {
